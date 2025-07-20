@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<Plugin>
+	<Information>
+		<Name>RP Filter</Name>
+		<Author>Dandiron</Author>
+		<Version>0.1</Version>
+	</Information>
+	<Package>Dandiron.RpFilter.Main</Package>
+</Plugin>
