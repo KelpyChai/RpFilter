@@ -3,22 +3,26 @@
 Location = {
     UNKNOWN = "Unknown", -- For when location channels are disabled
     INSTANCE = "Instance",
-    current = Location.UNKNOWN,
-    Channels = {},
+    _current = Location.UNKNOWN,
+    _Channels = {},
 }
 
 -- TODO: Obtain instance names and prefixes
 
-Location.InstanceQuests = {
+Location._InstanceQuests = {
     ["A Flurry of Fireworks"] = true
 }
 
+function Location:getCurrent()
+    return self._current
+end
+
 function Location:isUnknown()
-    return self.current == self.UNKNOWN
+    return self._current == self.UNKNOWN
 end
 
 function Location:isInstanced()
-    return self.current == self.INSTANCE
+    return self._current == self.INSTANCE
 end
 
 function Location:updateIfChanged(message)
@@ -27,14 +31,14 @@ function Location:updateIfChanged(message)
     if not channel then return end
 
     if action == "Entered" then
-        self.current = region
-        self.Channels[channel] = true
+        self._current = region
+        self._Channels[channel] = true
     else
         -- Either moving or disabling channel
-        self.Channels[channel] = nil
-        if next(self.Channels) == nil then
-            self.current = self.UNKNOWN
-            -- TODO: Add a callback with one second timeout -> self.current = self.INSTANCE
+        self._Channels[channel] = nil
+        if next(self._Channels) == nil then
+            self._current = self.UNKNOWN
+            -- TODO: Add a callback with one second timeout -> self._current = self.INSTANCE
             -- To bypass the check in updateIfInstanced()
         end
     end
@@ -49,7 +53,7 @@ function Location:updateIfInstanced(message)
     if self:isUnknown() then return end
 
     if self:hasEnteredInstance(message) then
-        self.current = self.INSTANCE
+        self._current = self.INSTANCE
     end
 end
 
@@ -65,7 +69,7 @@ function Location:hasEnteredInstance(message)
         if newQuest:match("^(Instance|Challenge|Raid|Featured Instance)") then
             return true
         else
-            return self.InstanceQuests[newQuest]
+            return self._InstanceQuests[newQuest] ~= nil
         end
     end
 end

@@ -1,26 +1,26 @@
 Say = {}
 
-Say.Blocklist = {
-    Drunkard    = {["Shire"] = true},
-    Townsperson = {["Shire"] = true, ["Bree-land"] = true, ["Bree-town"] = true},
-    Fisherman   = {["Ered Luin"] = true},
-    Dockworker  = {["Ered Luin"] = true},
-    Traveller   = {["Ered Luin"] = true},
-    Watcher     = {["Thorin's Hall"] = true},
-    Woodcutter  = {["Bree-land"] = true},
-    Bounder     = {["Bree-land"] = true},
-    Lalia       = {["Bree-land"] = true},
-    Prisoner    = {["Bree-town"] = true},
-    Minstrel    = {["Bree-town"] = true},
-    Farmer      = {["Bree-town"] = true},
-    Waitress    = {["Lone-lands"] = true},
-    Whittler    = {["Lone-lands"] = true},
-    Patron      = {["Lone-lands"] = true},
-    Idalene     = {["North Downs"] = true},
-    Ranger      = {["North Downs"] = true},
-    Dúrlammad   = {["North Downs"] = true},
-    Miner       = {["North Downs"] = true},
-    Smith       = {["North Downs"] = true},
+Say._Blocklist = {
+    ["Drunkard"]    = {["Shire"] = true},
+    ["Townsperson"] = {["Shire"] = true, ["Bree-land"] = true, ["Bree-town"] = true},
+    ["Fisherman"]   = {["Ered Luin"] = true},
+    ["Dockworker"]  = {["Ered Luin"] = true},
+    ["Traveller"]   = {["Ered Luin"] = true},
+    ["Watcher"]     = {["Thorin's Hall"] = true},
+    ["Woodcutter"]  = {["Bree-land"] = true},
+    ["Bounder"]     = {["Bree-land"] = true},
+    ["Lalia"]       = {["Bree-land"] = true}, -- Misfilters dialogue, parse quest channel?
+    ["Prisoner"]    = {["Bree-town"] = true},
+    ["Minstrel"]    = {["Bree-town"] = true},
+    ["Farmer"]      = {["Bree-town"] = true},
+    ["Waitress"]    = {["Lone-lands"] = true},
+    ["Whittler"]    = {["Lone-lands"] = true},
+    ["Patron"]      = {["Lone-lands"] = true},
+    ["Idalene"]     = {["North Downs"] = true},
+    ["Ranger"]      = {["North Downs"] = true},
+    ["Dúrlammad"]   = {["North Downs"] = true},
+    ["Miner"]       = {["North Downs"] = true},
+    ["Smith"]       = {["North Downs"] = true},
     ["Iris Goodbody"]       = {["Shire"] = true},
     ["Tom Bombadil"]        = {["Bree-land"] = true},
     ["Jim Skinner"]         = {["Bree-town"] = true},
@@ -41,7 +41,7 @@ function Say:isAllowed(message)
 end
 
 function Say:isNpcAllowed(name)
-    local blockedLocations = self.Blocklist[name]
+    local blockedLocations = self._Blocklist[name]
     if not blockedLocations then
         return true
     elseif Location:isUnknown() then
@@ -49,7 +49,7 @@ function Say:isNpcAllowed(name)
     elseif Location:isInstanced() then
         return true
     else
-        return not blockedLocations[Location.current]
+        return not blockedLocations[Location:getCurrent()]
     end
 end
 
