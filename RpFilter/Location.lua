@@ -3,7 +3,7 @@
 Location = {
     UNKNOWN = "Unknown", -- For when location channels are disabled
     INSTANCE = "Instance",
-    region = Location.UNKNOWN,
+    current = Location.UNKNOWN,
     Channels = {},
 }
 
@@ -13,16 +13,12 @@ Location.InstanceQuests = {
     ["A Flurry of Fireworks"] = true
 }
 
-function Location:getRegion()
-    return self.region
-end
-
-function Location:setRegion(region)
-    self.region = region
-end
-
 function Location:isUnknown()
-    return self.region == self.UNKNOWN
+    return self.current == self.UNKNOWN
+end
+
+function Location:isInstanced()
+    return self.current == self.INSTANCE
 end
 
 function Location:updateIfChanged(message)
@@ -31,14 +27,14 @@ function Location:updateIfChanged(message)
     if not channel then return end
 
     if action == "Entered" then
-        self:setRegion(region)
+        self.current = region
         self.Channels[channel] = true
     else
         -- Either moving or disabling channel
         self.Channels[channel] = nil
         if next(self.Channels) == nil then
-            self:setRegion(self.UNKNOWN)
-            -- TODO: Add a callback with one second timeout -> setRegion(self.INSTANCE)
+            self.current = self.UNKNOWN
+            -- TODO: Add a callback with one second timeout -> self.current = self.INSTANCE
             -- To bypass the check in updateIfInstanced()
         end
     end
@@ -49,11 +45,11 @@ function Location:getLocationInfo(message)
 end
 
 function Location:updateIfInstanced(message)
-    -- Do not set region to Instance if channels are disabled
+    -- Do not set location to Instance if channels are disabled
     if self:isUnknown() then return end
 
     if self:hasEnteredInstance(message) then
-        self:setRegion(self.INSTANCE)
+        self.current = self.INSTANCE
     end
 end
 

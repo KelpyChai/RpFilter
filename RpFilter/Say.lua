@@ -41,13 +41,15 @@ function Say:isAllowed(message)
 end
 
 function Say:isNpcAllowed(name)
-    local blockedNpc = self.Blocklist[name]
-    if not blockedNpc then
+    local blockedLocations = self.Blocklist[name]
+    if not blockedLocations then
         return true
     elseif Location:isUnknown() then
         return false
+    elseif Location:isInstanced() then
+        return true
     else
-        return not blockedNpc[Location:getRegion()]
+        return not blockedLocations[Location.current]
     end
 end
 
