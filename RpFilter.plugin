@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <Plugin>
 	<Information>
-		<Name>RP Filter</Name>
+		<Name>RP Chat Filter</Name>
 		<Author>Dandiron</Author>
 		<Version>0.1</Version>
 	</Information>
