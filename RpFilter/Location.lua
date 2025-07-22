@@ -1,10 +1,15 @@
 -- FIXME: Make assumption about whether user will enable/disable channels
 
+TimeNow = Turbine.Engine.GetGameTime
+
 Location = {
-    UNKNOWN = "Unknown", -- For when location channels are disabled
+    UNKNOWN = "Unknown", -- Implies that regional channels are disabled
     INSTANCE = "Instance",
+    -- TODO: Obtain the maximum delay possible
+    INSTANCE_START_DELAY = 3,
     _current = Location.UNKNOWN,
     _Channels = {},
+    lastKnownTime = nil,
 }
 
 -- TODO: Obtain instance names and prefixes
@@ -31,15 +36,14 @@ function Location:updateIfChanged(message)
     if not channel then return end
 
     if action == "Entered" then
-        self._current = region
         self._Channels[channel] = true
+        self._current = region
     else
-        -- Either moving or disabling channel
         self._Channels[channel] = nil
+        -- The client exits all regional channels when changing location
         if next(self._Channels) == nil then
             self._current = self.UNKNOWN
-            -- TODO: Add a callback with one second timeout -> self._current = self.INSTANCE
-            -- To bypass the check in updateIfInstanced()
+            self.lastKnownTime = TimeNow()
         end
     end
 end
@@ -49,12 +53,15 @@ function Location:getLocationInfo(message)
 end
 
 function Location:updateIfInstanced(message)
-    -- Do not set location to Instance if channels are disabled
-    if self:isUnknown() then return end
-
-    if self:hasEnteredInstance(message) then
+    if self:hasEnteredInstance(message) and self:isRegionalChannelEnabled() then
         self._current = self.INSTANCE
     end
+end
+
+---Check whether regional channels were left automatically or disabled manually.
+---Assumes users will not enter instance immediately after disabling.
+function Location:isRegionalChannelEnabled()
+    return self.lastKnownTime ~= nil and TimeNow() - self.lastKnownTime < self.INSTANCE_START_DELAY
 end
 
 function Location:hasEnteredInstance(message)
