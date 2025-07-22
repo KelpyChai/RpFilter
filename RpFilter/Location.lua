@@ -38,6 +38,8 @@ function Location:isInstanced()
     return self:getCurrent() == self.INSTANCE
 end
 
+---Parses standard channel for Entered/Left messages to keep track of location
+---@param message string
 function Location:updateIfChanged(message)
     local action, region, channel = self:getLocationInfo(message)
 
@@ -60,6 +62,8 @@ function Location:getLocationInfo(message)
     return message:match("^(Entered|Left) the (.-) - (Regional|OOC) channel.$")
 end
 
+---Parses quest channel to track entry of instances
+---@param message string
 function Location:updateIfInstanced(message)
     if self:hasEnteredInstance(message) and self:isRegionalChannelEnabled() then
         self:setCurrent(self.INSTANCE)
