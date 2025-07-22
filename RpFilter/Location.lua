@@ -11,7 +11,9 @@ Location = {
     lastKnownTime = nil,
     Channels = {},
     -- Add instances to this set if dialogue is misfiltered
-    _InstanceQuests = {},
+    _InstanceQuests = {
+        ["A Flurry of Fireworks"] = true
+    },
 }
 Location._current = Location.UNKNOWN
 
@@ -25,7 +27,7 @@ function Location:setCurrent(newLocation)
     if self:isUnknown() then
         print("Location is now unknown")
     else
-        print("Now entering " .. self:getCurrent())
+        print("Now entering " .. newLocation)
     end
 end
 
@@ -40,25 +42,44 @@ end
 ---Parses standard channel for Entered/Left messages to keep track of location
 ---@param message string
 function Location:updateIfChanged(message)
-    local action, region, channel = self:getLocationInfo(message)
+    local info = self:getLocationInfo(message)
 
-    if not channel then return end
+    if not info then return end
+    local action, region, channel = info.action, info.region, info.channel
 
     if action == "Entered" then
         self.Channels[channel] = true
-        self:setCurrent(region)
+        if self:getCurrent() ~= region then
+            self:setCurrent(region)
+        end
     else
         self.Channels[channel] = nil
         -- The client exits all regional channels when entering instance
         if next(self.Channels) == nil then
-            self:setCurrent(self.UNKNOWN)
+            if self:getCurrent() ~= self.INSTANCE then
+                self:setCurrent(self.UNKNOWN)
+            end
             self.lastKnownTime = TimeNow()
         end
     end
 end
 
+local patterns = {
+    "^(Entered) the (.-) %- (Regional) channel%.$",
+    "^(Entered) the (.-) %- (OOC) channel%.$",
+    "^(Left) the (.-) %- (Regional) channel%.$",
+    "^(Left) the (.-) %- (OOC) channel%.$"
+}
+
 function Location:getLocationInfo(message)
-    return message:match("^(Entered|Left) the (.-) - (Regional|OOC) channel.$")
+    local action, region, channel
+    for _, pattern in ipairs(patterns) do
+        action, region, channel = message:match(pattern)
+        if channel ~= nil then
+            return {action = action, region = region, channel = channel}
+        end
+    end
+    return nil
 end
 
 ---Parses quest channel to track entry of instances
@@ -76,15 +97,23 @@ function Location:isRegionalChannelEnabled()
 end
 
 function Location:hasEnteredInstance(message)
+    -- FIXME: Find out why questless instances don't work
     if message:match("^<u>.-</u>$") then
-        return true
+        -- This message is sent before regional channels update
+        -- So it needs to call setCurrent directly
+        self:setCurrent(self.INSTANCE)
+        return false
     end
 
     local newQuest = message:match("^New Quest: (.+)")
 
     if not newQuest then
         return false
-    elseif newQuest:match("^(Featured )?(Instance|Challenge|Raid):") then
+    elseif newQuest:match("^Instance:") or
+           newQuest:match("^Challenge:") or
+           newQuest:match("^Raid:") or
+           newQuest:match("^Featured ") or
+           newQuest:match("Tier %d$") then
         return true
     else
         return self._InstanceQuests[newQuest] ~= nil
