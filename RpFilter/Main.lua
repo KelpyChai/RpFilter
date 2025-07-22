@@ -1,5 +1,6 @@
 import "Dandiron.RpFilter.Callback"
 import "Dandiron.RpFilter.Location"
+import "Dandiron.RpFilter.Say"
 
 ChatType = Turbine.ChatType
 print = Turbine.Shell.WriteLine
@@ -14,7 +15,7 @@ function ChatParser(sender, args)
         Location:updateIfChanged(message)
     elseif channel == ChatType.Quest then
         Location:updateIfInstanced(message)
-    elseif channel == ChatType.Say then
+    elseif channel == ChatType.Say and Say:isAllowed(message) then
         print(message)
     elseif channel == ChatType.Emote then
         print(message)

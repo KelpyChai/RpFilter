@@ -9,7 +9,7 @@ Say._Blocklist = {
     ["Watcher"]     = {["Thorin's Hall"] = true},
     ["Woodcutter"]  = {["Bree-land"] = true},
     ["Bounder"]     = {["Bree-land"] = true},
-    ["Lalia"]       = {["Bree-land"] = true}, -- Misfilters dialogue, parse quest channel?
+    ["Lalia"]       = {["Bree-land"] = true},
     ["Prisoner"]    = {["Bree-town"] = true},
     ["Minstrel"]    = {["Bree-town"] = true},
     ["Farmer"]      = {["Bree-town"] = true},
@@ -22,14 +22,17 @@ Say._Blocklist = {
     ["Miner"]       = {["North Downs"] = true},
     ["Smith"]       = {["North Downs"] = true},
     ["Iris Goodbody"]       = {["Shire"] = true},
-    ["Tom Bombadil"]        = {["Bree-land"] = true},
+    ["Tom Bombadil"]        = {["Bree-land"] = true}, -- TODO: Test if instance dialogue is blocked
+    ["Constable Bolger"]    = {["Bree-land"] = true},
     ["Jim Skinner"]         = {["Bree-town"] = true},
     ["Drunken Reveller"]    = {["Bree-town"] = true},
 }
 
 function Say:isAllowed(message)
+    -- message = "<Select:IID:0x034600005A656CD6>Waitress<\Select> says, 
     local id, name = message:match("^<Select:IID:(0x%x+)>(.-)</Select>")
-
+    -- FIXME: id and name are null after assignment
+    -- The game does not use double quotes ", only two single quotes ''
     if not id then
         return self:isFromLocalPlayer(message)
     elseif self:isFromNpc(id) then
