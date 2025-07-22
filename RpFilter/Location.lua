@@ -8,14 +8,12 @@ Location = {
     -- TODO: Obtain the maximum delay possible
     INSTANCE_START_DELAY = 3,
     _current = Location.UNKNOWN,
-    _Channels = {},
+    Channels = {},
     lastKnownTime = nil,
 }
 
--- TODO: Obtain instance names and prefixes
-
 Location._InstanceQuests = {
-    ["A Flurry of Fireworks"] = true
+    -- Add instances to this set if dialogue is misfiltered
 }
 
 function Location:getCurrent()
@@ -36,12 +34,12 @@ function Location:updateIfChanged(message)
     if not channel then return end
 
     if action == "Entered" then
-        self._Channels[channel] = true
+        self.Channels[channel] = true
         self._current = region
     else
-        self._Channels[channel] = nil
+        self.Channels[channel] = nil
         -- The client exits all regional channels when changing location
-        if next(self._Channels) == nil then
+        if next(self.Channels) == nil then
             self._current = self.UNKNOWN
             self.lastKnownTime = TimeNow()
         end
@@ -69,14 +67,13 @@ function Location:hasEnteredInstance(message)
         return true
     end
 
-    if message:sub(1, 11) ~= "New Quest: " then
+    local newQuest = message:match("^New Quest: (.+)")
+
+    if not newQuest then
         return false
+    elseif newQuest:match("^(Featured )?(Instance|Challenge|Raid):") then
+        return true
     else
-        local newQuest = message:sub(12)
-        if newQuest:match("^(Instance|Challenge|Raid|Featured Instance)") then
-            return true
-        else
-            return self._InstanceQuests[newQuest] ~= nil
-        end
+        return self._InstanceQuests[newQuest] ~= nil
     end
 end
