@@ -3,18 +3,17 @@
 TimeNow = Turbine.Engine.GetGameTime
 
 Location = {
-    UNKNOWN = "unknown", -- Implies that regional channels are disabled
+    -- Implies that regional channels are disabled
+    UNKNOWN = "unknown",
     INSTANCE = "instance",
     -- TODO: Obtain the maximum delay possible
     INSTANCE_START_DELAY = 3,
-    _current = Location.UNKNOWN,
-    Channels = {},
     lastKnownTime = nil,
-}
-
-Location._InstanceQuests = {
+    Channels = {},
     -- Add instances to this set if dialogue is misfiltered
+    _InstanceQuests = {},
 }
+Location._current = Location.UNKNOWN
 
 function Location:getCurrent()
     return self._current
@@ -24,9 +23,9 @@ function Location:setCurrent(newLocation)
     self._current = newLocation
 
     if self:isUnknown() then
-        Turbine.Shell.WriteLine("Location is now unknown")
+        print("Location is now unknown")
     else
-        Turbine.Shell.WriteLine("Now entering " .. self:getCurrent())
+        print("Now entering " .. self:getCurrent())
     end
 end
 
@@ -50,7 +49,7 @@ function Location:updateIfChanged(message)
         self:setCurrent(region)
     else
         self.Channels[channel] = nil
-        -- The client exits all regional channels when changing location
+        -- The client exits all regional channels when entering instance
         if next(self.Channels) == nil then
             self:setCurrent(self.UNKNOWN)
             self.lastKnownTime = TimeNow()

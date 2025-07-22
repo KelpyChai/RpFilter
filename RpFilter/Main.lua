@@ -1,6 +1,8 @@
 import "Dandiron.RpFilter.Callback"
+import "Dandiron.RpFilter.Location"
 
 ChatType = Turbine.ChatType
+print = Turbine.Shell.WriteLine
 
 function ChatParser(sender, args)
     if not args.Message then return end
@@ -13,14 +15,14 @@ function ChatParser(sender, args)
     elseif channel == ChatType.Quest then
         Location:updateIfInstanced(message)
     elseif channel == ChatType.Say then
-        Turbine.Shell.WriteLine(message)
+        print(message)
     elseif channel == ChatType.Emote then
-        Turbine.Shell.WriteLine(message)
+        print(message)
     end
 end
 
 AddCallback(Turbine.Chat, "Received", ChatParser)
 
-Plugins["RP Filter"].Unload = function (sender, args)
+Plugins["RP Chat Filter"].Unload = function (sender, args)
     RemoveCallback(Turbine.Chat, "Received", ChatParser)
 end
