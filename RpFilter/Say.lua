@@ -46,11 +46,7 @@ end
 
 function Say:isNpcAllowed(name)
     local blockedLocations = self._Blocklist[name]
-    if not blockedLocations then
-        return true
-    elseif Location:isUnknown() then
-        return false
-    elseif Location:isInstanced() then
+    if not blockedLocations or Location:isInstanced() then
         return true
     else
         return not blockedLocations[Location:getCurrent()]

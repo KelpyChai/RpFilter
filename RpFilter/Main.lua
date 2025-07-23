@@ -13,8 +13,6 @@ function ChatParser(sender, args)
 
     if channel == ChatType.Standard then
         Location:updateIfChanged(message)
-    elseif channel == ChatType.Quest then
-        Location:updateIfInstanced(message)
     elseif channel == ChatType.Say and Say:isAllowed(message) then
         print(message)
     elseif channel == ChatType.Emote then
