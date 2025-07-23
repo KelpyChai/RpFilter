@@ -22,17 +22,18 @@ Say._Blocklist = {
     ["Miner"]       = {["North Downs"] = true},
     ["Smith"]       = {["North Downs"] = true},
     ["Iris Goodbody"]       = {["Shire"] = true},
-    ["Tom Bombadil"]        = {["Bree-land"] = true}, -- TODO: Test if instance dialogue is blocked
+    ["Tom Bombadil"]        = {["Bree-land"] = true},
     ["Constable Bolger"]    = {["Bree-land"] = true},
     ["Jim Skinner"]         = {["Bree-town"] = true},
     ["Drunken Reveller"]    = {["Bree-town"] = true},
 }
 
+---Filters NPC chatter from the say channel
+---@param message any
+---@return boolean
 function Say:isAllowed(message)
-    -- message = "<Select:IID:0x034600005A656CD6>Waitress<\Select> says, 
-    local id, name = message:match("^<Select:IID:(0x%x+)>(.-)</Select>")
-    -- FIXME: id and name are null after assignment
-    -- The game does not use double quotes ", only two single quotes ''
+    local id, name = message:match("^<Select:IID:(0x%x-)>(.+)<\\Select>")
+
     if not id then
         return self:isFromLocalPlayer(message)
     elseif self:isFromNpc(id) then
