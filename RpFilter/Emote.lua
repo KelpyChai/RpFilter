@@ -6,7 +6,7 @@ Emote = {
 ---@param message string
 ---@return string
 function Emote:format(message)
-    local name, _, emote = message:match("^(%a+(%-%d+)?) (.+)")
+    local name, emote = message:match("^(%a+)%-?%d- (.+)")
     local formattedEmote = message
 
     if emote:sub(1, 3) == "'s " then
