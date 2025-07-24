@@ -20,10 +20,29 @@ function Location:isInstanced()
     return self:getCurrent() == self.INSTANCE
 end
 
+local patterns = {
+    "^(Entered) the (.-) %- (Regional) channel%.$",
+    "^(Entered) the (.-) %- (OOC) channel%.$",
+    "^(Left) the (.-) %- (Regional) channel%.$",
+    "^(Left) the (.-) %- (OOC) channel%.$"
+}
+
+-- TODO: Use string.sub() to reduce pattern matching
+
+local function getLocationInfo(message)
+    for _, pattern in ipairs(patterns) do
+        local action, region, channel = message:match(pattern)
+        if channel then
+            return {action = action, region = region, channel = channel}
+        end
+    end
+    return nil
+end
+
 ---Parses standard channel for Entered/Left messages to keep track of location
 ---@param message string
 function Location:updateIfChanged(message)
-    local info = self:getLocationInfo(message)
+    local info = getLocationInfo(message)
 
     if not info then return end
     local action, region, channel = info.action, info.region, info.channel
@@ -39,22 +58,4 @@ function Location:updateIfChanged(message)
             self:setCurrent(self.INSTANCE)
         end
     end
-end
-
-local patterns = {
-    "^(Entered) the (.-) %- (Regional) channel%.$",
-    "^(Entered) the (.-) %- (OOC) channel%.$",
-    "^(Left) the (.-) %- (Regional) channel%.$",
-    "^(Left) the (.-) %- (OOC) channel%.$"
-}
-
-function Location:getLocationInfo(message)
-    local action, region, channel
-    for _, pattern in ipairs(patterns) do
-        action, region, channel = message:match(pattern)
-        if channel ~= nil then
-            return {action = action, region = region, channel = channel}
-        end
-    end
-    return nil
 end

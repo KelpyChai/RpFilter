@@ -51,26 +51,23 @@ Say._BlockedNpcs = {
         ["Dúrlammad"] = true,
         -- ["Idalene"] = true,
     },
+
+    ["Trollshaws"] = {
+        ["Aegúrel"] = true,
+    },
 }
 
 function Say:getBlockedNpcs(region)
     return self._BlockedNpcs[region]
 end
 
----Filters NPC chatter from the say channel
----@param message any
----@return boolean
-function Say:isAllowed(message)
-    local id, name = message:match("^<Select:IID:(0x%x-)>(.-)<\\Select>")
+local function isFromLocalPlayer(message)
+    return message:sub(1, 8) == "You say,"
+end
 
-    if not id then
-        return self:isFromLocalPlayer(message)
-    elseif self:isFromNpc(id) then
-        return self:isNpcAllowed(name)
-    else
-        -- Must be from another player
-        return true
-    end
+local function isFromNpc(id)
+    -- "0x0346"
+    return id:sub(1, 11) == "0x034600005"
 end
 
 function Say:isNpcAllowed(name)
@@ -81,11 +78,18 @@ function Say:isNpcAllowed(name)
     end
 end
 
-function Say:isFromLocalPlayer(message)
-    return message:sub(1, 8) == "You say,"
-end
+---Filters NPC chatter from the say channel
+---@param message any
+---@return boolean
+function Say:isAllowed(message)
+    local id, name = message:match("^<Select:IID:(0x%x-)>(.-)<\\Select>")
 
-function Say:isFromNpc(id)
-    -- "0x0346"
-    return id:sub(1, 11) == "0x034600005"
+    if not id then
+        return isFromLocalPlayer(message)
+    elseif isFromNpc(id) then
+        return self:isNpcAllowed(name)
+    else
+        -- Must be from another player
+        return true
+    end
 end
