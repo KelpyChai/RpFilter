@@ -12,6 +12,7 @@ end
 
 function Location:setCurrent(newLocation)
     self._current = newLocation
+    Say.CurrentBlockedNpcs = Say:getBlockedNpcs(newLocation)
     print("Now entering " .. newLocation)
 end
 

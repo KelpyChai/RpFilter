@@ -1,38 +1,67 @@
-Say = {}
-
-Say._Blocklist = {
-    ["Drunkard"]    = {["Shire"] = true},
-    ["Townsperson"] = {["Shire"] = true, ["Bree-land"] = true, ["Bree-town"] = true},
-    ["Fisherman"]   = {["Ered Luin"] = true},
-    ["Dockworker"]  = {["Ered Luin"] = true},
-    ["Traveller"]   = {["Ered Luin"] = true},
-    ["Watcher"]     = {["Thorin's Hall"] = true},
-    ["Woodcutter"]  = {["Bree-land"] = true},
-    ["Bounder"]     = {["Bree-land"] = true},
-    ["Lalia"]       = {["Bree-land"] = true},
-    ["Prisoner"]    = {["Bree-town"] = true},
-    ["Minstrel"]    = {["Bree-town"] = true},
-    ["Farmer"]      = {["Bree-town"] = true},
-    ["Waitress"]    = {["Lone-lands"] = true},
-    ["Whittler"]    = {["Lone-lands"] = true},
-    ["Patron"]      = {["Lone-lands"] = true},
-    ["Idalene"]     = {["North Downs"] = true},
-    ["Ranger"]      = {["North Downs"] = true},
-    ["Dúrlammad"]   = {["North Downs"] = true},
-    ["Miner"]       = {["North Downs"] = true},
-    ["Smith"]       = {["North Downs"] = true},
-    ["Iris Goodbody"]       = {["Shire"] = true},
-    ["Tom Bombadil"]        = {["Bree-land"] = true},
-    ["Constable Bolger"]    = {["Bree-land"] = true},
-    ["Jim Skinner"]         = {["Bree-town"] = true},
-    ["Drunken Reveller"]    = {["Bree-town"] = true},
+Say = {
+    CurrentBlockedNpcs = nil,
+    -- CurrentBlockedSays = nil,
 }
+
+Say._BlockedNpcs = {
+    ["Bree-land"] = {
+        ["Townsperson"] = true,
+        ["Woodcutter"] = true,
+        ["Bounder"] = true,
+        ["Tom Bombadil"] = true,
+        -- ["Lalia"] = true,
+        -- ["Constable Bolger"] = true,
+    },
+
+    ["Bree-town"] = {
+        ["Townsperson"] = true,
+        ["Prisoner"] = true,
+        ["Minstrel"] = true,
+        ["Farmer"] = true,
+        ["Jim Skinner"] = true,
+        ["Drunken Reveller"] = true,
+    },
+
+    ["Shire"] = {
+        ["Townsperson"] = true,
+        ["Drunkard"] = true,
+        ["Iris Goodbody"] = true,
+    },
+
+    ["Ered Luin"] = {
+        ["Fisherman"] = true,
+        ["Dockworker"] = true,
+        ["Traveller"] = true,
+    },
+
+    ["Thorin's Hall"] = {
+        ["Watcher"] = true,
+    },
+
+    ["Lone-lands"] = {
+        ["Waitress"] = true,
+        ["Whittler"] = true,
+        ["Patron"] = true,
+    },
+
+    ["North Downs"] = {
+        ["Ranger"] = true,
+        ["Miner"] = true,
+        ["Smith"] = true,
+        ["Dúrlammad"] = true,
+        -- ["Idalene"] = true,
+    },
+}
+
+function Say:getBlockedNpcs(region)
+    return self._BlockedNpcs[region]
+end
 
 ---Filters NPC chatter from the say channel
 ---@param message any
 ---@return boolean
 function Say:isAllowed(message)
-    local id, name = message:match("^<Select:IID:(0x%x-)>(.+)<\\Select>")
+    local id, name = message:match("^<Select:IID:(0x%x-)>(.-)<\\Select>")
 
     if not id then
         return self:isFromLocalPlayer(message)
@@ -45,11 +74,10 @@ function Say:isAllowed(message)
 end
 
 function Say:isNpcAllowed(name)
-    local blockedLocations = self._Blocklist[name]
-    if not blockedLocations or Location:isInstanced() then
+    if not self.CurrentBlockedNpcs or Location:isInstanced() then
         return true
     else
-        return not blockedLocations[Location:getCurrent()]
+        return not self.CurrentBlockedNpcs[name]
     end
 end
 
