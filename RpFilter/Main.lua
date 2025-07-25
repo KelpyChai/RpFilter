@@ -3,9 +3,17 @@ import "Dandiron.RpFilter.Location"
 import "Dandiron.RpFilter.Say"
 import "Dandiron.RpFilter.Emote"
 import "Dandiron.RpFilter.Settings"
+import "Dandiron.RpFilter.ColorPicker"
 
 local ChatType = Turbine.ChatType
-local print = Turbine.Shell.WriteLine
+
+local function print(text, hexColor)
+    Turbine.Shell.WriteLine("<rgb=" .. hexColor .. ">" .. text .. "</rgb>")
+end
+
+local function toHexColor(color)
+    return string.format("#%02X%02X%02X", color.red, color.green, color.blue)
+end
 
 local function chatParser(sender, args)
     if not args.Message then return end
@@ -26,6 +34,8 @@ end
 local function main()
     Settings:load()
     AddCallback(Turbine.Chat, "Received", chatParser)
+
+    DrawOptionsPanel()
 
     function plugin.Unload(sender, args)
         RemoveCallback(Turbine.Chat, "Received", chatParser)
