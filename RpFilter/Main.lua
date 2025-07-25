@@ -41,6 +41,10 @@ local function main()
         RemoveCallback(Turbine.Chat, "Received", chatParser)
         Settings:save()
     end
+
+    Turbine.Shell.WriteLine("RP Filter v1.0 by Dandiron")
+    Turbine.Shell.WriteLine("- If the NPC filter isn't working, make sure you have Regional or OOC enabled")
+    Turbine.Shell.WriteLine("- Chat colour can be customized in settings")
 end
 
 main()
