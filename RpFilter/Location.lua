@@ -13,7 +13,17 @@ end
 function Location:setCurrent(newLocation)
     self._current = newLocation
     Say.CurrentBlockedNpcs = Say:getBlockedNpcs(newLocation)
-    print("Now entering " .. newLocation)
+
+    -- Debugging
+    -- Turbine.Shell.WriteLine("Now entering " .. newLocation)
+    -- Turbine.Shell.WriteLine("Blocked NPCs:")
+    -- if Say.CurrentBlockedNpcs then
+    --     for name, _ in pairs(Say.CurrentBlockedNpcs) do
+    --         Turbine.Shell.WriteLine(name)
+    --     end
+    -- else
+    --     Turbine.Shell.WriteLine("None")
+    -- end
 end
 
 function Location:isInstanced()
