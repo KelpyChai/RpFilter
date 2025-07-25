@@ -61,11 +61,27 @@ function Settings:load()
 
     if type(loadedSettings) ~= 'table' then
         self.options = deepcopy(DEFAULT_SETTINGS)
-        Turbine.Shell.WriteLine("RP Filter: loaded default settings")
+        -- Turbine.Shell.WriteLine("RP Filter: loaded default settings")
     else
         self.options = loadedSettings
-        Turbine.Shell.WriteLine("RP Filter: loaded settings")
+        -- Turbine.Shell.WriteLine("RP Filter: loaded settings")
     end
+end
+
+function Settings:loadGlobal()
+    Turbine.Shell.WriteLine("Waiting to load account settings...")
+    Turbine.PluginData.Load(
+        GLOBAL_SETTINGS_DATA_SCOPE,
+        GLOBAL_SETTINGS_FILE_NAME,
+        function(loadedData)
+            if type(loadedData) == "table" then
+                self.options = loadedData
+                Turbine.Shell.WriteLine("Account settings loaded")
+            else
+                Turbine.Shell.WriteLine("Account settings not found")
+            end
+        end
+    )
 end
 
 function Settings:save()
@@ -83,6 +99,7 @@ function Settings:saveGlobal()
         GLOBAL_SETTINGS_FILE_NAME,
         self.options
     )
+    Turbine.Shell.WriteLine("Account settings saved")
 end
 
 function Settings:restoreDefault()
@@ -190,18 +207,18 @@ function DrawOptionsPanel()
         window.colorLabel:SetText("Hex: #" .. self:GetHexColor());
     end
 
-    local panel = Turbine.UI.Control()
-    function plugin.GetOptionsPanel() return panel end
+    local options = Turbine.UI.Control()
+    function plugin.GetOptionsPanel() return options end
 
-    -- panel:SetBackColor(Turbine.UI.Color(0.1, 0.1, 0.1)); -- RGB, 0..1 = 0..255
-    panel:SetSize(250, 300);
+    -- options:SetBackColor(Turbine.UI.Color(0.1, 0.1, 0.1)); -- RGB, 0..1 = 0..255
+    options:SetSize(250, 300);
 
     local leftMargin = 20;
     local controlTop = 20;
 
     -- add a button to open the color picker to choose the say color
     local changeSayColor = Turbine.UI.Lotro.Button();
-    changeSayColor:SetParent(panel);
+    changeSayColor:SetParent(options);
     changeSayColor:SetText("Change Say Colour");
     changeSayColor:SetPosition(leftMargin, controlTop);
     changeSayColor:SetWidth(200);
@@ -212,12 +229,32 @@ function DrawOptionsPanel()
 
     -- add a button to open the color picker to choose the emote color
     local changeEmoteColor = Turbine.UI.Lotro.Button();
-    changeEmoteColor:SetParent(panel);
+    changeEmoteColor:SetParent(options);
     changeEmoteColor:SetText("Change Emote Colour");
     changeEmoteColor:SetPosition(leftMargin, controlTop);
     changeEmoteColor:SetWidth(200);
     function changeEmoteColor.Click(sender, args)
         showColorPicker(Settings:getEmoteColor(), window)
+    end
+    controlTop = controlTop + 40;
+
+    local loadGlobal = Turbine.UI.Lotro.Button();
+    loadGlobal:SetParent(options);
+    loadGlobal:SetText("Load Account Settings");
+    loadGlobal:SetPosition(leftMargin, controlTop);
+    loadGlobal:SetWidth(200);
+    function loadGlobal.Click(sender, args)
+        Settings:loadGlobal()
+    end
+
+    controlTop = controlTop + 40;
+    local saveGlobal = Turbine.UI.Lotro.Button();
+    saveGlobal:SetParent(options);
+    saveGlobal:SetText("Save Account Settings");
+    saveGlobal:SetPosition(leftMargin, controlTop);
+    saveGlobal:SetWidth(200);
+    function saveGlobal.Click(sender, args)
+        Settings:saveGlobal()
     end
     controlTop = controlTop + 40;
 end
