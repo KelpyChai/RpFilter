@@ -2,6 +2,7 @@ import "Dandiron.RpFilter.Callback"
 import "Dandiron.RpFilter.Location"
 import "Dandiron.RpFilter.Say"
 import "Dandiron.RpFilter.Emote"
+import "Dandiron.RpFilter.Settings"
 
 local ChatType = Turbine.ChatType
 local print = Turbine.Shell.WriteLine
@@ -15,18 +16,20 @@ local function chatParser(sender, args)
     if channel == ChatType.Standard then
         Location:updateIfChanged(message)
     elseif channel == ChatType.Say and Say:isAllowed(message) then
-        print(message)
-        if message:sub(1, 1) == "<" then print(message:gsub("<", "|"):gsub(">", "|")) end -- debugging
+        print(message, toHexColor(Settings:getSayColor()))
+        -- if message:sub(1, 1) == "<" then print(message:gsub("<", "|"):gsub(">", "|")) end -- debugging
     elseif channel == ChatType.Emote then
-        print(Emote:format(message))
+        print(Emote:format(message), toHexColor(Settings:getEmoteColor()))
     end
 end
 
 local function main()
+    Settings:load()
     AddCallback(Turbine.Chat, "Received", chatParser)
 
-    Plugins["RP Chat Filter"].Unload = function (sender, args)
+    function plugin.Unload(sender, args)
         RemoveCallback(Turbine.Chat, "Received", chatParser)
+        Settings:save()
     end
 end
 
