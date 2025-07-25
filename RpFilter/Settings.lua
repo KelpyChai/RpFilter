@@ -19,7 +19,10 @@ local DEFAULT_SETTINGS = {
         green = 210,
         blue = 210,
     },
-    -- italicsColor
+    isSameColorUsed = false,
+    areEmotesContrasted = false,
+    isEmphasisUnderlined = false,
+    isEmphasisAccented = false
 }
 
 Settings = {
@@ -184,7 +187,14 @@ local function showColorPicker(color, window)
 
     function window.saveButton.Click(sender, args)
         local newRed, newGreen, newBlue = window.colorPicker:GetRGBColor()
-        color.red, color.blue, color.green = newRed, newBlue, newGreen
+        if Settings.options.isSameColorUsed then
+            local sayColor = Settings.options.sayColor
+            local emoteColor = Settings.options.emoteColor
+            sayColor.red, sayColor.blue, sayColor.green = newRed, newBlue, newGreen
+            emoteColor.red, emoteColor.blue, emoteColor.green = newRed, newBlue, newGreen
+        else
+            color.red, color.blue, color.green = newRed, newBlue, newGreen
+        end
     end
 
     window.colorPickerWindow:SetVisible(true);
@@ -238,6 +248,58 @@ function DrawOptionsPanel()
     end
     controlTop = controlTop + 40;
 
+    local useSameColor = Turbine.UI.Lotro.CheckBox()
+    useSameColor:SetParent(options)
+    useSameColor:SetText(" Use the same colour for says and emotes")
+    useSameColor:SetPosition(leftMargin + 20, controlTop)
+    useSameColor:SetChecked(false)
+    useSameColor:SetSize(350, 20)
+    useSameColor:SetTextAlignment(Turbine.UI.ContentAlignment.BottomLeft)
+    useSameColor:SetFont(Turbine.UI.Lotro.Font.Verdana16);
+    function useSameColor:CheckedChanged()
+        Settings.options.isSameColorUsed = self:IsChecked()
+    end
+    controlTop = controlTop + 25
+
+    local contrastEmotes = Turbine.UI.Lotro.CheckBox()
+    contrastEmotes:SetParent(options)
+    contrastEmotes:SetText(" Give emotes by different characters a subtle contrast")
+    contrastEmotes:SetPosition(leftMargin + 20, controlTop)
+    contrastEmotes:SetChecked(false)
+    contrastEmotes:SetSize(500, 20)
+    contrastEmotes:SetTextAlignment(Turbine.UI.ContentAlignment.BottomLeft)
+    contrastEmotes:SetFont(Turbine.UI.Lotro.Font.Verdana16);
+    function contrastEmotes:CheckedChanged()
+        Settings.options.areEmotesContrasted = self:IsChecked()
+    end
+    controlTop = controlTop + 25
+
+    local underlineEmphasis = Turbine.UI.Lotro.CheckBox()
+    underlineEmphasis:SetParent(options)
+    underlineEmphasis:SetText(" Underline words surrounded by *asterisks*")
+    underlineEmphasis:SetPosition(leftMargin + 20, controlTop)
+    underlineEmphasis:SetChecked(false)
+    underlineEmphasis:SetSize(350, 20)
+    underlineEmphasis:SetTextAlignment(Turbine.UI.ContentAlignment.BottomLeft)
+    underlineEmphasis:SetFont(Turbine.UI.Lotro.Font.Verdana16);
+    function underlineEmphasis:CheckedChanged()
+        Settings.options.isEmphasisUnderlined = self:IsChecked()
+    end
+    controlTop = controlTop + 25
+
+    local accentEmphasis = Turbine.UI.Lotro.CheckBox()
+    accentEmphasis:SetParent(options)
+    accentEmphasis:SetText(" Accent the colour of words surrounded by *asterisks*")
+    accentEmphasis:SetPosition(leftMargin + 20, controlTop)
+    accentEmphasis:SetChecked(false)
+    accentEmphasis:SetSize(400, 20)
+    accentEmphasis:SetTextAlignment(Turbine.UI.ContentAlignment.BottomLeft)
+    accentEmphasis:SetFont(Turbine.UI.Lotro.Font.Verdana16);
+    function accentEmphasis:CheckedChanged()
+        Settings.options.isEmphasisAccented = self:IsChecked()
+    end
+    controlTop = controlTop + 40
+
     local loadGlobal = Turbine.UI.Lotro.Button();
     loadGlobal:SetParent(options);
     loadGlobal:SetText("Load Account Settings");
@@ -246,8 +308,8 @@ function DrawOptionsPanel()
     function loadGlobal.Click(sender, args)
         Settings:loadGlobal()
     end
-
     controlTop = controlTop + 40;
+
     local saveGlobal = Turbine.UI.Lotro.Button();
     saveGlobal:SetParent(options);
     saveGlobal:SetText("Save Account Settings");
