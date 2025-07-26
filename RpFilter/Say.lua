@@ -36,6 +36,8 @@ Say._BlockedNpcs = {
 
     ["Thorin's Hall"] = {
         ["Watcher"] = true,
+        ["Miner"] = true,
+        ["Labourer"] = true,
     },
 
     ["Lone-lands"] = {
