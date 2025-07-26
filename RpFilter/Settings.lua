@@ -291,19 +291,19 @@ function DrawOptionsPanel()
     function underlineEmphasis:CheckedChanged()
         Settings.options.isEmphasisUnderlined = self:IsChecked()
     end
-    controlTop = controlTop + 25
+    -- controlTop = controlTop + 25
 
-    local accentEmphasis = Turbine.UI.Lotro.CheckBox()
-    accentEmphasis:SetParent(options)
-    accentEmphasis:SetText(" Accent the colour of words surrounded by *asterisks*")
-    accentEmphasis:SetPosition(leftMargin + 20, controlTop)
-    accentEmphasis:SetChecked(Settings.options.isEmphasisAccented)
-    accentEmphasis:SetSize(400, 20)
-    accentEmphasis:SetTextAlignment(Turbine.UI.ContentAlignment.BottomLeft)
-    accentEmphasis:SetFont(Turbine.UI.Lotro.Font.Verdana16);
-    function accentEmphasis:CheckedChanged()
-        Settings.options.isEmphasisAccented = self:IsChecked()
-    end
+    -- local accentEmphasis = Turbine.UI.Lotro.CheckBox()
+    -- accentEmphasis:SetParent(options)
+    -- accentEmphasis:SetText(" Accent the colour of words surrounded by *asterisks*")
+    -- accentEmphasis:SetPosition(leftMargin + 20, controlTop)
+    -- accentEmphasis:SetChecked(Settings.options.isEmphasisAccented)
+    -- accentEmphasis:SetSize(400, 20)
+    -- accentEmphasis:SetTextAlignment(Turbine.UI.ContentAlignment.BottomLeft)
+    -- accentEmphasis:SetFont(Turbine.UI.Lotro.Font.Verdana16);
+    -- function accentEmphasis:CheckedChanged()
+    --     Settings.options.isEmphasisAccented = self:IsChecked()
+    -- end
     controlTop = controlTop + 40
 
     local loadGlobal = Turbine.UI.Lotro.Button();

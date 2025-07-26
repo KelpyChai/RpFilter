@@ -31,6 +31,10 @@ function Emote:format(message)
         formattedEmote = emote:gsub("^l+%s+", "")
     end
 
+    if Settings.options.isEmphasisUnderlined then
+        formattedEmote = formattedEmote:gsub("%*(..-)%*", "<u>%1</u>")
+    end
+
     return formattedEmote
 end
 
