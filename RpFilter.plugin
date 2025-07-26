@@ -1,10 +1,18 @@
 <?xml version="1.0"?>
 <Plugin>
-	<Information>
-		<Name>RP Filter</Name>
-		<Author>Dandiron</Author>
-		<Version>1.0</Version>
-		<Description>A simple plugin that blocks NPC chatter and formats emotes.</Description>
-	</Information>
-	<Package>Dandiron.RpFilter.Main</Package>
+    <Information>
+        <Name>RP Filter</Name>
+        <Author>Dandiron</Author>
+        <Version>1.0</Version>
+        <Description>
+A simple plugin that blocks NPC chatter and formats emotes.
+
+How to use:
+1. Enable Standard in your desired tab
+2. Enable Regional or OOC in any tab
+3. Set the plugin to load automatically
+4. Relog
+        </Description>
+    </Information>
+    <Package>Dandiron.RpFilter.Main</Package>
 </Plugin>
