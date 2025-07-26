@@ -1,3 +1,5 @@
+import "Turbine.Gameplay"
+
 Emote = {
     MultiPosts = {}
 }
@@ -44,14 +46,17 @@ function Emote:format(message)
     end
 
     if Settings.options.areEmotesContrasted then
-        if name == Emote.currCharacter then
+        local myName = Turbine.Gameplay.LocalPlayer:GetInstance():GetName()
+        if name == Emote.currEmoter or
+          (name == "You" and Emote.currEmoter == myName) or
+          (name == myName and Emote.currEmoter == "You") then
             formattedEmote = AddRgbTag(formattedEmote, getLightOrDark(Emote.isCurrColorLight))
         else
-            Emote.currCharacter = name
+            Emote.currEmoter = name
             Emote.isCurrColorLight = not Emote.isCurrColorLight
             formattedEmote = AddRgbTag(formattedEmote, getLightOrDark(Emote.isCurrColorLight))
         end
-        -- print(Emote.currCharacter)
+        -- print(Emote.currEmoter)
     end
 
     return formattedEmote
