@@ -4,6 +4,7 @@
 import "Turbine.UI.Lotro"
 
 import "Dandiron.RpFilter.ColorPicker"
+import "Dandiron.RpFilter.Color"
 
 local SETTINGS_FILE_NAME = "RpFilterSettings"
 local GLOBAL_SETTINGS_FILE_NAME = "RpFilterGlobalSettings"
@@ -119,6 +120,14 @@ function Settings:getEmoteColor()
     return self.options.emoteColor
 end
 
+function Settings:getLighterColor()
+    return self.options.lighter
+end
+
+function Settings:getDarkerColor()
+    return self.options.darker
+end
+
 local function createBackground(colorPickerWindow)
     local background = Turbine.UI.Control();
     background:SetParent(colorPickerWindow);
@@ -178,6 +187,22 @@ local function createSaveButton(colorPickerWindow)
     return saveButton
 end
 
+local function clamp(num, minVal, maxVal)
+    return math.max(minVal, math.min(num, maxVal))
+end
+
+local function adjustColor(rgb, hueDiff, lightDiff)
+    local hsl = RgbToHsl(rgb)
+    hsl.h = (hsl.h + hueDiff) % 1
+    hsl.l = clamp(hsl.l + lightDiff, 0, 1)
+    return HslToRgb(hsl)
+end
+
+local function contrastColors()
+    Settings.options.lighter = adjustColor(Settings:getEmoteColor(), -0.014, 0.01)
+    Settings.options.darker = adjustColor(Settings:getEmoteColor(), 0.014, -0.008)
+end
+
 local function showColorPicker(color, window)
     local red, green, blue = color.red, color.green, color.blue -- 0 to 255
 
@@ -200,6 +225,9 @@ local function showColorPicker(color, window)
             emoteColor.red, emoteColor.blue, emoteColor.green = newRed, newBlue, newGreen
         else
             color.red, color.blue, color.green = newRed, newBlue, newGreen
+        end
+        if Settings.options.areEmotesContrasted then
+            contrastColors()
         end
     end
 
@@ -277,6 +305,12 @@ function DrawOptionsPanel()
     contrastEmotes:SetFont(Turbine.UI.Lotro.Font.Verdana16);
     function contrastEmotes:CheckedChanged()
         Settings.options.areEmotesContrasted = self:IsChecked()
+        if self:IsChecked() then
+            contrastColors()
+        else
+            Settings.options.lighter = nil
+            Settings.options.darker = nil
+        end
     end
     controlTop = controlTop + 25
 

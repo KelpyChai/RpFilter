@@ -2,6 +2,14 @@ Emote = {
     MultiPosts = {}
 }
 
+local function getLightOrDark(isCurrColorLight)
+    if isCurrColorLight then
+        return Settings:getLighterColor()
+    else
+        return Settings:getDarkerColor()
+    end
+end
+
 ---Formats messages from the emote channel, including multi-post emotes
 ---@param message string
 ---@return string
@@ -33,6 +41,17 @@ function Emote:format(message)
 
     if Settings.options.isEmphasisUnderlined then
         formattedEmote = formattedEmote:gsub("%*(..-)%*", "<u>%1</u>")
+    end
+
+    if Settings.options.areEmotesContrasted then
+        if name == Emote.currCharacter then
+            formattedEmote = AddRgbTag(formattedEmote, getLightOrDark(Emote.isCurrColorLight))
+        else
+            Emote.currCharacter = name
+            Emote.isCurrColorLight = not Emote.isCurrColorLight
+            formattedEmote = AddRgbTag(formattedEmote, getLightOrDark(Emote.isCurrColorLight))
+        end
+        -- print(Emote.currCharacter)
     end
 
     return formattedEmote

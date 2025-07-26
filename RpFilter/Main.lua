@@ -16,6 +16,10 @@ local function toHexColor(color)
     )
 end
 
+---Wraps text in an RGB tag
+---@param text string
+---@param color table
+---@return string
 function AddRgbTag(text, color)
     return "<rgb=" .. toHexColor(color) .. ">" .. text .. "</rgb>"
 end
