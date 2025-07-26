@@ -189,6 +189,10 @@ local function showColorPicker(color, window)
 
     function window.saveButton.Click(sender, args)
         local newRed, newGreen, newBlue = window.colorPicker:GetRGBColor()
+        if not newRed then
+            newRed, newGreen, newBlue = red, green, blue
+        end
+
         if Settings.options.isSameColorUsed then
             local sayColor = Settings.options.sayColor
             local emoteColor = Settings.options.emoteColor

@@ -187,18 +187,18 @@ function ColorPicker.Create()
 
 		colorString = wColorWin:GetColorFromCoord(args.X, args.Y)
 
-		colRGB =
+			colRGB =
 			{
-			["R"] = math.floor(255*ValidColorRange(colorString.R));
-			["G"] = math.floor(255*ValidColorRange(colorString.G));
-			["B"] = math.floor(255*ValidColorRange(colorString.B));
+			["R"] = math.floor(255*ValidColorRange(colorString.R) + 0.5);
+			["G"] = math.floor(255*ValidColorRange(colorString.G) + 0.5);
+			["B"] = math.floor(255*ValidColorRange(colorString.B) + 0.5);
 			};
 
 			colHex =
 			{
-			["R"] = DEC_HEX(math.floor(255*ValidColorRange(colorString.R)));
-			["G"] = DEC_HEX(math.floor(255*ValidColorRange(colorString.G)));
-			["B"] = DEC_HEX(math.floor(255*ValidColorRange(colorString.B)));
+			["R"] = DEC_HEX(math.floor(255*ValidColorRange(colorString.R)) + 0.5);
+			["G"] = DEC_HEX(math.floor(255*ValidColorRange(colorString.G)) + 0.5);
+			["B"] = DEC_HEX(math.floor(255*ValidColorRange(colorString.B)) + 0.5);
 			};
 
 			colTurbine =
@@ -314,6 +314,8 @@ function ColorPicker.Create()
 
 
 	Picker.GetRGBColor = function ()
+		-- Prevents error if preview has not been clicked yet
+		if not colRGB then return nil end
 
 		-- Returns the selected color's RGB value
 		return colRGB.R, colRGB.G, colRGB.B;
