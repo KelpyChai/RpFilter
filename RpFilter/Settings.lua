@@ -3,6 +3,8 @@
 
 import "Turbine.UI.Lotro"
 
+import "Dandiron.RpFilter.ColorPicker"
+
 local SETTINGS_FILE_NAME = "RpFilterSettings"
 local GLOBAL_SETTINGS_FILE_NAME = "RpFilterGlobalSettings"
 local SETTINGS_DATA_SCOPE = Turbine.DataScope.Character
@@ -252,7 +254,7 @@ function DrawOptionsPanel()
     useSameColor:SetParent(options)
     useSameColor:SetText(" Use the same colour for says and emotes")
     useSameColor:SetPosition(leftMargin + 20, controlTop)
-    useSameColor:SetChecked(false)
+    useSameColor:SetChecked(Settings.options.isSameColorUsed)
     useSameColor:SetSize(350, 20)
     useSameColor:SetTextAlignment(Turbine.UI.ContentAlignment.BottomLeft)
     useSameColor:SetFont(Turbine.UI.Lotro.Font.Verdana16);
@@ -265,7 +267,7 @@ function DrawOptionsPanel()
     contrastEmotes:SetParent(options)
     contrastEmotes:SetText(" Give emotes by different characters a subtle contrast")
     contrastEmotes:SetPosition(leftMargin + 20, controlTop)
-    contrastEmotes:SetChecked(false)
+    contrastEmotes:SetChecked(Settings.options.areEmotesContrasted)
     contrastEmotes:SetSize(500, 20)
     contrastEmotes:SetTextAlignment(Turbine.UI.ContentAlignment.BottomLeft)
     contrastEmotes:SetFont(Turbine.UI.Lotro.Font.Verdana16);
@@ -278,7 +280,7 @@ function DrawOptionsPanel()
     underlineEmphasis:SetParent(options)
     underlineEmphasis:SetText(" Underline words surrounded by *asterisks*")
     underlineEmphasis:SetPosition(leftMargin + 20, controlTop)
-    underlineEmphasis:SetChecked(false)
+    underlineEmphasis:SetChecked(Settings.options.isEmphasisUnderlined)
     underlineEmphasis:SetSize(350, 20)
     underlineEmphasis:SetTextAlignment(Turbine.UI.ContentAlignment.BottomLeft)
     underlineEmphasis:SetFont(Turbine.UI.Lotro.Font.Verdana16);
@@ -291,7 +293,7 @@ function DrawOptionsPanel()
     accentEmphasis:SetParent(options)
     accentEmphasis:SetText(" Accent the colour of words surrounded by *asterisks*")
     accentEmphasis:SetPosition(leftMargin + 20, controlTop)
-    accentEmphasis:SetChecked(false)
+    accentEmphasis:SetChecked(Settings.options.isEmphasisAccented)
     accentEmphasis:SetSize(400, 20)
     accentEmphasis:SetTextAlignment(Turbine.UI.ContentAlignment.BottomLeft)
     accentEmphasis:SetFont(Turbine.UI.Lotro.Font.Verdana16);

@@ -3,16 +3,21 @@ import "Dandiron.RpFilter.Location"
 import "Dandiron.RpFilter.Say"
 import "Dandiron.RpFilter.Emote"
 import "Dandiron.RpFilter.Settings"
-import "Dandiron.RpFilter.ColorPicker"
 
 local ChatType = Turbine.ChatType
-
-local function print(text, hexColor)
-    Turbine.Shell.WriteLine("<rgb=" .. hexColor .. ">" .. text .. "</rgb>")
-end
+print = Turbine.Shell.WriteLine
 
 local function toHexColor(color)
-    return string.format("#%02X%02X%02X", color.red, color.green, color.blue)
+    return string.format(
+        "#%02X%02X%02X",
+        math.floor(color.red + 0.5),
+        math.floor(color.green + 0.5),
+        math.floor(color.blue + 0.5)
+    )
+end
+
+function AddRgbTag(text, color)
+    return "<rgb=" .. toHexColor(color) .. ">" .. text .. "</rgb>"
 end
 
 local function chatParser(sender, args)
@@ -24,10 +29,10 @@ local function chatParser(sender, args)
     if channel == ChatType.Standard then
         Location:updateIfChanged(message)
     elseif channel == ChatType.Say and Say:isAllowed(message) then
-        print(message, toHexColor(Settings:getSayColor()))
+        print(AddRgbTag(message, Settings:getSayColor()))
         -- if message:sub(1, 1) == "<" then print(message:gsub("<", "|"):gsub(">", "|")) end -- debugging
     elseif channel == ChatType.Emote then
-        print(Emote:format(message), toHexColor(Settings:getEmoteColor()))
+        print(AddRgbTag(Emote:format(message), Settings:getEmoteColor()))
     end
 end
 
