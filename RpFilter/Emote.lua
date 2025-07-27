@@ -42,7 +42,7 @@ function Emote:format(message)
     end
 
     if Settings.options.isEmphasisUnderlined then
-        formattedEmote = formattedEmote:gsub("%*(..-)%*", "<u>%1</u>")
+        formattedEmote = formattedEmote:gsub("%*([%s%p]*)([^%*][^%*]-)([%s%p]*)%*", "%1<u>%2</u>%3")
     end
 
     if Settings.options.areEmotesContrasted then
