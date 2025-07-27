@@ -18,8 +18,11 @@ Say._BlockedNpcs = {
         ["Prisoner"] = true,
         ["Minstrel"] = true,
         ["Farmer"] = true,
+        ["Hugh Reed"] = true,
         ["Jim Skinner"] = true,
         ["Drunken Reveller"] = true,
+        ["Maud Foxglove"] = true,
+        ["Tad Gardener"] = true,
     },
 
     ["Shire"] = {
@@ -44,6 +47,7 @@ Say._BlockedNpcs = {
         ["Waitress"] = true,
         ["Whittler"] = true,
         ["Patron"] = true,
+        ["Belinda Rosewater"] = true,
     },
 
     ["North Downs"] = {
@@ -51,6 +55,7 @@ Say._BlockedNpcs = {
         ["Miner"] = true,
         ["Smith"] = true,
         ["Dúrlammad"] = true,
+        ["Anne Rumsey"] = true,
         -- ["Idalene"] = true,
     },
 
