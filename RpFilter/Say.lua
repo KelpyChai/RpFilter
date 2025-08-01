@@ -104,7 +104,7 @@ end
 function Say:format(message)
     local formattedSay = message
     if Settings.options.isEmphasisUnderlined then
-        formattedSay = formattedSay:gsub("%*([%s%p]*)([^%*][^%*]-)([%s%p]*)%*", "%1<u>%2</u>%3")
+        formattedSay = formattedSay:gsub("%*([^%w%*]*)([^%W%*][^%*]-)([^%w%*]*)%*", "%1<u>%2</u>%3")
     end
     return formattedSay
 end
