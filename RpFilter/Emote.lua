@@ -31,10 +31,15 @@ function Emote:format(message)
     -- /e "Blah blah blah +"
     -- /e "I'm not done speaking yet!"
 
+    local firstChar = emote:sub(1, 1)
     if emote:sub(1, 3) == "'s " then
         formattedEmote = name .. "'s " .. emote:gsub("^'s%s+", "")
-    elseif emote:sub(1, 1) == "|" then
+    elseif firstChar == "|" then
         formattedEmote = emote:gsub("^|+%s*", "")
+    elseif firstChar == "/" then
+        formattedEmote = emote:gsub("^/+%s*", "")
+    elseif firstChar == "\\" then
+        formattedEmote = emote:gsub("^\\+%s*", "")
     -- elseif emote:sub(1, 1) == "+" then
     --     formattedEmote = emote:gsub("^%+%s*", "")
     elseif emote:match("^l+ ") then
