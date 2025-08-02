@@ -73,8 +73,7 @@ local function isFromLocalPlayer(message)
 end
 
 local function isFromNpc(id)
-    -- "0x0346"
-    return id:sub(1, 11) == "0x034600005"
+    return id:sub(1, 6) == "0x0346"
 end
 
 function Say:isNpcAllowed(name)
