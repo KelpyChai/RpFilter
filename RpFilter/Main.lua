@@ -51,9 +51,9 @@ local function main()
         Settings:save()
     end
 
-    Turbine.Shell.WriteLine("RP Filter v1.0.1 by Dandiron")
-    Turbine.Shell.WriteLine("- Chat colour can be customized in Options (via /plugins manager)")
-    Turbine.Shell.WriteLine("- NPC filter not working? Disable Regional and OOC, then reenable")
+    print("<u>RP Filter v1.0.1 by Dandiron</u>")
+    print("- Chat colour can be customized in Options (via /plugins manager)")
+    print("- NPC filter not working? Disable Regional and OOC, then reenable")
 end
 
 main()

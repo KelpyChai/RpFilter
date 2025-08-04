@@ -8,8 +8,8 @@
 A simple plugin that blocks NPC chatter and formats emotes.
 
 How to use:
-1. Enable Standard in your desired tab
-2. Enable Regional or OOC in any tab
+1. In your desired tab, enable Standard and disable Say &amp; Emote
+2. In any tab, enable Regional or OOC
 3. Set the plugin to load automatically
 4. Relog
         </Description>
