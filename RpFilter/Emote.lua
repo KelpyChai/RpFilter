@@ -4,8 +4,8 @@ Emote = {
     MultiPosts = {}
 }
 
-local function getLightOrDark(isCurrColorLight)
-    if isCurrColorLight then
+function Emote:getLightOrDark()
+    if self.isCurrColorLight then
         return Settings:getLighterColor()
     else
         return Settings:getDarkerColor()
@@ -46,20 +46,18 @@ function Emote:format(message)
         formattedEmote = emote:gsub("^l+%s+", "")
     end
 
-    if Settings.options.isEmphasisUnderlined then
-        formattedEmote = formattedEmote:gsub("%*([^%w%*]*)([^%W%*][^%*]-)([^%w%*]*)%*", "%1<u>%2</u>%3")
-    end
+    formattedEmote = UnderlineAsterisks(formattedEmote)
 
     if Settings.options.areEmotesContrasted then
         local myName = Turbine.Gameplay.LocalPlayer:GetInstance():GetName()
         if name == Emote.currEmoter or
           (name == "You" and Emote.currEmoter == myName) or
           (name == myName and Emote.currEmoter == "You") then
-            formattedEmote = AddRgbTag(formattedEmote, getLightOrDark(Emote.isCurrColorLight))
+            formattedEmote = AddRgb(formattedEmote, self:getLightOrDark())
         else
             Emote.currEmoter = name
             Emote.isCurrColorLight = not Emote.isCurrColorLight
-            formattedEmote = AddRgbTag(formattedEmote, getLightOrDark(Emote.isCurrColorLight))
+            formattedEmote = AddRgb(formattedEmote, self:getLightOrDark())
         end
         -- print(Emote.currEmoter)
     end

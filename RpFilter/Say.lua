@@ -100,10 +100,6 @@ function Say:isAllowed(message)
     end
 end
 
-function Say:format(message)
-    local formattedSay = message
-    if Settings.options.isEmphasisUnderlined then
-        formattedSay = formattedSay:gsub("%*([^%w%*]*)([^%W%*][^%*]-)([^%w%*]*)%*", "%1<u>%2</u>%3")
-    end
-    return formattedSay
+function Say:format(say)
+    return UnderlineAsterisks(say)
 end
