@@ -1,8 +1,12 @@
 import "Turbine.Gameplay"
 
 Emote = {
-    MultiPosts = {}
+    -- multiPosts = {}
 }
+
+if Settings.options.areEmotesContrasted then
+    Emote.isCurrColorLight = false
+end
 
 function Emote:getLightOrDark()
     if self.isCurrColorLight then
@@ -13,11 +17,10 @@ function Emote:getLightOrDark()
 end
 
 ---Formats messages from the emote channel, including multi-post emotes
----@param message string
+---@param emote string
 ---@return string
-function Emote:format(message)
-    local name, emote = message:match("^(%a+)%-?%d- (.+)")
-    local formattedEmote = message
+function Emote:format(emote)
+    local name, action = emote:match("^(%a+)%-?%d- (.+)")
 
     -- TODO: Handle these cases
 
@@ -31,38 +34,38 @@ function Emote:format(message)
     -- /e "Blah blah blah +"
     -- /e "I'm not done speaking yet!"
 
-    local firstChar = emote:sub(1, 1)
-    if emote:sub(1, 3) == "'s " then
-        formattedEmote = name .. "'s " .. emote:gsub("^'s%s+", "")
+    local firstChar = action:sub(1, 1)
+    if action:sub(1, 3) == "'s " then
+        emote = name .. "'s " .. action:gsub("^'s%s+", "")
     elseif firstChar == "|" then
-        formattedEmote = emote:gsub("^|+%s*", "")
+        emote = action:gsub("^|+%s*", "")
     elseif firstChar == "/" then
-        formattedEmote = emote:gsub("^/+%s*", "")
+        emote = action:gsub("^/+%s*", "")
     elseif firstChar == "\\" then
-        formattedEmote = emote:gsub("^\\+%s*", "")
-    -- elseif emote:sub(1, 1) == "+" then
-    --     formattedEmote = emote:gsub("^%+%s*", "")
-    elseif emote:match("^l+ ") then
-        formattedEmote = emote:gsub("^l+%s+", "")
+        emote = action:gsub("^\\+%s*", "")
+    -- elseif action:sub(1, 1) == "+" then
+    --     emote = action:gsub("^%+%s*", "")
+    elseif action:match("^l+ ") then
+        emote = action:gsub("^l+%s+", "")
     end
 
-    formattedEmote = UnderlineAsterisks(formattedEmote)
+    emote = UnderlineAsterisks(emote)
 
     if Settings.options.areEmotesContrasted then
         local myName = Turbine.Gameplay.LocalPlayer:GetInstance():GetName()
         if name == Emote.currEmoter or
           (name == "You" and Emote.currEmoter == myName) or
           (name == myName and Emote.currEmoter == "You") then
-            formattedEmote = AddRgb(formattedEmote, self:getLightOrDark())
+            emote = AddRgb(emote, self:getLightOrDark())
         else
             Emote.currEmoter = name
             Emote.isCurrColorLight = not Emote.isCurrColorLight
-            formattedEmote = AddRgb(formattedEmote, self:getLightOrDark())
+            emote = AddRgb(emote, self:getLightOrDark())
         end
         -- print(Emote.currEmoter)
     end
 
-    return formattedEmote
+    return emote
 end
 
     -- Optional features:

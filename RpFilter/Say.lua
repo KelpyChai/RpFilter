@@ -1,9 +1,9 @@
 Say = {
-    CurrentBlockedNpcs = nil,
-    -- CurrentBlockedSays = nil,
+    currentBlockedNpcs = {},
+    -- currentBlockedSays = {},
 }
 
-Say._BlockedNpcs = {
+Say._blockedNpcs = {
     ["Bree-land"] = {
         ["Townsperson"] = true,
         ["Woodcutter"] = true,
@@ -65,7 +65,7 @@ Say._BlockedNpcs = {
 }
 
 function Say:getBlockedNpcs(region)
-    return self._BlockedNpcs[region]
+    return self._blockedNpcs[region]
 end
 
 local function isFromLocalPlayer(message)
@@ -77,10 +77,10 @@ local function isFromNpc(id)
 end
 
 function Say:isNpcAllowed(name)
-    if not self.CurrentBlockedNpcs or Location:isInstanced() then
+    if not self.currentBlockedNpcs or Location:isInstanced() then
         return true
     else
-        return not self.CurrentBlockedNpcs[name]
+        return not self.currentBlockedNpcs[name]
     end
 end
 

@@ -2,7 +2,7 @@
 
 Location = {
     INSTANCE = "instance",
-    Channels = {},
+    channels = {},
 }
 Location._current = Location.INSTANCE
 
@@ -12,17 +12,17 @@ end
 
 function Location:setCurrent(newLocation)
     self._current = newLocation
-    Say.CurrentBlockedNpcs = Say:getBlockedNpcs(newLocation)
+    Say.currentBlockedNpcs = Say:getBlockedNpcs(newLocation)
 
     -- Debugging
-    -- Turbine.Shell.WriteLine("Now entering " .. newLocation)
-    -- Turbine.Shell.WriteLine("Blocked NPCs:")
+    -- print("Now entering " .. newLocation)
+    -- print("Blocked NPCs:")
     -- if Say.CurrentBlockedNpcs then
     --     for name, _ in pairs(Say.CurrentBlockedNpcs) do
-    --         Turbine.Shell.WriteLine(name)
+    --         print(name)
     --     end
     -- else
-    --     Turbine.Shell.WriteLine("None")
+    --     print("None")
     -- end
 end
 
@@ -30,16 +30,16 @@ function Location:isInstanced()
     return self:getCurrent() == self.INSTANCE
 end
 
-local patterns = {
-    "^(Entered) the (.-) %- (Regional) channel%.$",
-    "^(Entered) the (.-) %- (OOC) channel%.$",
-    "^(Left) the (.-) %- (Regional) channel%.$",
-    "^(Left) the (.-) %- (OOC) channel%.$"
-}
-
 -- TODO: Use string.sub() to reduce pattern matching
 
 local function getLocationInfo(message)
+    local patterns = {
+        "^(Entered) the (.-) %- (Regional) channel%.$",
+        "^(Entered) the (.-) %- (OOC) channel%.$",
+        "^(Left) the (.-) %- (Regional) channel%.$",
+        "^(Left) the (.-) %- (OOC) channel%.$"
+    }
+
     for _, pattern in ipairs(patterns) do
         local action, region, channel = message:match(pattern)
         if channel then
@@ -58,13 +58,13 @@ function Location:updateIfChanged(message)
     local action, region, channel = info.action, info.region, info.channel
 
     if action == "Entered" then
-        self.Channels[channel] = true
+        self.channels[channel] = true
         if self:getCurrent() ~= region then
             self:setCurrent(region)
         end
     else
-        self.Channels[channel] = nil
-        if next(self.Channels) == nil then
+        self.channels[channel] = nil
+        if next(self.channels) == nil then
             self:setCurrent(self.INSTANCE)
         end
     end
