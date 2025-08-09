@@ -8,7 +8,12 @@ Emote = {
     -- multiPosts = {}
 }
 
-local zeroWidthSpace = string.char(0xE2, 0x80, 0x8B)
+-- Placeholder for "'"
+local apostropheTemp = "\1"
+-- Placeholder for " '"
+local quoteTemp = "\2"
+-- Placeholder for "' "
+local unquoteTemp = "\3"
 
 if Settings.options.areEmotesContrasted then
     Emote.isCurrColorLight = false
@@ -59,46 +64,56 @@ function Emote:format(emote)
 
     if Settings.options.isDialogueColored then
         -- Colour text between "quotation marks"
-        emote = emote:gsub('"([^"]+)("?)', function (dialogue, closing)
+        emote = emote:gsub('"(%s*[^%s"][^"]*)("?)', function (dialogue, closing)
             -- Strip whitespace, replace apostrophes between "quotation marks"
-            dialogue = dialogue:match("^%s*(.-)%s*$"):gsub("'", zeroWidthSpace)
+            dialogue = dialogue:match("^%s*(.-)%s*$"):gsub("'", apostropheTemp)
             return AddRgb('"' .. dialogue .. closing, Settings:getSayColor())
         end)
 
+        -- TODO: Replace words with internal and leading apostrophes ('tisn't, 'twouldn't, 'tain't)
+
         -- Replace internal apostrophes
         repeat
-            local res, count = emote:gsub("([^%s%p]+'[^%s%p]+)", function (word)
-                return word:gsub("'", zeroWidthSpace)
+            local res, count = emote:gsub("(["..WordChars.."]+'["..WordChars.."]+)", function (word)
+                return word:gsub("'", apostropheTemp)
             end)
             emote = res
         until count == 0
 
         if action:sub(2):find("'") then
-            -- If word with leading apostrophe is invalid, replace the apostrophe
+            -- If word with leading apostrophe is valid, replace the apostrophe
             emote = emote:gsub("('?)('["..WordChars.."]+)", function (speechMark, word)
                 if Contraction:isValidHeadless(speechMark, word) then
-                    word = zeroWidthSpace .. word:sub(2)
+                    word = apostropheTemp .. word:sub(2)
                 end
                 return speechMark .. word
             end)
 
-            -- If word with trailing apostrophe is invalid, replace the apostrophe
-            emote = emote:gsub("(["..WordChars.."]+')", function (word)
-                if Contraction:isValidTailless(word) then
-                    word = word:sub(1, -2) .. zeroWidthSpace
+            -- If word with trailing apostrophe is valid, replace the apostrophe
+            -- TODO: regex style lookahead for "',? " and " '", check for trailing [',]?
+            -- If " '" found first, end of dialogue
+            -- If "',? " found first, valid contraction
+            emote = emote:gsub("(["..WordChars.."]+')(%p*)", function (word, punctuation)
+                if Contraction:isValidTailless(word, punctuation) then
+                    word = word:sub(1, -2) .. apostropheTemp
                 end
-                return word
+                return word .. punctuation
             end)
 
             -- TODO: Explicitly catch words like 'tisn't instead of colouring two quotation marks
             -- Colour text between remaining 'speech marks'
-            emote = emote:gsub("(''?)([^']+)('?)", function (opening, dialogue, closing)
+            emote = " " .. emote:gsub("'([%.%?,!%-]*) '", unquoteTemp.."%1"..quoteTemp):gsub("' %-", "'  %-") .. " "
+            emote = emote:gsub(" '", quoteTemp):gsub("'([%.%?,!%-]*) ", unquoteTemp.."%1")
+
+            emote = emote:gsub(quoteTemp.."(%s*[^%s"..quoteTemp.."][^"..quoteTemp.."]*)"..unquoteTemp.."([%.%?,!%-]*)", function (dialogue, punctuation)
                 dialogue = dialogue:match("^%s*(.-)%s*$")
-                return AddRgb(opening..dialogue..closing, Settings:getSayColor())
+                return " "..AddRgb("'"..dialogue.."'", Settings:getSayColor())..punctuation.." "
             end)
+
+            emote = emote:gsub(unquoteTemp.."([%.%?,!%-]*)", "'%1 "):gsub(quoteTemp, " '"):sub(2, -2):gsub("'</rgb>([%.%?,!%-]*)  <rgb=(.-)>'", "'</rgb>%1 <rgb=%2>'"):gsub("'</rgb>  %-", "'</rgb> %-")
         end
 
-        emote = emote:gsub(zeroWidthSpace, "'")
+        emote = emote:gsub(apostropheTemp, "'")
     end
 
     if Settings.options.areEmotesContrasted then
