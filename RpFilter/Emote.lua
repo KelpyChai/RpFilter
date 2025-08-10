@@ -80,7 +80,7 @@ function Emote:format(emote)
             emote = res
         until count == 0
 
-        if action:sub(2):find("'") then
+        if action:sub(1, 3) == "'s " and action:sub(4):find("'") or action:find("'") then
             -- If word with leading apostrophe is valid, replace the apostrophe
             emote = emote:gsub("('?)('["..WordChars.."]+)", function (speechMark, word)
                 if Contraction:isValidHeadless(speechMark, word) then
@@ -102,15 +102,23 @@ function Emote:format(emote)
 
             -- TODO: Explicitly catch words like 'tisn't instead of colouring two quotation marks
             -- Colour text between remaining 'speech marks'
-            emote = " " .. emote:gsub("'([%.%?,!%-]*) '", unquoteTemp.."%1"..quoteTemp):gsub("' %-", "'  %-") .. " "
-            emote = emote:gsub(" '", quoteTemp):gsub("'([%.%?,!%-]*) ", unquoteTemp.."%1")
+            emote = " " .. emote:gsub("'([%.%?,!%-%+]*) '", unquoteTemp.."%1"..quoteTemp):gsub("' ([%-%+])", "'  %1") .. " "
+            emote = emote:gsub(" '", quoteTemp):gsub("'([%.%?,!%-%+]*) ", unquoteTemp.."%1")
 
-            emote = emote:gsub(quoteTemp.."(%s*[^%s"..quoteTemp.."][^"..quoteTemp.."]*)"..unquoteTemp.."([%.%?,!%-]*)", function (dialogue, punctuation)
+            emote = emote:gsub(quoteTemp.."(%s*[^%s"..quoteTemp.."][^"..quoteTemp.."]*)"..unquoteTemp.."([%.%?,!%-%+]*)", function (dialogue, punctuation)
                 dialogue = dialogue:match("^%s*(.-)%s*$")
                 return " "..AddRgb("'"..dialogue.."'", Settings:getSayColor())..punctuation.." "
             end)
 
-            emote = emote:gsub(unquoteTemp.."([%.%?,!%-]*)", "'%1 "):gsub(quoteTemp, " '"):sub(2, -2):gsub("'</rgb>([%.%?,!%-]*)  <rgb=(.-)>'", "'</rgb>%1 <rgb=%2>'"):gsub("'</rgb>  %-", "'</rgb> %-")
+            emote = emote:gsub(quoteTemp.."([%s%p]*["..WordChars.."][^"..unquoteTemp.."%+]*)(%+?) $", function (dialogue, plus)
+                dialogue = dialogue:match("^%s*(.-)%s*$")
+                if plus == "+" then
+                    plus = " +"
+                end
+                return " "..AddRgb("'"..dialogue, Settings:getSayColor())..plus.." "
+            end)
+
+            emote = emote:gsub(unquoteTemp.."([%.%?,!%-%+]*)", "'%1 "):gsub(quoteTemp, " '"):sub(2, -2):gsub("'</rgb>([%.%?,!%-%+]*)  <rgb=(.-)>'", "'</rgb>%1 <rgb=%2>'"):gsub("'</rgb>  ([%-%+])", "'</rgb> %1")
         end
 
         emote = emote:gsub(apostropheTemp, "'")
