@@ -101,5 +101,5 @@ function Say:isAllowed(message)
 end
 
 function Say:format(say)
-    return UnderlineAsterisks(say)
+    return UnderlineAsterisks(say):gsub("%-%-", "—")
 end

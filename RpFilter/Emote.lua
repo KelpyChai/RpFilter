@@ -59,8 +59,6 @@ function Emote:format(emote)
         emote = action:gsub("^l+%s+", "")
     end
 
-    emote = UnderlineAsterisks(emote)
-
     if Settings.options.isDialogueColored then
         -- Colour text between "quotation marks"
         emote = emote:gsub('"(%s*[^%s"][^"]*)("?)', function (dialogue, closing)
@@ -131,6 +129,9 @@ function Emote:format(emote)
             emote = AddRgb(emote, self:getLightOrDark())
         end
     end
+
+    emote = UnderlineAsterisks(emote)
+    emote = emote:gsub("%-%-", "—")
 
     return emote
 end
