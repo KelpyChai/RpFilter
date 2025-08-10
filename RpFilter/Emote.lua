@@ -1,8 +1,19 @@
 import "Turbine.Gameplay"
 
+import "Dandiron.RpFilter.Settings"
+import "Dandiron.RpFilter.Contraction"
+import "Dandiron.RpFilter.TextUtils"
+
 Emote = {
     -- multiPosts = {}
 }
+
+-- Placeholder for "'"
+local apostropheTemp = "\1"
+-- Placeholder for " '"
+local quoteTemp = "\2"
+-- Placeholder for "' "
+local unquoteTemp = "\3"
 
 if Settings.options.areEmotesContrasted then
     Emote.isCurrColorLight = false
@@ -51,6 +62,68 @@ function Emote:format(emote)
 
     emote = UnderlineAsterisks(emote)
 
+    if Settings.options.isDialogueColored then
+        -- Colour text between "quotation marks"
+        emote = emote:gsub('"(%s*[^%s"][^"]*)("?)', function (dialogue, closing)
+            -- Strip whitespace, replace apostrophes between "quotation marks"
+            dialogue = dialogue:match("^%s*(.-)%s*$"):gsub("'", apostropheTemp)
+            return AddRgb('"' .. dialogue .. closing, Settings:getSayColor())
+        end)
+
+        -- TODO: Replace words with internal and leading apostrophes ('tisn't, 'twouldn't, 'tain't)
+
+        -- Replace internal apostrophes
+        repeat
+            local res, count = emote:gsub("(["..WordChars.."]+'["..WordChars.."]+)", function (word)
+                return word:gsub("'", apostropheTemp)
+            end)
+            emote = res
+        until count == 0
+
+        if action:sub(1, 3) == "'s " and action:sub(4):find("'") or action:find("'") then
+            -- If word with leading apostrophe is valid, replace the apostrophe
+            emote = emote:gsub("('?)('["..WordChars.."]+)", function (speechMark, word)
+                if Contraction:isValidHeadless(speechMark, word) then
+                    word = apostropheTemp .. word:sub(2)
+                end
+                return speechMark .. word
+            end)
+
+            -- If word with trailing apostrophe is valid, replace the apostrophe
+            -- TODO: regex style lookahead for "',? " and " '", check for trailing [',]?
+            -- If " '" found first, end of dialogue
+            -- If "',? " found first, valid contraction
+            emote = emote:gsub("(["..WordChars.."]+')(%p*)", function (word, punctuation)
+                if Contraction:isValidTailless(word, punctuation) then
+                    word = word:sub(1, -2) .. apostropheTemp
+                end
+                return word .. punctuation
+            end)
+
+            -- TODO: Explicitly catch words like 'tisn't instead of colouring two quotation marks
+            -- Colour text between remaining 'speech marks'
+            emote = " " .. emote:gsub("'([%.%?,!%-%+]*) '", unquoteTemp.."%1"..quoteTemp):gsub("' ([%-%+])", "'  %1") .. " "
+            emote = emote:gsub(" '", quoteTemp):gsub("'([%.%?,!%-%+]*) ", unquoteTemp.."%1")
+
+            emote = emote:gsub(quoteTemp.."(%s*[^%s"..quoteTemp.."][^"..quoteTemp.."]*)"..unquoteTemp.."([%.%?,!%-%+]*)", function (dialogue, punctuation)
+                dialogue = dialogue:match("^%s*(.-)%s*$")
+                return " "..AddRgb("'"..dialogue.."'", Settings:getSayColor())..punctuation.." "
+            end)
+
+            emote = emote:gsub(quoteTemp.."([%s%p]*["..WordChars.."][^"..unquoteTemp.."%+]*)(%+?) $", function (dialogue, plus)
+                dialogue = dialogue:match("^%s*(.-)%s*$")
+                if plus == "+" then
+                    plus = " +"
+                end
+                return " "..AddRgb("'"..dialogue, Settings:getSayColor())..plus.." "
+            end)
+
+            emote = emote:gsub(unquoteTemp.."([%.%?,!%-%+]*)", "'%1 "):gsub(quoteTemp, " '"):sub(2, -2):gsub("'</rgb>([%.%?,!%-%+]*)  <rgb=(.-)>'", "'</rgb>%1 <rgb=%2>'"):gsub("'</rgb>  ([%-%+])", "'</rgb> %1")
+        end
+
+        emote = emote:gsub(apostropheTemp, "'")
+    end
+
     if Settings.options.areEmotesContrasted then
         local myName = Turbine.Gameplay.LocalPlayer:GetInstance():GetName()
         if name == Emote.currEmoter or
@@ -62,7 +135,6 @@ function Emote:format(emote)
             Emote.isCurrColorLight = not Emote.isCurrColorLight
             emote = AddRgb(emote, self:getLightOrDark())
         end
-        -- print(Emote.currEmoter)
     end
 
     return emote

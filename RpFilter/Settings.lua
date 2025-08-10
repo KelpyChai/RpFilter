@@ -24,6 +24,7 @@ local DEFAULT_SETTINGS = {
     },
     isSameColorUsed = false,
     areEmotesContrasted = false,
+    isDialogueColored = false,
     isEmphasisUnderlined = false,
     isEmphasisAccented = false
 }
@@ -67,24 +68,24 @@ function Settings:load()
 
     if type(loadedSettings) ~= 'table' then
         self.options = deepcopy(DEFAULT_SETTINGS)
-        -- Turbine.Shell.WriteLine("RP Filter: loaded default settings")
+        -- print("RP Filter: loaded default settings")
     else
         self.options = loadedSettings
-        -- Turbine.Shell.WriteLine("RP Filter: loaded settings")
+        -- print("RP Filter: loaded settings")
     end
 end
 
 function Settings:loadGlobal()
-    Turbine.Shell.WriteLine("Waiting to load account settings...")
+    print("Waiting to load account settings...")
     Turbine.PluginData.Load(
         GLOBAL_SETTINGS_DATA_SCOPE,
         GLOBAL_SETTINGS_FILE_NAME,
-        function(loadedData)
+        function (loadedData)
             if type(loadedData) == "table" then
                 self.options = loadedData
-                Turbine.Shell.WriteLine("Account settings loaded")
+                print("Account settings loaded")
             else
-                Turbine.Shell.WriteLine("Account settings not found")
+                print("Account settings not found")
             end
         end
     )
@@ -96,7 +97,7 @@ function Settings:save()
         SETTINGS_FILE_NAME,
         self.options
     )
-    Turbine.Shell.WriteLine("RP Filter: saved settings")
+    print("RP Filter: saved settings")
 end
 
 function Settings:saveGlobal()
@@ -105,7 +106,7 @@ function Settings:saveGlobal()
         GLOBAL_SETTINGS_FILE_NAME,
         self.options
     )
-    Turbine.Shell.WriteLine("Account settings saved")
+    print("Account settings saved")
 end
 
 function Settings:restoreDefault()
@@ -314,6 +315,19 @@ function DrawOptionsPanel()
     end
     controlTop = controlTop + 25
 
+    local colorDialogue = Turbine.UI.Lotro.CheckBox()
+    colorDialogue:SetParent(options)
+    colorDialogue:SetText(" Give dialogue surrounded by 'quotes' the same colour as says")
+    colorDialogue:SetPosition(leftMargin + 20, controlTop)
+    colorDialogue:SetChecked(Settings.options.isDialogueColored)
+    colorDialogue:SetSize(500, 20)
+    colorDialogue:SetTextAlignment(Turbine.UI.ContentAlignment.BottomLeft)
+    colorDialogue:SetFont(Turbine.UI.Lotro.Font.Verdana16);
+    function colorDialogue:CheckedChanged()
+        Settings.options.isDialogueColored = self:IsChecked()
+    end
+    controlTop = controlTop + 25
+
     local underlineEmphasis = Turbine.UI.Lotro.CheckBox()
     underlineEmphasis:SetParent(options)
     underlineEmphasis:SetText(" Underline words surrounded by *asterisks*")
@@ -325,19 +339,6 @@ function DrawOptionsPanel()
     function underlineEmphasis:CheckedChanged()
         Settings.options.isEmphasisUnderlined = self:IsChecked()
     end
-    -- controlTop = controlTop + 25
-
-    -- local accentEmphasis = Turbine.UI.Lotro.CheckBox()
-    -- accentEmphasis:SetParent(options)
-    -- accentEmphasis:SetText(" Accent the colour of words surrounded by *asterisks*")
-    -- accentEmphasis:SetPosition(leftMargin + 20, controlTop)
-    -- accentEmphasis:SetChecked(Settings.options.isEmphasisAccented)
-    -- accentEmphasis:SetSize(400, 20)
-    -- accentEmphasis:SetTextAlignment(Turbine.UI.ContentAlignment.BottomLeft)
-    -- accentEmphasis:SetFont(Turbine.UI.Lotro.Font.Verdana16);
-    -- function accentEmphasis:CheckedChanged()
-    --     Settings.options.isEmphasisAccented = self:IsChecked()
-    -- end
     controlTop = controlTop + 40
 
     local loadGlobal = Turbine.UI.Lotro.Button();

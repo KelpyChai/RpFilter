@@ -43,7 +43,7 @@ local function getLocationInfo(message)
     for _, pattern in ipairs(patterns) do
         local action, region, channel = message:match(pattern)
         if channel then
-            return {action = action, region = region, channel = channel}
+            return action, region, channel
         end
     end
     return nil
@@ -52,10 +52,8 @@ end
 ---Parses standard channel for Entered/Left messages to keep track of location
 ---@param message string
 function Location:updateIfChanged(message)
-    local info = getLocationInfo(message)
-
-    if not info then return end
-    local action, region, channel = info.action, info.region, info.channel
+    local action, region, channel = getLocationInfo(message)
+    if not channel then return end
 
     if action == "Entered" then
         self.channels[channel] = true
