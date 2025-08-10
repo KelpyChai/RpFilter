@@ -69,7 +69,7 @@ function Say:getBlockedNpcs(region)
 end
 
 local function isFromLocalPlayer(message)
-    return message:sub(1, 8) == "You say,"
+    return message:sub(1, 8) == "You say," or message:sub(1, 10) == "You shout,"
 end
 
 local function isFromNpc(id)
