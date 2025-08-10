@@ -59,6 +59,26 @@ function Emote:format(emote)
         emote = action:gsub("^l+%s+", "")
     end
 
+    -- TODO: Handle verse between single quotes and
+    -- exclude slashes between single words (e.g. "AC/DC", "It's not either/or")
+    -- Might need .split("/") functionality?
+    if action:find('".-/.-"') then
+        emote = emote:gsub('%s*(\'*)("+)([^"/]*/[^"]*)("+)(\'*)%s*', function (before, opening, verse, closing, after)
+            verse = verse:match("^%s*(.-)%s*$"):gsub("%s*/%s*", "\n   ")
+            opening = "\n" .. quoteTemp .. "   " .. before .. opening:sub(2)
+            closing = closing:sub(1, -2) .. after .. unquoteTemp .. "\n"
+            return opening .. verse .. closing
+        end)
+
+        emote = emote:match("^%s*(.-)%s*$")
+        emote = emote:gsub(quoteTemp.."(.-)"..unquoteTemp, function (verse)
+            if Settings.options.isDialogueColored then
+                verse = AddRgb(verse, Settings:getSayColor())
+            end
+            return verse
+        end)
+    end
+
     if Settings.options.isDialogueColored then
         -- Colour text between "quotation marks"
         emote = emote:gsub('"(%s*[^%s"][^"]*)("?)', function (dialogue, closing)
