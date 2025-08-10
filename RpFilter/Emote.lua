@@ -35,7 +35,6 @@ function Emote:format(emote)
 
     -- TODO: Handle these cases
 
-    -- Starting with words like 'tis and 'cause and '90s
     -- /e "Lua is an extension programming language designed to support general procedural programming with data description facilities."
     -- /e | "You know," she mutters, "I was just thinking of that."
 
@@ -90,9 +89,6 @@ function Emote:format(emote)
             end)
 
             -- If word with trailing apostrophe is valid, replace the apostrophe
-            -- TODO: regex style lookahead for "',? " and " '", check for trailing [',]?
-            -- If " '" found first, end of dialogue
-            -- If "',? " found first, valid contraction
             emote = emote:gsub("(["..WordChars.."]+')(%p*)", function (word, punctuation)
                 if Contraction:isValidTailless(word, punctuation) then
                     word = word:sub(1, -2) .. apostropheTemp
@@ -100,7 +96,6 @@ function Emote:format(emote)
                 return word .. punctuation
             end)
 
-            -- TODO: Explicitly catch words like 'tisn't instead of colouring two quotation marks
             -- Colour text between remaining 'speech marks'
             emote = " " .. emote:gsub("'([%.%?,!%-%+]*) '", unquoteTemp.."%1"..quoteTemp):gsub("' ([%-%+])", "'  %1") .. " "
             emote = emote:gsub(" '", quoteTemp):gsub("'([%.%?,!%-%+]*) ", unquoteTemp.."%1")
@@ -143,4 +138,3 @@ end
     -- Optional features:
     -- Highlight player names and/or make them inspectable
     -- Line break between each post, or between different characters
-    -- /clear

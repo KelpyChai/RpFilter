@@ -317,7 +317,7 @@ function DrawOptionsPanel()
 
     local colorDialogue = Turbine.UI.Lotro.CheckBox()
     colorDialogue:SetParent(options)
-    colorDialogue:SetText(" Give dialogue surrounded by 'quotes' the same colour as says")
+    colorDialogue:SetText(' Give "quoted" dialogue the same colour as says')
     colorDialogue:SetPosition(leftMargin + 20, controlTop)
     colorDialogue:SetChecked(Settings.options.isDialogueColored)
     colorDialogue:SetSize(500, 20)

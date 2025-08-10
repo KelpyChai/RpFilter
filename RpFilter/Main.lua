@@ -10,7 +10,7 @@ print = Turbine.Shell.WriteLine
 local function chatParser(sender, args)
     if not args.Message then return end
 
-    local message = args.Message:gsub("%s+$", "")
+    local message = args.Message:match("^%s*(.-)%s*$")
     local channel = args.ChatType
 
     if channel == ChatType.Standard then
