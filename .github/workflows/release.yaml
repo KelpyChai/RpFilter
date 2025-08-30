@@ -1,0 +1,31 @@
+name: Release plugin folder
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  upload-subdir:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create directory
+        run: |
+          mkdir -p Dandiron
+          cp RpFilter.plugin Dandiron/
+          cp -r RpFilter/ Dandiron/
+
+      - name: Create zip file
+        run: zip -r RP-Filter-${{ github.ref_name }}.zip ./Dandiron/
+
+      - name: Upload zip file
+        uses: softprops/action-gh-release@v2
+        with:
+          files: RP-Filter-${{ github.ref_name }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
