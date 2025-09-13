@@ -1,4 +1,4 @@
-name: Release plugin folder
+name: Release plugin files
 
 on:
   release:
@@ -14,14 +14,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Create directory
+      - name: Create plugin directory
         run: |
-          mkdir -p Dandiron
+          mkdir Dandiron
           cp RpFilter.plugin Dandiron/
           cp -r RpFilter/ Dandiron/
 
       - name: Create zip file
-        run: zip -r RP-Filter-${{ github.ref_name }}.zip ./Dandiron/
+        run: zip -r RP-Filter-${{ github.ref_name }}.zip Dandiron/
 
       - name: Upload zip file
         uses: softprops/action-gh-release@v2
