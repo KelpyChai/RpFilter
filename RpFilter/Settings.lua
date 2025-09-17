@@ -166,7 +166,7 @@ end
 
 local function createColorLabel(colorPickerWindow)
     local colorLabelFont = Turbine.UI.Lotro.Font.TrajanPro14;
-    local colorLabelColor = Turbine.UI.Color(229 / 255, 209 / 255, 136 / 255);
+    local colorLabelColor = Turbine.UI.Color(229/255, 209/255, 136/255);
 
     -- selected color hex value
     local colorLabel = Turbine.UI.Label();
@@ -204,29 +204,30 @@ local function contrastColors()
     Settings.options.darker = adjustColor(Settings:getEmoteColor(), 0.014, -0.008)
 end
 
+local function getNewColor(colorPicker)
+    local r, g, b = colorPicker:GetRGBColor()
+    return r ~= nil and {red = r, green = g, blue = b} or nil
+end
+
+local function setColor(color, new)
+    color.red, color.green, color.blue = new.red, new.green, new.blue
+end
+
 local function showColorPicker(color, window)
-    local red, green, blue = color.red, color.green, color.blue -- 0 to 255
-
-    local turbineColor = Turbine.UI.Color(red / 255, green / 255, blue / 255)
+    local turbineColor = Turbine.UI.Color(color.red/255, color.green/255, color.blue/255)
     window.colorPreview:SetBackColor(turbineColor)
-
-    local hexPattern = "Hex: #%02x%02x%02x"
-    window.colorLabel:SetText(string.format(hexPattern, red, green, blue))
+    window.colorLabel:SetText("Hex: " .. ToHexColor(color))
 
     function window.saveButton.Click(sender, args)
-        local newRed, newGreen, newBlue = window.colorPicker:GetRGBColor()
-        if not newRed then
-            newRed, newGreen, newBlue = red, green, blue
-        end
+        local currColor = getNewColor(window.colorPicker) or color
 
         if Settings.options.isSameColorUsed then
-            local sayColor = Settings.options.sayColor
-            local emoteColor = Settings.options.emoteColor
-            sayColor.red, sayColor.blue, sayColor.green = newRed, newBlue, newGreen
-            emoteColor.red, emoteColor.blue, emoteColor.green = newRed, newBlue, newGreen
+            setColor(Settings.options.sayColor, currColor)
+            setColor(Settings.options.emoteColor, currColor)
         else
-            color.red, color.blue, color.green = newRed, newBlue, newGreen
+            setColor(color, currColor)
         end
+
         if Settings.options.areEmotesContrasted then
             contrastColors()
         end

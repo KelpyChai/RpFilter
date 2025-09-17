@@ -1,12 +1,14 @@
 import "Dandiron.RpFilter.Diacritics"
 
-local function toHexColor(color)
-    return string.format(
-        "#%02X%02X%02X",
-        math.floor(color.red + 0.5),
-        math.floor(color.green + 0.5),
-        math.floor(color.blue + 0.5)
-    )
+function Round(val)
+    return val >= 0 and math.floor(val + 0.5) or math.ceil(val - 0.5)
+end
+
+---Returns hexcode representation of color with red, green, blue within [0, 255]
+---@param color any
+---@return string
+function ToHexColor(color)
+    return string.format("#%02X%02X%02X", Round(color.red), Round(color.green), Round(color.blue))
 end
 
 ---Wraps text in an RGB tag
@@ -14,7 +16,7 @@ end
 ---@param color table
 ---@return string
 function AddRgb(text, color)
-    return "<rgb=" .. toHexColor(color) .. ">" .. text .. "</rgb>"
+    return "<rgb=" .. ToHexColor(color) .. ">" .. text .. "</rgb>"
 end
 
 ---If setting is enabled, underline text with asterisks
