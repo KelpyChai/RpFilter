@@ -80,9 +80,9 @@ function Settings:loadGlobal()
     Turbine.PluginData.Load(
         GLOBAL_SETTINGS_DATA_SCOPE,
         GLOBAL_SETTINGS_FILE_NAME,
-        function (loadedData)
-            if type(loadedData) == "table" then
-                self.options = loadedData
+        function (loadedSettings)
+            if type(loadedSettings) == "table" then
+                self.options = loadedSettings
                 print("Account settings loaded")
             else
                 print("Account settings not found")
@@ -188,8 +188,8 @@ local function createSaveButton(colorPickerWindow)
     return saveButton
 end
 
-local function clamp(num, minVal, maxVal)
-    return math.max(minVal, math.min(num, maxVal))
+local function clamp(val, min, max)
+    return math.max(min, math.min(val, max))
 end
 
 local function adjustColor(rgb, hueDiff, lightDiff)
@@ -241,12 +241,13 @@ end
 
 function DrawOptionsPanel()
     local colorPickerWindow = createColorPickerWindow()
-    local window = {}
-    window.colorPickerWindow = colorPickerWindow
-    window.colorPicker = createColorPicker(colorPickerWindow)
-    window.colorPreview = createColorPreview(colorPickerWindow)
-    window.colorLabel = createColorLabel(colorPickerWindow)
-    window.saveButton = createSaveButton(colorPickerWindow)
+    local window = {
+        colorPickerWindow = colorPickerWindow,
+        colorPicker = createColorPicker(colorPickerWindow),
+        colorPreview = createColorPreview(colorPickerWindow),
+        colorLabel = createColorLabel(colorPickerWindow),
+        saveButton = createSaveButton(colorPickerWindow),
+    }
 
     function window.colorPicker:LeftClick()
         window.colorPreview:SetBackColor(self:GetTurbineColor());

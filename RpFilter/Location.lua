@@ -1,10 +1,11 @@
 -- Assumption: user has Regional or OOC enabled
 
+local INSTANCE = "instance"
+
 Location = {
-    INSTANCE = "instance",
     channels = {},
+    _current = INSTANCE,
 }
-Location._current = Location.INSTANCE
 
 function Location:getCurrent()
     return self._current
@@ -27,7 +28,7 @@ function Location:setCurrent(newLocation)
 end
 
 function Location:isInstanced()
-    return self:getCurrent() == self.INSTANCE
+    return self:getCurrent() == INSTANCE
 end
 
 -- TODO: Use string.sub() to reduce pattern matching
@@ -63,7 +64,7 @@ function Location:updateIfChanged(message)
     else
         self.channels[channel] = nil
         if next(self.channels) == nil then
-            self:setCurrent(self.INSTANCE)
+            self:setCurrent(INSTANCE)
         end
     end
 end
