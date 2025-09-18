@@ -23,20 +23,18 @@ local function chatParser(sender, args)
     end
 end
 
-local function main()
+function plugin.Load(sender, args)
     Settings:load()
     AddCallback(Turbine.Chat, "Received", chatParser)
 
     DrawOptionsPanel()
-
-    function plugin.Unload(sender, args)
-        RemoveCallback(Turbine.Chat, "Received", chatParser)
-        Settings:save()
-    end
 
     print("<u>RP Filter v1.0.1 by Dandiron</u>")
     print("- Chat colour can be customized in Options (via /plugins manager)")
     print("- NPC filter not working? Disable Regional and OOC, then reenable")
 end
 
-main()
+function plugin.Unload(sender, args)
+    Settings:save()
+    RemoveCallback(Turbine.Chat, "Received", chatParser)
+end

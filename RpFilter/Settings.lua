@@ -273,18 +273,18 @@ function DrawOptionsPanel()
         window.colorLabel:SetText("Hex: #" .. self:GetHexColor());
     end
 
-    local options = Turbine.UI.Control()
-    function plugin.GetOptionsPanel() return options end
+    local optionsPanel = Turbine.UI.Control()
+    function plugin.GetOptionsPanel() return optionsPanel end
 
-    -- options:SetBackColor(Turbine.UI.Color(0.1, 0.1, 0.1)); -- RGB, 0..1 = 0..255
-    options:SetSize(250, 300);
+    -- optionsPanel:SetBackColor(Turbine.UI.Color(0.1, 0.1, 0.1)); -- RGB, 0..1 = 0..255
+    optionsPanel:SetSize(250, 300);
 
     local leftMargin = 20;
     local controlTop = 20;
 
     -- add a button to open the color picker to choose the say color
     local changeSayColor = Turbine.UI.Lotro.Button();
-    changeSayColor:SetParent(options);
+    changeSayColor:SetParent(optionsPanel);
     changeSayColor:SetText("Change Say Colour");
     changeSayColor:SetPosition(leftMargin, controlTop);
     changeSayColor:SetWidth(200);
@@ -295,7 +295,7 @@ function DrawOptionsPanel()
 
     -- add a button to open the color picker to choose the emote color
     local changeEmoteColor = Turbine.UI.Lotro.Button();
-    changeEmoteColor:SetParent(options);
+    changeEmoteColor:SetParent(optionsPanel);
     changeEmoteColor:SetText("Change Emote Colour");
     changeEmoteColor:SetPosition(leftMargin, controlTop);
     changeEmoteColor:SetWidth(200);
@@ -305,7 +305,7 @@ function DrawOptionsPanel()
     controlTop = controlTop + 40;
 
     local useSameColor = Turbine.UI.Lotro.CheckBox()
-    useSameColor:SetParent(options)
+    useSameColor:SetParent(optionsPanel)
     useSameColor:SetText(" Use the same colour for says and emotes")
     useSameColor:SetPosition(leftMargin + 20, controlTop)
     useSameColor:SetChecked(Settings:get().isSameColorUsed)
@@ -318,7 +318,7 @@ function DrawOptionsPanel()
     controlTop = controlTop + 25
 
     local contrastEmotes = Turbine.UI.Lotro.CheckBox()
-    contrastEmotes:SetParent(options)
+    contrastEmotes:SetParent(optionsPanel)
     contrastEmotes:SetText(" Give emotes by different characters a subtle contrast")
     contrastEmotes:SetPosition(leftMargin + 20, controlTop)
     contrastEmotes:SetChecked(Settings:get().areEmotesContrasted)
@@ -337,7 +337,7 @@ function DrawOptionsPanel()
     controlTop = controlTop + 25
 
     local colorDialogue = Turbine.UI.Lotro.CheckBox()
-    colorDialogue:SetParent(options)
+    colorDialogue:SetParent(optionsPanel)
     colorDialogue:SetText(' Give "quoted" dialogue the same colour as says')
     colorDialogue:SetPosition(leftMargin + 20, controlTop)
     colorDialogue:SetChecked(Settings:get().isDialogueColored)
@@ -350,7 +350,7 @@ function DrawOptionsPanel()
     controlTop = controlTop + 25
 
     local underlineEmphasis = Turbine.UI.Lotro.CheckBox()
-    underlineEmphasis:SetParent(options)
+    underlineEmphasis:SetParent(optionsPanel)
     underlineEmphasis:SetText(" Underline words surrounded by *asterisks*")
     underlineEmphasis:SetPosition(leftMargin + 20, controlTop)
     underlineEmphasis:SetChecked(Settings:get().isEmphasisUnderlined)
@@ -363,7 +363,7 @@ function DrawOptionsPanel()
     controlTop = controlTop + 40
 
     local loadGlobal = Turbine.UI.Lotro.Button();
-    loadGlobal:SetParent(options);
+    loadGlobal:SetParent(optionsPanel);
     loadGlobal:SetText("Load Account Settings");
     loadGlobal:SetPosition(leftMargin, controlTop);
     loadGlobal:SetWidth(200);
@@ -373,7 +373,7 @@ function DrawOptionsPanel()
     controlTop = controlTop + 40;
 
     local saveGlobal = Turbine.UI.Lotro.Button();
-    saveGlobal:SetParent(options);
+    saveGlobal:SetParent(optionsPanel);
     saveGlobal:SetText("Save Account Settings");
     saveGlobal:SetPosition(leftMargin, controlTop);
     saveGlobal:SetWidth(200);
