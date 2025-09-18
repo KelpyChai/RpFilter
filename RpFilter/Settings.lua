@@ -6,6 +6,8 @@ import "Turbine.UI.Lotro"
 import "Dandiron.RpFilter.ColorPicker"
 import "Dandiron.RpFilter.Color"
 
+Settings = {}
+
 local SETTINGS_FILE_NAME = "RpFilterSettings"
 local GLOBAL_SETTINGS_FILE_NAME = "RpFilterGlobalSettings"
 local SETTINGS_DATA_SCOPE = Turbine.DataScope.Character
@@ -29,9 +31,42 @@ local DEFAULT_SETTINGS = {
     isEmphasisAccented = false
 }
 
-Settings = {
-    options = {}
-}
+local fields = {}
+
+local function readOnly(table)
+    local proxy = {}
+    local metatable = {
+        __index = table,
+        __newindex = function (_, k, v)
+            error("attempt to update a read-only table", 2)
+        end
+    }
+    setmetatable(proxy, metatable)
+    return proxy
+end
+
+local settingsView = readOnly(fields)
+
+---Returns a shallow read-only table of options
+---@return table
+function Settings:get()
+    return settingsView
+end
+
+---Returns a modifiable table of options
+---@return table
+function Settings:getMutable()
+    return fields
+end
+
+local function setTable(table, newTable)
+    for key, _ in pairs(table) do
+        table[key] = nil
+    end
+    for key, val in pairs(newTable) do
+        table[key] = val
+    end
+end
 
 local function deepcopy(object)
     local copies = {}
@@ -67,10 +102,10 @@ function Settings:load()
     end
 
     if type(loadedSettings) ~= 'table' then
-        self.options = deepcopy(DEFAULT_SETTINGS)
+        setTable(fields, deepcopy(DEFAULT_SETTINGS))
         -- print("RP Filter: loaded default settings")
     else
-        self.options = loadedSettings
+        setTable(fields, loadedSettings)
         -- print("RP Filter: loaded settings")
     end
 end
@@ -82,7 +117,7 @@ function Settings:loadGlobal()
         GLOBAL_SETTINGS_FILE_NAME,
         function (loadedSettings)
             if type(loadedSettings) == "table" then
-                self.options = loadedSettings
+                setTable(fields, loadedSettings)
                 print("Account settings loaded")
             else
                 print("Account settings not found")
@@ -95,7 +130,7 @@ function Settings:save()
     Turbine.PluginData.Save(
         SETTINGS_DATA_SCOPE,
         SETTINGS_FILE_NAME,
-        self.options
+        fields
     )
     print("RP Filter: saved settings")
 end
@@ -104,30 +139,14 @@ function Settings:saveGlobal()
     Turbine.PluginData.Save(
         GLOBAL_SETTINGS_DATA_SCOPE,
         GLOBAL_SETTINGS_FILE_NAME,
-        self.options
+        fields
     )
     print("Account settings saved")
 end
 
-function Settings:restoreDefault()
-    self.options = deepcopy(DEFAULT_SETTINGS)
-end
-
-function Settings:getSayColor()
-    return self.options.sayColor
-end
-
-function Settings:getEmoteColor()
-    return self.options.emoteColor
-end
-
-function Settings:getLighterColor()
-    return self.options.lighter
-end
-
-function Settings:getDarkerColor()
-    return self.options.darker
-end
+-- function Settings:restoreDefault()
+--     setTable(fields, deepcopy(DEFAULT_SETTINGS))
+-- end
 
 local function createBackground(colorPickerWindow)
     local background = Turbine.UI.Control();
@@ -200,8 +219,8 @@ local function adjustColor(rgb, hueDiff, lightDiff)
 end
 
 local function contrastColors()
-    Settings.options.lighter = adjustColor(Settings:getEmoteColor(), -0.014, 0.01)
-    Settings.options.darker = adjustColor(Settings:getEmoteColor(), 0.014, -0.008)
+    Settings:getMutable().lighter = adjustColor(Settings:get().emoteColor, -0.014, 0.01)
+    Settings:getMutable().darker = adjustColor(Settings:get().emoteColor, 0.014, -0.008)
 end
 
 local function getNewColor(colorPicker)
@@ -221,14 +240,14 @@ local function showColorPicker(color, window)
     function window.saveButton.Click(sender, args)
         local currColor = getNewColor(window.colorPicker) or color
 
-        if Settings.options.isSameColorUsed then
-            setColor(Settings.options.sayColor, currColor)
-            setColor(Settings.options.emoteColor, currColor)
+        if Settings:get().isSameColorUsed then
+            setColor(Settings:getMutable().sayColor, currColor)
+            setColor(Settings:getMutable().emoteColor, currColor)
         else
             setColor(color, currColor)
         end
 
-        if Settings.options.areEmotesContrasted then
+        if Settings:get().areEmotesContrasted then
             contrastColors()
         end
     end
@@ -270,7 +289,7 @@ function DrawOptionsPanel()
     changeSayColor:SetPosition(leftMargin, controlTop);
     changeSayColor:SetWidth(200);
     function changeSayColor.Click(sender, args)
-        showColorPicker(Settings:getSayColor(), window)
+        showColorPicker(Settings:getMutable().sayColor, window)
     end
     controlTop = controlTop + 40;
 
@@ -281,7 +300,7 @@ function DrawOptionsPanel()
     changeEmoteColor:SetPosition(leftMargin, controlTop);
     changeEmoteColor:SetWidth(200);
     function changeEmoteColor.Click(sender, args)
-        showColorPicker(Settings:getEmoteColor(), window)
+        showColorPicker(Settings:getMutable().emoteColor, window)
     end
     controlTop = controlTop + 40;
 
@@ -289,12 +308,12 @@ function DrawOptionsPanel()
     useSameColor:SetParent(options)
     useSameColor:SetText(" Use the same colour for says and emotes")
     useSameColor:SetPosition(leftMargin + 20, controlTop)
-    useSameColor:SetChecked(Settings.options.isSameColorUsed)
+    useSameColor:SetChecked(Settings:get().isSameColorUsed)
     useSameColor:SetSize(350, 20)
     useSameColor:SetTextAlignment(Turbine.UI.ContentAlignment.BottomLeft)
     useSameColor:SetFont(Turbine.UI.Lotro.Font.Verdana16);
     function useSameColor:CheckedChanged()
-        Settings.options.isSameColorUsed = self:IsChecked()
+        Settings:getMutable().isSameColorUsed = self:IsChecked()
     end
     controlTop = controlTop + 25
 
@@ -302,17 +321,17 @@ function DrawOptionsPanel()
     contrastEmotes:SetParent(options)
     contrastEmotes:SetText(" Give emotes by different characters a subtle contrast")
     contrastEmotes:SetPosition(leftMargin + 20, controlTop)
-    contrastEmotes:SetChecked(Settings.options.areEmotesContrasted)
+    contrastEmotes:SetChecked(Settings:get().areEmotesContrasted)
     contrastEmotes:SetSize(500, 20)
     contrastEmotes:SetTextAlignment(Turbine.UI.ContentAlignment.BottomLeft)
     contrastEmotes:SetFont(Turbine.UI.Lotro.Font.Verdana16);
     function contrastEmotes:CheckedChanged()
-        Settings.options.areEmotesContrasted = self:IsChecked()
+        Settings:getMutable().areEmotesContrasted = self:IsChecked()
         if self:IsChecked() then
             contrastColors()
         else
-            Settings.options.lighter = nil
-            Settings.options.darker = nil
+            Settings:getMutable().lighter = nil
+            Settings:getMutable().darker = nil
         end
     end
     controlTop = controlTop + 25
@@ -321,12 +340,12 @@ function DrawOptionsPanel()
     colorDialogue:SetParent(options)
     colorDialogue:SetText(' Give "quoted" dialogue the same colour as says')
     colorDialogue:SetPosition(leftMargin + 20, controlTop)
-    colorDialogue:SetChecked(Settings.options.isDialogueColored)
+    colorDialogue:SetChecked(Settings:get().isDialogueColored)
     colorDialogue:SetSize(500, 20)
     colorDialogue:SetTextAlignment(Turbine.UI.ContentAlignment.BottomLeft)
     colorDialogue:SetFont(Turbine.UI.Lotro.Font.Verdana16);
     function colorDialogue:CheckedChanged()
-        Settings.options.isDialogueColored = self:IsChecked()
+        Settings:getMutable().isDialogueColored = self:IsChecked()
     end
     controlTop = controlTop + 25
 
@@ -334,12 +353,12 @@ function DrawOptionsPanel()
     underlineEmphasis:SetParent(options)
     underlineEmphasis:SetText(" Underline words surrounded by *asterisks*")
     underlineEmphasis:SetPosition(leftMargin + 20, controlTop)
-    underlineEmphasis:SetChecked(Settings.options.isEmphasisUnderlined)
+    underlineEmphasis:SetChecked(Settings:get().isEmphasisUnderlined)
     underlineEmphasis:SetSize(350, 20)
     underlineEmphasis:SetTextAlignment(Turbine.UI.ContentAlignment.BottomLeft)
     underlineEmphasis:SetFont(Turbine.UI.Lotro.Font.Verdana16);
     function underlineEmphasis:CheckedChanged()
-        Settings.options.isEmphasisUnderlined = self:IsChecked()
+        Settings:getMutable().isEmphasisUnderlined = self:IsChecked()
     end
     controlTop = controlTop + 40
 

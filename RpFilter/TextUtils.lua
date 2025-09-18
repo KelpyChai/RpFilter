@@ -26,7 +26,7 @@ end
 ---@param text string
 ---@return string
 function UnderlineAsterisks(text)
-    if Settings.options.isEmphasisUnderlined and text:find("%*") then
+    if Settings:get().isEmphasisUnderlined and text:find("%*") then
         text = text:gsub("%*([^"..WordChars.."%*]*)(["..WordChars.."][^%*]-)([^"..WordChars.."%*]*)%*", "%1<u>%2</u>%3")
     end
     return text
