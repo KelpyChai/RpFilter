@@ -1,9 +1,8 @@
-Say = {
-    currentBlockedNpcs = {},
-    -- currentBlockedSays = {},
-}
+import "Dandiron.RpFilter.Location"
 
-Say._blockedNpcs = {
+Say = {}
+
+local BLOCKED_NPCS = {
     ["Bree-land"] = {
         ["Townsperson"] = true,
         ["Woodcutter"] = true,
@@ -64,24 +63,17 @@ Say._blockedNpcs = {
     },
 }
 
-function Say:getBlockedNpcs(region)
-    return self._blockedNpcs[region]
-end
-
 local function isFromLocalPlayer(message)
-    return message:sub(1, 8) == "You say," or message:sub(1, 10) == "You shout,"
+    return message:sub(1, 4) == "You "
 end
 
 local function isFromNpc(id)
     return id:sub(1, 6) == "0x0346"
 end
 
-function Say:isNpcAllowed(name)
-    if not self.currentBlockedNpcs or Location:isInstanced() then
-        return true
-    else
-        return not self.currentBlockedNpcs[name]
-    end
+local function isNpcAllowed(name)
+    local currBlockedNpcs = BLOCKED_NPCS[Location:getCurrent()]
+    return not currBlockedNpcs or not currBlockedNpcs[name]
 end
 
 ---Filters NPC chatter from the say channel
@@ -93,7 +85,7 @@ function Say:isAllowed(message)
     if not id then
         return isFromLocalPlayer(message)
     elseif isFromNpc(id) then
-        return self:isNpcAllowed(name)
+        return isNpcAllowed(name)
     else
         -- Must be from another player
         return true

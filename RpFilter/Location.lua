@@ -1,34 +1,16 @@
 -- Assumption: user has Regional or OOC enabled
 
-local INSTANCE = "instance"
+Location = {}
 
-Location = {
-    channels = {},
-    _current = INSTANCE,
-}
+local INSTANCE = "instance"
+local currLocation = INSTANCE
 
 function Location:getCurrent()
-    return self._current
+    return currLocation
 end
 
 function Location:setCurrent(newLocation)
-    self._current = newLocation
-    Say.currentBlockedNpcs = Say:getBlockedNpcs(newLocation)
-
-    -- Debugging
-    -- print("Now entering " .. newLocation)
-    -- print("Blocked NPCs:")
-    -- if Say.CurrentBlockedNpcs then
-    --     for name, _ in pairs(Say.CurrentBlockedNpcs) do
-    --         print(name)
-    --     end
-    -- else
-    --     print("None")
-    -- end
-end
-
-function Location:isInstanced()
-    return self:getCurrent() == INSTANCE
+    currLocation = newLocation
 end
 
 -- TODO: Use string.sub() to reduce pattern matching
@@ -50,6 +32,8 @@ local function getLocationInfo(message)
     return nil
 end
 
+local currChannels = {}
+
 ---Parses standard channel for Entered/Left messages to keep track of location
 ---@param message string
 function Location:updateIfChanged(message)
@@ -57,13 +41,13 @@ function Location:updateIfChanged(message)
     if not channel then return end
 
     if action == "Entered" then
-        self.channels[channel] = true
+        currChannels[channel] = true
         if self:getCurrent() ~= region then
             self:setCurrent(region)
         end
     else
-        self.channels[channel] = nil
-        if next(self.channels) == nil then
+        currChannels[channel] = nil
+        if next(currChannels) == nil then
             self:setCurrent(INSTANCE)
         end
     end

@@ -3,7 +3,7 @@ import "Dandiron.RpFilter.Diacritics"
 
 Contraction = {}
 
-Contraction.headlessWords = {
+local HEADLESS_WORDS = {
     ["'aporth"] = true,
     ["'aporths"] = true,
     ["'bout"] = true,
@@ -68,7 +68,7 @@ Contraction.headlessWords = {
 }
 
 -- These words are valid when h is prepended, but far less likely
-local commonWords = {
+local COMMON_WORDS = {
     ["am"] = true,
     ["is"] = true,
 }
@@ -81,7 +81,7 @@ function Contraction:isValidHeadless(speechMark, word)
     local lowercase = word:lower()
     local body = lowercase:sub(2)
 
-    if self.headlessWords[lowercase] then
+    if HEADLESS_WORDS[lowercase] then
         if Wordlist:isValidWord(body) then
             -- 'round we go vs 'Round are their houses'
             return speechMark:len() == 1 or not IsCapitalized(word)
@@ -91,7 +91,7 @@ function Contraction:isValidHeadless(speechMark, word)
     elseif Wordlist:isValidWord("h"..body) then
         if Wordlist:isValidWord(body) then
             -- They asked me 'ow I was. vs 'Ow, that hurts' vs 'Ow are you?
-            return speechMark:len() == 1 or (not IsCapitalized(word) and not commonWords[body])
+            return speechMark:len() == 1 or (not IsCapitalized(word) and not COMMON_WORDS[body])
         else
             return true
         end
@@ -115,7 +115,7 @@ local function isEndOfDialogue(punctuation)
     return false
 end
 
-Contraction.taillessWords = {
+local TAILLESS_WORDS = {
     ["ain'"] = true,
     ["an'"] = true,
     ["didn'"] = true,
@@ -135,7 +135,7 @@ function Contraction:isValidTailless(word, punctuation)
     local lowercase = word:lower()
     local body = lowercase:sub(1, -2)
 
-    if self.taillessWords[lowercase] then
+    if TAILLESS_WORDS[lowercase] then
         return true
     elseif word:sub(-2) == "s'" then
         local root = body:sub(1, -2)
