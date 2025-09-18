@@ -24,14 +24,14 @@ local function chatParser(sender, args)
 end
 
 local function main()
-    Settings:load()
+    Settings:loadLocal()
     AddCallback(Turbine.Chat, "Received", chatParser)
 
     DrawOptionsPanel()
 
     function plugin.Unload(sender, args)
         RemoveCallback(Turbine.Chat, "Received", chatParser)
-        Settings:save()
+        Settings:saveLocal()
     end
 
     print("<u>RP Filter v1.0.1 by Dandiron</u>")
