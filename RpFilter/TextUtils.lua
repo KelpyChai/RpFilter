@@ -22,12 +22,19 @@ function AddRgb(text, color)
     return "<rgb=" .. ToHexColor(color) .. ">" .. text .. "</rgb>"
 end
 
----If setting is enabled, underline text with asterisks
+---Underlines text surrounded by asterisks
 ---@param text string
 ---@return string
 function UnderlineAsterisks(text)
-    if Settings:get().isEmphasisUnderlined and text:find("%*") then
+    if text:find("%*") then
         text = text:gsub("%*([^"..WordChars.."%*]*)(["..WordChars.."][^%*]-)([^"..WordChars.."%*]*)%*", "%1<u>%2</u>%3")
     end
     return text
+end
+
+---Replaces two hyphens with em dash
+---@param text any
+---@return unknown
+function ReplaceEmDash(text)
+    return (text:gsub("%-%-", "—"))
 end

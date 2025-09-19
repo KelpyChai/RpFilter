@@ -1,6 +1,5 @@
 import "Turbine.Gameplay"
 
-import "Dandiron.RpFilter.Settings"
 import "Dandiron.RpFilter.Contraction"
 import "Dandiron.RpFilter.TextUtils"
 
@@ -15,22 +14,14 @@ local quoteTemp = "\2"
 -- Placeholder for "' "
 local unquoteTemp = "\3"
 
-if Settings:get().areEmotesContrasted then
-    Emote.isCurrColorLight = false
-end
-
-function Emote:getLightOrDark()
-    if self.isCurrColorLight then
-        return Settings:get().lighter
-    else
-        return Settings:get().darker
-    end
+function Emote:getLightOrDark(settings)
+    return self.isCurrColorLight and settings.lighter or settings.darker
 end
 
 ---Formats messages from the emote channel, including multi-post emotes
 ---@param emote string
 ---@return string
-function Emote:format(emote)
+function Emote:format(emote, settings)
     local name, action = emote:match("^(%a+)%-?%d- (.+)")
 
     -- TODO: Handle these cases
@@ -72,19 +63,19 @@ function Emote:format(emote)
 
         emote = emote:match("^%s*(.-)%s*$")
         emote = emote:gsub(quoteTemp.."(.-)"..unquoteTemp, function (verse)
-            if Settings:get().isDialogueColored then
-                verse = AddRgb(verse, Settings:get().sayColor)
+            if settings.isDialogueColored then
+                verse = AddRgb(verse, settings.sayColor)
             end
             return verse
         end)
     end
 
-    if Settings:get().isDialogueColored then
+    if settings.isDialogueColored then
         -- Colour text between "quotation marks"
         emote = emote:gsub('"(%s*[^%s"][^"]*)("?)', function (dialogue, closing)
             -- Strip whitespace, replace apostrophes between "quotation marks"
             dialogue = dialogue:match("^%s*(.-)%s*$"):gsub("'", apostropheTemp)
-            return AddRgb('"' .. dialogue .. closing, Settings:get().sayColor)
+            return AddRgb('"' .. dialogue .. closing, settings.sayColor)
         end)
 
         -- TODO: Replace words with internal and leading apostrophes ('tisn't, 'twouldn't, 'tain't)
@@ -120,7 +111,7 @@ function Emote:format(emote)
 
             emote = emote:gsub(quoteTemp.."(%s*[^%s"..quoteTemp.."][^"..quoteTemp.."]*)"..unquoteTemp.."([%.%?,!%-%+]*)", function (dialogue, punctuation)
                 dialogue = dialogue:match("^%s*(.-)%s*$")
-                return " "..AddRgb("'"..dialogue.."'", Settings:get().sayColor)..punctuation.." "
+                return " "..AddRgb("'"..dialogue.."'", settings.sayColor)..punctuation.." "
             end)
 
             emote = emote:gsub(quoteTemp.."([%s%p]*["..WordChars.."][^"..unquoteTemp.."%+]*)(%+?) $", function (dialogue, plus)
@@ -128,7 +119,7 @@ function Emote:format(emote)
                 if plus == "+" then
                     plus = " +"
                 end
-                return " "..AddRgb("'"..dialogue, Settings:get().sayColor)..plus.." "
+                return " "..AddRgb("'"..dialogue, settings.sayColor)..plus.." "
             end)
 
             emote = emote:gsub(unquoteTemp.."([%.%?,!%-%+]*)", "'%1 "):gsub(quoteTemp, " '"):sub(2, -2):gsub("'</rgb>([%.%?,!%-%+]*)  <rgb=(.-)>'", "'</rgb>%1 <rgb=%2>'"):gsub("'</rgb>  ([%-%+])", "'</rgb> %1")
@@ -137,7 +128,7 @@ function Emote:format(emote)
         emote = emote:gsub(apostropheTemp, "'")
     end
 
-    if Settings:get().areEmotesContrasted then
+    if settings.areEmotesContrasted then
         local myName = Turbine.Gameplay.LocalPlayer:GetInstance():GetName()
         if name == Emote.currEmoter or
           (name == "You" and Emote.currEmoter == myName) or
@@ -151,7 +142,8 @@ function Emote:format(emote)
     end
 
     emote = UnderlineAsterisks(emote)
-    emote = emote:gsub("%-%-", "—")
+    emote = ReplaceEmDash(emote)
+    emote = AddRgb(emote, settings.emoteColor)
 
     return emote
 end

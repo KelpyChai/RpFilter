@@ -92,6 +92,8 @@ function Say:isAllowed(message)
     end
 end
 
-function Say:format(say)
-    return UnderlineAsterisks(say):gsub("%-%-", "—")
+function Say:format(say, color)
+    say = ReplaceEmDash(say)
+    say = AddRgb(say, color)
+    return say
 end

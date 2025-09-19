@@ -16,10 +16,10 @@ local function chatParser(sender, args)
     if channel == ChatType.Standard then
         Location:updateIfChanged(message)
     elseif channel == ChatType.Say and Say:isAllowed(message) then
-        print(AddRgb(Say:format(message), Settings:get().sayColor))
+        print(Say:format(message, Settings:get().sayColor))
         -- if message:sub(1, 1) == "<" then print(message:gsub("<", "|"):gsub(">", "|")) end -- debugging
     elseif channel == ChatType.Emote then
-        print(AddRgb(Emote:format(message), Settings:get().emoteColor))
+        print(Emote:format(message, Settings:get()))
     end
 end
 
