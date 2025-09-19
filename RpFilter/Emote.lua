@@ -3,9 +3,7 @@ import "Turbine.Gameplay"
 import "Dandiron.RpFilter.Contraction"
 import "Dandiron.RpFilter.TextUtils"
 
-Emote = {
-    -- multiPosts = {}
-}
+Emote = {}
 
 -- Placeholder for "'"
 local apostropheTemp = "\1"
@@ -25,17 +23,6 @@ function Emote:format(emote, settings)
     emote = ReplaceCharacterName(emote)
     local name, action = emote:match("^(%a+)%-?%d- (.+)")
 
-    -- TODO: Handle these cases
-
-    -- /e "Lua is an extension programming language designed to support general procedural programming with data description facilities."
-    -- /e | "You know," she mutters, "I was just thinking of that."
-
-    -- /e <very long post> +
-    -- /e <even more>
-
-    -- /e "Blah blah blah +"
-    -- /e "I'm not done speaking yet!"
-
     local firstChar = action:sub(1, 1)
     if action:sub(1, 3) == "'s " then
         emote = name .. "'s " .. action:gsub("^'s%s+", "")
@@ -45,8 +32,6 @@ function Emote:format(emote, settings)
         emote = action:gsub("^/+%s*", "")
     elseif firstChar == "\\" then
         emote = action:gsub("^\\+%s*", "")
-    -- elseif action:sub(1, 1) == "+" then
-    --     emote = action:gsub("^%+%s*", "")
     elseif action:match("^l+ ") then
         emote = action:gsub("^l+%s+", "")
     end
@@ -148,7 +133,3 @@ function Emote:format(emote, settings)
 
     return emote
 end
-
-    -- Optional features:
-    -- Highlight player names and/or make them inspectable
-    -- Line break between each post, or between different characters

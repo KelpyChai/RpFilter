@@ -13,8 +13,6 @@ function Location:setCurrent(newLocation)
     currLocation = newLocation
 end
 
--- TODO: Use string.sub() to reduce pattern matching
-
 local function getLocationInfo(message)
     local patterns = {
         "^(Entered) the (.-) %- (Regional) channel%.$",
