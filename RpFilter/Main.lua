@@ -29,7 +29,7 @@ function plugin.Load(sender, args)
 
     DrawOptionsPanel()
 
-    print("<u>RP Filter v1.0.1 by Dandiron</u>")
+    print("<u>RP Filter v"..plugin:GetVersion().." by Dandiron</u>")
     print("- Chat colour can be customized in Options (via /plugins manager)")
     print("- NPC filter not working? Disable Regional and OOC, then reenable")
 end

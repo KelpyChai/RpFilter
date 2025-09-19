@@ -14,6 +14,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Update version number in .plugin file
+        run: |
+          version=${GITHUB_REF_NAME#v}
+          sed -i "s|<Version>[0-9.]*</Version>|<Version>${version}</Version>|" RpFilter.plugin
+
       - name: Create plugin directory
         run: |
           mkdir Dandiron

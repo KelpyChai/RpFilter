@@ -2,7 +2,6 @@
 
 - [ ] Refactor Emote.lua to be more modular
 - [ ] Write tests for emote formatting
-- [ ] Take the version number from releases
 - [ ] Fix incorrect underlining (only underline asterisks within dialogue)
 - [ ] Remove possessive 's' after names ending in s
 - [ ] Replace 'You' with player name
@@ -18,3 +17,4 @@
 ### Done
 
 - [ ] Fix incompatibility with other callbacks (add plugin to own apartment)
+- [ ] Take the version number from releases
