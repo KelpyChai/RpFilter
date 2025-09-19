@@ -211,16 +211,17 @@ local function clamp(val, min, max)
     return math.max(min, math.min(val, max))
 end
 
-local function adjustColor(rgb, hueDiff, lightDiff)
-    local hsl = RgbToHsl(rgb)
-    hsl.h = (hsl.h + hueDiff) % 1
-    hsl.l = clamp(hsl.l + lightDiff, 0, 1)
+local function adjustHsl(color, delta)
+    local hsl = RgbToHsl({r = color.red, g = color.green, b = color.blue})
+    hsl.h = (hsl.h + (delta.h or 0)) % 1
+    hsl.s = clamp(hsl.s + (delta.s or 0), 0, 1)
+    hsl.l = clamp(hsl.l + (delta.l or 0), 0, 1)
     return HslToRgb(hsl)
 end
 
 local function contrastColors()
-    Settings:getMutable().lighter = adjustColor(Settings:get().emoteColor, -0.014, 0.01)
-    Settings:getMutable().darker = adjustColor(Settings:get().emoteColor, 0.014, -0.008)
+    Settings:getMutable().lighter = adjustHsl(Settings:get().emoteColor, {h = -0.014, l = 0.01})
+    Settings:getMutable().darker = adjustHsl(Settings:get().emoteColor, {h = 0.014, l = -0.008})
 end
 
 local function getNewColor(colorPicker)

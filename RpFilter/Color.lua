@@ -13,7 +13,7 @@ function RgbToHsl(color)
         -- l = nil
     }
 
-    local r, g, b = color.red / 255, color.green / 255, color.blue / 255
+    local r, g, b = color.r/255, color.g/255, color.b/255
 
     local max = math.max(r, g, b)
     local min = math.min(r, g, b)
@@ -89,13 +89,13 @@ function HslToRgb(hsl)
     local h, s, l = hsl.h, hsl.s, hsl.l
 
     if s == 0 then
-        result.red, result.green, result.blue = l * 255, l * 255, l * 255 -- achromatic
+        result.r, result.g, result.b = l * 255, l * 255, l * 255 -- achromatic
     else
         local q = (l < 0.5) and (l * (1 + s)) or (l + s - l * s)
         local p = 2 * l - q
-        result.red = hueToRgb(p, q, h + 1/3) * 255
-        result.green = hueToRgb(p, q, h) * 255
-        result.blue = hueToRgb(p, q, h - 1/3) * 255
+        result.r = hueToRgb(p, q, h + 1/3) * 255
+        result.g = hueToRgb(p, q, h) * 255
+        result.b = hueToRgb(p, q, h - 1/3) * 255
     end
 
     return result
