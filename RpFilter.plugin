@@ -15,4 +15,5 @@ How to use:
         </Description>
     </Information>
     <Package>Dandiron.RpFilter.Main</Package>
+    <Configuration Apartment="RpFilter" />
 </Plugin>
