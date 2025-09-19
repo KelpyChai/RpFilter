@@ -93,9 +93,9 @@ function HslToRgb(hsl)
     else
         local q = (l < 0.5) and (l * (1 + s)) or (l + s - l * s)
         local p = 2 * l - q
-        result.red = math.floor(hueToRgb(p, q, h + 1/3) * 255 + 0.5)
-        result.green = math.floor(hueToRgb(p, q, h) * 255 + 0.5)
-        result.blue = math.floor(hueToRgb(p, q, h - 1/3) * 255 + 0.5)
+        result.red = hueToRgb(p, q, h + 1/3) * 255
+        result.green = hueToRgb(p, q, h) * 255
+        result.blue = hueToRgb(p, q, h - 1/3) * 255
     end
 
     return result
