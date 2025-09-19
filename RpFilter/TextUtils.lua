@@ -38,3 +38,12 @@ end
 function ReplaceEmDash(text)
     return (text:gsub("%-%-", "—"))
 end
+
+local PLAYER_NAME = Turbine.Gameplay.LocalPlayer:GetInstance():GetName()
+
+function ReplaceCharacterName(text)
+    if text:sub(1, 4) == "You " then
+        text = PLAYER_NAME .. text:sub(4)
+    end
+    return text
+end

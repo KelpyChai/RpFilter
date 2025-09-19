@@ -22,6 +22,7 @@ end
 ---@param emote string
 ---@return string
 function Emote:format(emote, settings)
+    emote = ReplaceCharacterName(emote)
     local name, action = emote:match("^(%a+)%-?%d- (.+)")
 
     -- TODO: Handle these cases

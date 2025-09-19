@@ -4,7 +4,6 @@
 - [ ] Write tests for emote formatting
 - [ ] Fix incorrect underlining (only underline asterisks within dialogue)
 - [ ] Remove possessive 's' after names ending in s
-- [ ] Replace 'You' with player name
 - [ ] Tweak colour contrast
 - [ ] Remove tab before lines of verse
 - [ ] Add option for different colours rather than hues
@@ -18,3 +17,4 @@
 
 - [ ] Fix incompatibility with other callbacks (add plugin to own apartment)
 - [ ] Take the version number from releases
+- [ ] Replace 'You' with player name

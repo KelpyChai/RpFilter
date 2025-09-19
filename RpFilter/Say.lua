@@ -93,6 +93,7 @@ function Say:isAllowed(message)
 end
 
 function Say:format(say, color)
+    say = ReplaceCharacterName(say)
     say = ReplaceEmDash(say)
     say = AddRgb(say, color)
     return say
