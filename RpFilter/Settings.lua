@@ -28,7 +28,6 @@ local DEFAULT_SETTINGS = {
     areEmotesContrasted = false,
     isDialogueColored = false,
     isEmphasisUnderlined = false,
-    isEmphasisAccented = false
 }
 
 local fields = {}
