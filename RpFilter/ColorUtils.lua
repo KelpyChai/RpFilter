@@ -100,3 +100,16 @@ function HslToRgb(hsl)
 
     return result
 end
+
+local function clamp(val, min, max)
+    return math.max(min, math.min(val, max))
+end
+
+function AdjustHsl(color, delta)
+    local hsl = RgbToHsl({r = color.red, g = color.green, b = color.blue})
+    hsl.h = (hsl.h + (delta.h or 0)) % 1
+    hsl.s = clamp(hsl.s + (delta.s or 0), 0, 1)
+    hsl.l = clamp(hsl.l + (delta.l or 0), 0, 1)
+    local rgb = HslToRgb(hsl)
+    return {red = rgb.r, green = rgb.g, blue = rgb.b}
+end
