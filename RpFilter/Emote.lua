@@ -31,7 +31,8 @@ local function formatHead(emote)
     if firstChar == "|" or firstChar == "/" or firstChar == "\\" then
         emote = action:gsub("^"..firstChar.."+%s?", "")
     elseif action:sub(1, 3) == "'s " then
-        emote = name .. "'s " .. action:sub(4)
+        local possessive = name:sub(-1) == "s" and "' " or "'s "
+        emote = name .. possessive .. action:sub(4)
     elseif action:match("^l+ ") then
         emote = action:match("^l+ (.+)")
     end
