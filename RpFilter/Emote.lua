@@ -37,7 +37,7 @@ local function formatHead(emote)
     elseif action:sub(1, 3) == "'s " then
         local possessive = name:sub(-1) == "s" and "' " or "'s "
         emote = name .. possessive .. action:sub(4)
-    elseif action:match("^l+ ") then
+    elseif action:find("^l+ ") then
         emote = action:match("^l+ (.+)")
     end
 
@@ -92,7 +92,7 @@ function Emote:format(emote, settings)
             emote = res
         until count == 0
 
-        if emote:find("'") then
+        if emote:find("'", 1, true) then
             -- If word with leading apostrophe is valid, replace the apostrophe
             emote = emote:gsub("('?)('["..WordChars.."]+)", function (speechMark, word)
                 if Contraction:isValidHeadless(speechMark, word) then

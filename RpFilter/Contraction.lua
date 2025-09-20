@@ -108,7 +108,7 @@ local function isEndOfDialogue(punctuation)
         return false
     end
 
-    if punctuation:sub(1, 1) == "'" or punctuation:match("[%.%?%-,!—]+'") then
+    if punctuation:sub(1, 1) == "'" or punctuation:find("[%.%?%-,!—]+'") then
         return true
     end
 

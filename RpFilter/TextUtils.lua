@@ -26,7 +26,7 @@ end
 ---@param text string
 ---@return string
 function UnderlineAsterisks(text)
-    if text:find("%*") then
+    if text:find("*", 1, true) then
         text = text:gsub("%*([^"..WordChars.."%*]*)(["..WordChars.."][^%*]-)([^"..WordChars.."%*]*)%*", "%1<u>%2</u>%3")
     end
     return text
