@@ -17,10 +17,10 @@ function Location:getCurrent()
     return currLocation
 end
 
-function Location:setCurrent(newLocation)
-    currLocation = newLocation
-end
-
+---@param message string
+---@return string|nil
+---@return string|nil
+---@return string|nil
 local function getLocationInfo(message)
     for _, pattern in ipairs(LOCATION_PATTERNS) do
         local action, region, channel = message:match(pattern)
@@ -35,17 +35,15 @@ end
 ---@param message string
 function Location:updateIfChanged(message)
     local action, region, channel = getLocationInfo(message)
-    if not channel then return end
+    if not channel or not region then return end
 
     if action == "Entered" then
         currChannels[channel] = true
-        if self:getCurrent() ~= region then
-            self:setCurrent(region)
-        end
+        currLocation = region
     else
         currChannels[channel] = nil
         if next(currChannels) == nil then
-            self:setCurrent(INSTANCE)
+            currLocation = INSTANCE
         end
     end
 end

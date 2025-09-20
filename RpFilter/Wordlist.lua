@@ -1,7 +1,7 @@
 Wordlist = {}
 
 Wordlist.OTHER = {
-	["A-OK"] = true,
+    ["A-OK"] = true,
     ["AWOL"] = true,
     ["Aaronic"] = true,
     ["Aaronical"] = true,
@@ -16223,7 +16223,7 @@ Wordlist.OTHER = {
 }
 
 Wordlist.NOUNS = {
-	["A-bomb"] = true,
+    ["A-bomb"] = true,
     ["A-bombs"] = true,
     ["A-frame"] = true,
     ["ABC"] = true,

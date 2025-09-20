@@ -4,6 +4,7 @@
 - [ ] Write tests for emote formatting
 - [ ] Fix incorrect underlining (only underline asterisks within dialogue)
 - [ ] Tweak colour contrast
+<!-- Uncertain -->
 - [ ] Remove tab before lines of verse
 - [ ] Add option for different colours rather than hues
 - [ ] Add option to make colours rainbow (must handle numerous posters)
