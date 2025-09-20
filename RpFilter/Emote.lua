@@ -12,34 +12,46 @@ local quoteTemp = "\2"
 -- Placeholder for "' "
 local unquoteTemp = "\3"
 
-function Emote:getLightOrDark(settings)
-    return self.isCurrColorLight and settings.lighter or settings.darker
+local currEmoter
+local isColorLight
+
+local function getLighterOrDarker(playerName, settings)
+    if playerName ~= currEmoter then
+        currEmoter = playerName
+        isColorLight = not isColorLight
+    end
+    return isColorLight and settings.lighter or settings.darker
+end
+
+local function formatHead(emote)
+    emote = ReplaceCharacterName(emote)
+    local name, action = emote:match("^(%a+)%-?%d- (.+)")
+    local firstChar = action:sub(1, 1)
+
+    if firstChar == "|" or firstChar == "/" or firstChar == "\\" then
+        emote = action:gsub("^"..firstChar.."+%s?", "")
+    elseif action:sub(1, 3) == "'s " then
+        emote = name .. "'s " .. action:sub(4)
+    elseif action:match("^l+ ") then
+        emote = action:match("^l+ (.+)")
+    end
+
+    return emote, name
 end
 
 ---Formats messages from the emote channel, including multi-post emotes
----@param emote string
+---@param emote string text whose whitespace is trimmed and normalized
 ---@return string
 function Emote:format(emote, settings)
-    emote = ReplaceCharacterName(emote)
-    local name, action = emote:match("^(%a+)%-?%d- (.+)")
-
-    local firstChar = action:sub(1, 1)
-    if action:sub(1, 3) == "'s " then
-        emote = name .. "'s " .. action:gsub("^'s%s+", "")
-    elseif firstChar == "|" then
-        emote = action:gsub("^|+%s*", "")
-    elseif firstChar == "/" then
-        emote = action:gsub("^/+%s*", "")
-    elseif firstChar == "\\" then
-        emote = action:gsub("^\\+%s*", "")
-    elseif action:match("^l+ ") then
-        emote = action:gsub("^l+%s+", "")
-    end
+    local name
+    -- Order of functions matters, do not change without testing
+    emote, name = formatHead(emote)
+    emote = UnderlineAsterisks(emote)
 
     -- TODO: Handle verse between single quotes and
     -- exclude slashes between single words (e.g. "AC/DC", "It's not either/or")
     -- Might need .split("/") functionality?
-    if action:find('".-/.-"') then
+    if emote:find('".-/.-"') then
         emote = emote:gsub('%s*(\'*)("+)([^"/]*/[^"]*)("+)(\'*)%s*', function (before, opening, verse, closing, after)
             verse = verse:match("^%s*(.-)%s*$"):gsub("%s*/%s*", "\n   ")
             opening = "\n" .. quoteTemp .. "   " .. before .. opening:sub(2)
@@ -74,7 +86,7 @@ function Emote:format(emote, settings)
             emote = res
         until count == 0
 
-        if action:sub(1, 3) == "'s " and action:sub(4):find("'") or action:find("'") then
+        if emote:find("'") then
             -- If word with leading apostrophe is valid, replace the apostrophe
             emote = emote:gsub("('?)('["..WordChars.."]+)", function (speechMark, word)
                 if Contraction:isValidHeadless(speechMark, word) then
@@ -114,22 +126,13 @@ function Emote:format(emote, settings)
         emote = emote:gsub(apostropheTemp, "'")
     end
 
-    if settings.areEmotesContrasted then
-        local myName = Turbine.Gameplay.LocalPlayer:GetInstance():GetName()
-        if name == Emote.currEmoter or
-          (name == "You" and Emote.currEmoter == myName) or
-          (name == myName and Emote.currEmoter == "You") then
-            emote = AddRgb(emote, self:getLightOrDark())
-        else
-            Emote.currEmoter = name
-            Emote.isCurrColorLight = not Emote.isCurrColorLight
-            emote = AddRgb(emote, self:getLightOrDark())
-        end
-    end
-
-    emote = UnderlineAsterisks(emote)
     emote = ReplaceEmDash(emote)
-    emote = AddRgb(emote, settings.emoteColor)
+
+    if settings.areEmotesContrasted then
+        emote = AddRgb(emote, getLighterOrDarker(name, settings))
+    else
+        emote = AddRgb(emote, settings.emoteColor)
+    end
 
     return emote
 end
