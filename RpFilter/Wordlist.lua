@@ -1,6 +1,6 @@
 Wordlist = {}
 
-Wordlist.other = {
+Wordlist.OTHER = {
 	["A-OK"] = true,
     ["AWOL"] = true,
     ["Aaronic"] = true,
@@ -16222,7 +16222,7 @@ Wordlist.other = {
     ["zymogenic"] = true,
 }
 
-Wordlist.nouns = {
+Wordlist.NOUNS = {
 	["A-bomb"] = true,
     ["A-bombs"] = true,
     ["A-frame"] = true,
@@ -107188,7 +107188,7 @@ Wordlist.nouns = {
     ["zymurgy"] = true,
 }
 
-Wordlist.verbs = {
+Wordlist.VERBS = {
     ["Africanize"] = true,
     ["Africanized"] = true,
     ["Africanizes"] = true,
@@ -137994,5 +137994,5 @@ Wordlist.verbs = {
 }
 
 function Wordlist:isValidWord(word)
-    return self.nouns[word] or self.verbs[word] or self.other[word]
+    return self.NOUNS[word] or self.VERBS[word] or self.OTHER[word]
 end

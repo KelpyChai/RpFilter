@@ -2,8 +2,16 @@
 
 Location = {}
 
+local LOCATION_PATTERNS = {
+    "^(Entered) the (.-) %- (Regional) channel%.$",
+    "^(Entered) the (.-) %- (OOC) channel%.$",
+    "^(Left) the (.-) %- (Regional) channel%.$",
+    "^(Left) the (.-) %- (OOC) channel%.$"
+}
 local INSTANCE = "instance"
+
 local currLocation = INSTANCE
+local currChannels = {}
 
 function Location:getCurrent()
     return currLocation
@@ -14,14 +22,7 @@ function Location:setCurrent(newLocation)
 end
 
 local function getLocationInfo(message)
-    local patterns = {
-        "^(Entered) the (.-) %- (Regional) channel%.$",
-        "^(Entered) the (.-) %- (OOC) channel%.$",
-        "^(Left) the (.-) %- (Regional) channel%.$",
-        "^(Left) the (.-) %- (OOC) channel%.$"
-    }
-
-    for _, pattern in ipairs(patterns) do
+    for _, pattern in ipairs(LOCATION_PATTERNS) do
         local action, region, channel = message:match(pattern)
         if channel then
             return action, region, channel
@@ -29,8 +30,6 @@ local function getLocationInfo(message)
     end
     return nil
 end
-
-local currChannels = {}
 
 ---Parses standard channel for Entered/Left messages to keep track of location
 ---@param message string

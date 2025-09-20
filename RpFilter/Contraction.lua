@@ -139,33 +139,33 @@ function Contraction:isValidTailless(word, punctuation)
         return true
     elseif word:sub(-2) == "s'" then
         local root = body:sub(1, -2)
-        if (IsCapitalized(word) and not Wordlist:isValidWord(body)) or Wordlist.nouns[root] then
+        if (IsCapitalized(word) and not Wordlist:isValidWord(body)) or Wordlist.NOUNS[root] then
             return isEndOfDialogue(punctuation)
         elseif word:sub(-3) == "es'" then
             root = body:sub(1, -3)
-            if Wordlist.nouns[root] then
+            if Wordlist.NOUNS[root] then
                 return isEndOfDialogue(punctuation)
             end
 
             root = body:sub(1, -4)
-            if word:sub(-4) == "ves'" and (Wordlist.nouns[root.."f"] or Wordlist.nouns[root.."fe"]) then
+            if word:sub(-4) == "ves'" and (Wordlist.NOUNS[root.."f"] or Wordlist.NOUNS[root.."fe"]) then
                 return isEndOfDialogue(punctuation)
-            elseif word:sub(-4) == "ies'" and Wordlist.nouns[root.."y"] then
+            elseif word:sub(-4) == "ies'" and Wordlist.NOUNS[root.."y"] then
                 return isEndOfDialogue(punctuation)
             end
         end
     elseif word:sub(-3) == "in'" then
         local root = body:sub(1, -3)
-        if Wordlist.verbs[body.."g"] or Wordlist.verbs[root] or Wordlist.verbs[root.."e"] then
+        if Wordlist.VERBS[body.."g"] or Wordlist.VERBS[root] or Wordlist.VERBS[root.."e"] then
             return true
         end
 
         root = body:sub(1, -4)
-        if word:sub(-4) == "yin'" and Wordlist.verbs[root.."ie"] then
+        if word:sub(-4) == "yin'" and Wordlist.VERBS[root.."ie"] then
             return true
-        elseif word:sub(-5) == "ckin'" and Wordlist.verbs[root] then
+        elseif word:sub(-5) == "ckin'" and Wordlist.VERBS[root] then
             return true
-        elseif word:sub(-4, -4) == word:sub(-5, -5) and Wordlist.verbs[root] then
+        elseif word:sub(-4, -4) == word:sub(-5, -5) and Wordlist.VERBS[root] then
             return true
         end
     end

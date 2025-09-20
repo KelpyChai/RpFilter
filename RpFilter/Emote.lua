@@ -6,11 +6,11 @@ import "Dandiron.RpFilter.TextUtils"
 Emote = {}
 
 -- Placeholder for "'"
-local apostropheTemp = "\1"
+local QUOTE_CHAR = "\1"
 -- Placeholder for " '"
-local quoteTemp = "\2"
+local OPENING_CHAR = "\2"
 -- Placeholder for "' "
-local unquoteTemp = "\3"
+local CLOSING_CHAR = "\3"
 
 local currEmoter
 local isColorLight
@@ -59,13 +59,13 @@ function Emote:format(emote, settings)
         emote = emote:gsub('%s*(\'*)("+)([^"/]*/[^"]*)("+)(\'*)%s*', function (before, opening, verse, closing, after)
             verse = Strip(verse)
             verse = verse:gsub("%s*/%s*", "\n   ")
-            opening = "\n" .. quoteTemp .. "   " .. before .. opening:sub(2)
-            closing = closing:sub(1, -2) .. after .. unquoteTemp .. "\n"
+            opening = "\n" .. OPENING_CHAR .. "   " .. before .. opening:sub(2)
+            closing = closing:sub(1, -2) .. after .. CLOSING_CHAR .. "\n"
             return opening .. verse .. closing
         end)
 
         emote = Strip(emote)
-        emote = emote:gsub(quoteTemp.."(.-)"..unquoteTemp, function (verse)
+        emote = emote:gsub(OPENING_CHAR.."(.-)"..CLOSING_CHAR, function (verse)
             if settings.isDialogueColored then
                 verse = AddRgb(verse, settings.sayColor)
             end
@@ -80,7 +80,7 @@ function Emote:format(emote, settings)
         emote = emote:gsub('"(%s*[^%s"][^"]*)("?)', function (dialogue, closing)
             -- Strip whitespace, replace apostrophes between "quotation marks"
             dialogue = Strip(dialogue)
-            dialogue = dialogue:gsub("'", apostropheTemp)
+            dialogue = dialogue:gsub("'", QUOTE_CHAR)
             return AddRgb('"' .. dialogue .. closing, settings.sayColor)
         end)
 
@@ -88,39 +88,39 @@ function Emote:format(emote, settings)
 
         -- Replace internal apostrophes
         repeat
-            local res, count = emote:gsub("(["..WordChars.."]+'["..WordChars.."]+)", function (word)
-                return word:gsub("'", apostropheTemp)
+            local res, count = emote:gsub("(["..WORD_CHARS.."]+'["..WORD_CHARS.."]+)", function (word)
+                return word:gsub("'", QUOTE_CHAR)
             end)
             emote = res
         until count == 0
 
         if emote:find("'", 1, true) then
             -- If word with leading apostrophe is valid, replace the apostrophe
-            emote = emote:gsub("('?)('["..WordChars.."]+)", function (speechMark, word)
+            emote = emote:gsub("('?)('["..WORD_CHARS.."]+)", function (speechMark, word)
                 if Contraction:isValidHeadless(speechMark, word) then
-                    word = apostropheTemp .. word:sub(2)
+                    word = QUOTE_CHAR .. word:sub(2)
                 end
                 return speechMark .. word
             end)
 
             -- If word with trailing apostrophe is valid, replace the apostrophe
-            emote = emote:gsub("(["..WordChars.."]+')(%p*)", function (word, punctuation)
+            emote = emote:gsub("(["..WORD_CHARS.."]+')(%p*)", function (word, punctuation)
                 if Contraction:isValidTailless(word, punctuation) then
-                    word = word:sub(1, -2) .. apostropheTemp
+                    word = word:sub(1, -2) .. QUOTE_CHAR
                 end
                 return word .. punctuation
             end)
 
             -- Colour text between remaining 'speech marks'
-            emote = " " .. emote:gsub("'([%.%?,!%-%+]*) '", unquoteTemp.."%1"..quoteTemp):gsub("' ([%-%+])", "'  %1") .. " "
-            emote = emote:gsub(" '", quoteTemp):gsub("'([%.%?,!%-%+]*) ", unquoteTemp.."%1")
+            emote = " " .. emote:gsub("'([%.%?,!%-%+]*) '", CLOSING_CHAR.."%1"..OPENING_CHAR):gsub("' ([%-%+])", "'  %1") .. " "
+            emote = emote:gsub(" '", OPENING_CHAR):gsub("'([%.%?,!%-%+]*) ", CLOSING_CHAR.."%1")
 
-            emote = emote:gsub(quoteTemp.."(%s*[^%s"..quoteTemp.."][^"..quoteTemp.."]*)"..unquoteTemp.."([%.%?,!%-%+]*)", function (dialogue, punctuation)
+            emote = emote:gsub(OPENING_CHAR.."(%s*[^%s"..OPENING_CHAR.."][^"..OPENING_CHAR.."]*)"..CLOSING_CHAR.."([%.%?,!%-%+]*)", function (dialogue, punctuation)
                 dialogue = Strip(dialogue)
                 return " "..AddRgb("'"..dialogue.."'", settings.sayColor)..punctuation.." "
             end)
 
-            emote = emote:gsub(quoteTemp.."([%s%p]*["..WordChars.."][^"..unquoteTemp.."%+]*)(%+?) $", function (dialogue, plus)
+            emote = emote:gsub(OPENING_CHAR.."([%s%p]*["..WORD_CHARS.."][^"..CLOSING_CHAR.."%+]*)(%+?) $", function (dialogue, plus)
                 dialogue = Strip(dialogue)
                 if plus == "+" then
                     plus = " +"
@@ -128,10 +128,10 @@ function Emote:format(emote, settings)
                 return " "..AddRgb("'"..dialogue, settings.sayColor)..plus.." "
             end)
 
-            emote = emote:gsub(unquoteTemp.."([%.%?,!%-%+]*)", "'%1 "):gsub(quoteTemp, " '"):sub(2, -2):gsub("'</rgb>([%.%?,!%-%+]*)  <rgb=(.-)>'", "'</rgb>%1 <rgb=%2>'"):gsub("'</rgb>  ([%-%+])", "'</rgb> %1")
+            emote = emote:gsub(CLOSING_CHAR.."([%.%?,!%-%+]*)", "'%1 "):gsub(OPENING_CHAR, " '"):sub(2, -2):gsub("'</rgb>([%.%?,!%-%+]*)  <rgb=(.-)>'", "'</rgb>%1 <rgb=%2>'"):gsub("'</rgb>  ([%-%+])", "'</rgb> %1")
         end
 
-        emote = emote:gsub(apostropheTemp, "'")
+        emote = emote:gsub(QUOTE_CHAR, "'")
     end
 
     emote = ReplaceEmDash(emote)

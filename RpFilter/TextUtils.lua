@@ -1,5 +1,21 @@
 import "Dandiron.RpFilter.Diacritics"
 
+local PLAYER_NAME = Turbine.Gameplay.LocalPlayer:GetInstance():GetName()
+
+function GetPlayerName()
+    return PLAYER_NAME
+end
+
+---Replaces 'You say' with '<player> says'
+---@param text string
+---@return string
+function ReplacePlayerName(text)
+    if text:sub(1, 7) == "You say" then
+        text = PLAYER_NAME .. " says" .. text:sub(8)
+    end
+    return text
+end
+
 ---Rounds to the nearest integer
 ---@param val number
 ---@return number
@@ -27,7 +43,7 @@ end
 ---@return string
 function UnderlineAsterisks(text)
     if text:find("*", 1, true) then
-        text = text:gsub("%*([^"..WordChars.."%*]*)(["..WordChars.."][^%*]-)([^"..WordChars.."%*]*)%*", "%1<u>%2</u>%3")
+        text = text:gsub("%*([^"..WORD_CHARS.."%*]*)(["..WORD_CHARS.."][^%*]-)([^"..WORD_CHARS.."%*]*)%*", "%1<u>%2</u>%3")
     end
     return text
 end
@@ -44,20 +60,4 @@ end
 ---@return string
 function Strip(text)
     return text:match("^%s*(.-)%s*$")
-end
-
-local PLAYER_NAME = Turbine.Gameplay.LocalPlayer:GetInstance():GetName()
-
-function GetPlayerName()
-    return PLAYER_NAME
-end
-
----Replaces 'You say' with '<player> says'
----@param text string
----@return string
-function ReplacePlayerName(text)
-    if text:sub(1, 7) == "You say" then
-        text = PLAYER_NAME .. " says" .. text:sub(8)
-    end
-    return text
 end
