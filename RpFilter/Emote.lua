@@ -16,15 +16,19 @@ local currEmoter
 local isColorLight
 
 local function getLighterOrDarker(playerName, settings)
+    if playerName == "You" then
+        playerName = GetPlayerName()
+    end
+
     if playerName ~= currEmoter then
         currEmoter = playerName
         isColorLight = not isColorLight
     end
+
     return isColorLight and settings.lighter or settings.darker
 end
 
 local function formatHead(emote)
-    emote = ReplaceCharacterName(emote)
     local name, action = emote:match("^(%a+)%-?%d- (.+)")
     local firstChar = action:sub(1, 1)
 
@@ -47,7 +51,6 @@ function Emote:format(emote, settings)
     local name
     -- Order of functions matters, do not change without testing
     emote, name = formatHead(emote)
-    emote = UnderlineAsterisks(emote)
 
     -- TODO: Handle verse between single quotes and
     -- exclude slashes between single words (e.g. "AC/DC", "It's not either/or")
@@ -68,6 +71,8 @@ function Emote:format(emote, settings)
             return verse
         end)
     end
+
+    emote = UnderlineAsterisks(emote)
 
     if settings.isDialogueColored then
         -- Colour text between "quotation marks"

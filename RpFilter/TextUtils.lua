@@ -41,7 +41,11 @@ end
 
 local PLAYER_NAME = Turbine.Gameplay.LocalPlayer:GetInstance():GetName()
 
-function ReplaceCharacterName(text)
+function GetPlayerName()
+    return PLAYER_NAME
+end
+
+function ReplacePlayerName(text)
     if text:sub(1, 4) == "You " then
         text = PLAYER_NAME .. text:sub(4)
     end
