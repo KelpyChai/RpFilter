@@ -52,12 +52,12 @@ function GetPlayerName()
     return PLAYER_NAME
 end
 
----Replaces 'You' with player's name
+---Replaces 'You say' with '<player> says'
 ---@param text string
 ---@return string
 function ReplacePlayerName(text)
-    if text:sub(1, 4) == "You " then
-        text = PLAYER_NAME .. text:sub(4)
+    if text:sub(1, 7) == "You say" then
+        text = PLAYER_NAME .. " says" .. text:sub(8)
     end
     return text
 end
