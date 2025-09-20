@@ -57,13 +57,14 @@ function Emote:format(emote, settings)
     -- Might need .split("/") functionality?
     if emote:find('".-/.-"') then
         emote = emote:gsub('%s*(\'*)("+)([^"/]*/[^"]*)("+)(\'*)%s*', function (before, opening, verse, closing, after)
-            verse = verse:match("^%s*(.-)%s*$"):gsub("%s*/%s*", "\n   ")
+            verse = Strip(verse)
+            verse = verse:gsub("%s*/%s*", "\n   ")
             opening = "\n" .. quoteTemp .. "   " .. before .. opening:sub(2)
             closing = closing:sub(1, -2) .. after .. unquoteTemp .. "\n"
             return opening .. verse .. closing
         end)
 
-        emote = emote:match("^%s*(.-)%s*$")
+        emote = Strip(emote)
         emote = emote:gsub(quoteTemp.."(.-)"..unquoteTemp, function (verse)
             if settings.isDialogueColored then
                 verse = AddRgb(verse, settings.sayColor)
@@ -78,7 +79,8 @@ function Emote:format(emote, settings)
         -- Colour text between "quotation marks"
         emote = emote:gsub('"(%s*[^%s"][^"]*)("?)', function (dialogue, closing)
             -- Strip whitespace, replace apostrophes between "quotation marks"
-            dialogue = dialogue:match("^%s*(.-)%s*$"):gsub("'", apostropheTemp)
+            dialogue = Strip(dialogue)
+            dialogue = dialogue:gsub("'", apostropheTemp)
             return AddRgb('"' .. dialogue .. closing, settings.sayColor)
         end)
 
@@ -114,12 +116,12 @@ function Emote:format(emote, settings)
             emote = emote:gsub(" '", quoteTemp):gsub("'([%.%?,!%-%+]*) ", unquoteTemp.."%1")
 
             emote = emote:gsub(quoteTemp.."(%s*[^%s"..quoteTemp.."][^"..quoteTemp.."]*)"..unquoteTemp.."([%.%?,!%-%+]*)", function (dialogue, punctuation)
-                dialogue = dialogue:match("^%s*(.-)%s*$")
+                dialogue = Strip(dialogue)
                 return " "..AddRgb("'"..dialogue.."'", settings.sayColor)..punctuation.." "
             end)
 
             emote = emote:gsub(quoteTemp.."([%s%p]*["..WordChars.."][^"..unquoteTemp.."%+]*)(%+?) $", function (dialogue, plus)
-                dialogue = dialogue:match("^%s*(.-)%s*$")
+                dialogue = Strip(dialogue)
                 if plus == "+" then
                     plus = " +"
                 end

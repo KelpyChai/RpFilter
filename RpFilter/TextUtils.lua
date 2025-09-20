@@ -33,10 +33,17 @@ function UnderlineAsterisks(text)
 end
 
 ---Replaces two hyphens with em dash
----@param text any
----@return unknown
+---@param text string
+---@return string
 function ReplaceEmDash(text)
     return (text:gsub("%-%-", "—"))
+end
+
+---Trims leading and trailing whitespace
+---@param text string
+---@return string
+function Strip(text)
+    return text:match("^%s*(.-)%s*$")
 end
 
 local PLAYER_NAME = Turbine.Gameplay.LocalPlayer:GetInstance():GetName()
@@ -45,6 +52,9 @@ function GetPlayerName()
     return PLAYER_NAME
 end
 
+---Replaces 'You' with player's name
+---@param text string
+---@return string
 function ReplacePlayerName(text)
     if text:sub(1, 4) == "You " then
         text = PLAYER_NAME .. text:sub(4)
