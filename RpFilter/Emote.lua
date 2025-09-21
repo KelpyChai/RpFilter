@@ -16,7 +16,7 @@ local currEmoter
 local isColorLight
 
 local function formatHead(emote)
-    local name, action = emote:match("^(%a+)%-?%d- (.+)")
+    local name, action = emote:match("^(%a+'?s?)%-?%d- (.+)")
     local firstChar = action:sub(1, 1)
 
     if firstChar == "|" or firstChar == "/" or firstChar == "\\" then
