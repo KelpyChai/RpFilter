@@ -2,6 +2,9 @@
 
 - Tweak colour contrast
 - Nickname for characters via commands
+- Refactor settings
+- Update checkboxes upon loading
+- Final check before updating
 
 ### Doing
 
