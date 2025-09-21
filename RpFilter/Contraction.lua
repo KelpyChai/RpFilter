@@ -1,5 +1,5 @@
 import "Dandiron.RpFilter.Wordlist"
-import "Dandiron.RpFilter.Diacritics"
+import "Dandiron.RpFilter.TextUtils"
 
 Contraction = {}
 

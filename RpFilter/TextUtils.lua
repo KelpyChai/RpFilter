@@ -1,4 +1,13 @@
-import "Dandiron.RpFilter.Diacritics"
+-- Standard word characters extended with diacritics
+WORD_CHARS = "A-Za-z0-9" ..
+            "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞß" ..
+            "àáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ"
+
+---@param word string
+---@return boolean
+function IsCapitalized(word)
+    return word:match("^'?[A-ZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞß]") ~= nil
+end
 
 local PLAYER_NAME = Turbine ~= nil and Turbine.Gameplay.LocalPlayer:GetInstance():GetName() or ""
 
