@@ -29,6 +29,9 @@ function plugin.Load(sender, args)
     Callback.add(Turbine.Chat, "Received", chatParser)
 
     Settings.DrawOptionsPanel()
+    if Settings.get().areEmotesRainbow then
+        PlayerQueue.insert(GetPlayerName(), Settings.get().emoteColor)
+    end
 
     print("<u>RP Filter v"..plugin:GetVersion().." by Dandiron</u>")
     print("- Chat colour can be customized in Options (via /plugins manager)")
