@@ -75,26 +75,25 @@ end
 local function colorDialogue(emote, settings)
     local sayColor = settings.sayColor
 
-    -- Colour text between "quotation marks"
+    -- Colour text between "double quotes"
     emote = emote:gsub('"(%s*[^%s"][^"]*)("?)', function (dialogue, closing)
-        -- Strip whitespace, replace apostrophes between "quotation marks"
         dialogue = Strip(dialogue)
+        -- Replace all apostrophes with placeholders
         dialogue = dialogue:gsub("'", QUOTE_CHAR)
-        return AddRgb('"' .. dialogue .. closing, sayColor)
+        dialogue = AddRgb('"' .. dialogue .. closing, sayColor)
+        return dialogue
     end)
 
-    -- TODO: Replace words with internal and leading apostrophes ('tisn't, 'twouldn't, 'tain't)
+    -- TODO: Handle words with internal and leading apostrophes (e.g. 'tisn't, 'twouldn't, 'tain't)
 
-    -- Replace internal apostrophes
+    -- Replace apostrophes within words with placeholders (e.g. it's, can't, Bob's, rock'n'roll)
     repeat
-        local res, count = emote:gsub("(["..WORD_CHARS.."]+'["..WORD_CHARS.."]+)", function (word)
-            return word:gsub("'", QUOTE_CHAR)
-        end)
+        local res, count = emote:gsub("(["..WORD_CHARS.."]+)'(["..WORD_CHARS.."]+)", "%1"..QUOTE_CHAR.."%2")
         emote = res
     until count == 0
 
     if emote:find("'", 1, true) then
-        -- If word with leading apostrophe is valid, replace the apostrophe
+        -- Replace leading apostrophe with placeholder if word is valid contraction (e.g. 'tis, 'ello, 'fraid)
         emote = emote:gsub("('?)('["..WORD_CHARS.."]+)", function (speechMark, word)
             if Contraction:isValidHeadless(speechMark, word) then
                 word = QUOTE_CHAR .. word:sub(2)
@@ -102,7 +101,7 @@ local function colorDialogue(emote, settings)
             return speechMark .. word
         end)
 
-        -- If word with trailing apostrophe is valid, replace the apostrophe
+        -- Replace trailing apostrophe with placeholder if word is valid contraction (e.g. Marius', ol', walkin')
         emote = emote:gsub("(["..WORD_CHARS.."]+')(%p*)", function (word, punctuation)
             if Contraction:isValidTailless(word, punctuation) then
                 word = word:sub(1, -2) .. QUOTE_CHAR
@@ -110,7 +109,7 @@ local function colorDialogue(emote, settings)
             return word .. punctuation
         end)
 
-        -- Colour text between remaining 'speech marks'
+        -- Colour text between remaining 'single quotes'
         emote = " " .. emote:gsub("'([%.%?,!%-%+]*) '", CLOSING_CHAR.."%1"..OPENING_CHAR):gsub("' ([%-%+])", "'  %1") .. " "
         emote = emote:gsub(" '", OPENING_CHAR):gsub("'([%.%?,!%-%+]*) ", CLOSING_CHAR.."%1")
 
@@ -144,7 +143,7 @@ local function addEmoteColor(emote, name, settings)
     return emote
 end
 
----Formats messages from the emote channel, including multi-post emotes
+---Formats emotes according to given settings
 ---@param emote string text whose whitespace is trimmed and normalized
 ---@return string
 function Emote:format(emote, settings)
@@ -154,6 +153,7 @@ function Emote:format(emote, settings)
     emote = formatVerse(emote, settings)
     if settings.isEmphasisUnderlined then emote = UnderlineAsterisks(emote) end
     if settings.isDialogueColored then emote = colorDialogue(emote, settings) end
+    -- Em dashes are not ASCII characters, they will confuse match() and gsub()
     emote = ReplaceEmDash(emote)
     emote = addEmoteColor(emote, name, settings)
 

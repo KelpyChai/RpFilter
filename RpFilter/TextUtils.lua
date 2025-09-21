@@ -39,6 +39,8 @@ function AddRgb(text, color)
 end
 
 ---Underlines text surrounded by asterisks
+---
+---**Warning**: this function cannot handle text with xml tags
 ---@param text string
 ---@return string
 function UnderlineAsterisks(text)
