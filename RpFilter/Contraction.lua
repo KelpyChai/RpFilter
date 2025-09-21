@@ -62,7 +62,7 @@ local COMMON_WORDS = {
 ---@param speechMark string apostrophe preceding the word
 ---@param word string word beginning with apostrophe, e.g. 'round, 'tween
 ---@return boolean
-function Contraction:isValidHeadless(speechMark, word)
+function Contraction.isValidHeadless(speechMark, word)
     local lowercase = word:lower()
     local body = lowercase:sub(2)
 
@@ -117,7 +117,7 @@ local TAILLESS_WORDS = {
 ---@param word string word ending with apostrophe, e.g. knowin', countries'
 ---@param punctuation string apostrophe preceding the word
 ---@return boolean
-function Contraction:isValidTailless(word, punctuation)
+function Contraction.isValidTailless(word, punctuation)
     local lowercase = word:lower()
     local body = lowercase:sub(1, -2)
 

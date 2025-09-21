@@ -72,14 +72,14 @@ local function isFromNpc(id)
 end
 
 local function isNpcAllowed(name)
-    local currBlockedNpcs = BLOCKED_NPCS[Location:getCurrent()]
+    local currBlockedNpcs = BLOCKED_NPCS[Location.getCurrent()]
     return not currBlockedNpcs or not currBlockedNpcs[name]
 end
 
 ---Filters NPC chatter from the say channel
 ---@param message any
 ---@return boolean
-function Say:isAllowed(message)
+function Say.isAllowed(message)
     local id, name = message:match("^<Select:IID:(0x%x-)>(.-)<\\Select>")
 
     if not id then
@@ -92,7 +92,7 @@ function Say:isAllowed(message)
     end
 end
 
-function Say:format(say, color)
+function Say.format(say, color)
     say = ReplacePlayerName(say)
     say = ReplaceEmDash(say)
     say = AddRgb(say, color)

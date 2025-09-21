@@ -48,13 +48,13 @@ local settingsView = readOnly(fields)
 
 ---Returns a shallow read-only table of options
 ---@return table
-function Settings:get()
+function Settings.get()
     return settingsView
 end
 
 ---Returns a modifiable table of options
 ---@return table
-function Settings:getMutable()
+function Settings.getMutable()
     return fields
 end
 
@@ -87,7 +87,7 @@ local function deepcopy(object)
     return copy(object)
 end
 
-function Settings:load()
+function Settings.load()
     local loadedSettings = Turbine.PluginData.Load(
         SETTINGS_DATA_SCOPE,
         SETTINGS_FILE_NAME
@@ -109,7 +109,7 @@ function Settings:load()
     end
 end
 
-function Settings:loadGlobal()
+function Settings.loadGlobal()
     print("Waiting to load account settings...")
     Turbine.PluginData.Load(
         GLOBAL_SETTINGS_DATA_SCOPE,
@@ -125,7 +125,7 @@ function Settings:loadGlobal()
     )
 end
 
-function Settings:save()
+function Settings.save()
     Turbine.PluginData.Save(
         SETTINGS_DATA_SCOPE,
         SETTINGS_FILE_NAME,
@@ -134,7 +134,7 @@ function Settings:save()
     print("RP Filter: saved settings")
 end
 
-function Settings:saveGlobal()
+function Settings.saveGlobal()
     Turbine.PluginData.Save(
         GLOBAL_SETTINGS_DATA_SCOPE,
         GLOBAL_SETTINGS_FILE_NAME,
@@ -143,7 +143,7 @@ function Settings:saveGlobal()
     print("Account settings saved")
 end
 
--- function Settings:restoreDefault()
+-- function Settings.restoreDefault()
 --     setTable(fields, deepcopy(DEFAULT_SETTINGS))
 -- end
 
@@ -207,8 +207,8 @@ local function createSaveButton(colorPickerWindow)
 end
 
 local function contrastColors()
-    Settings:getMutable().lighter = AdjustHsl(Settings:get().emoteColor, {h = -0.014, l = 0.01})
-    Settings:getMutable().darker = AdjustHsl(Settings:get().emoteColor, {h = 0.014, l = -0.008})
+    Settings.getMutable().lighter = AdjustHsl(Settings.get().emoteColor, {h = -0.014, l = 0.01})
+    Settings.getMutable().darker = AdjustHsl(Settings.get().emoteColor, {h = 0.014, l = -0.008})
 end
 
 local function getNewColor(colorPicker)
@@ -228,14 +228,14 @@ local function showColorPicker(color, window)
     function window.saveButton.Click(sender, args)
         local currColor = getNewColor(window.colorPicker) or color
 
-        if Settings:get().isSameColorUsed then
-            setColor(Settings:getMutable().sayColor, currColor)
-            setColor(Settings:getMutable().emoteColor, currColor)
+        if Settings.get().isSameColorUsed then
+            setColor(Settings.getMutable().sayColor, currColor)
+            setColor(Settings.getMutable().emoteColor, currColor)
         else
             setColor(color, currColor)
         end
 
-        if Settings:get().areEmotesContrasted then
+        if Settings.get().areEmotesContrasted then
             contrastColors()
         end
     end
@@ -246,7 +246,7 @@ local function showColorPicker(color, window)
     window.colorPickerWindow:SetZOrder(0);
 end
 
-function DrawOptionsPanel()
+function Settings.DrawOptionsPanel()
     local colorPickerWindow = createColorPickerWindow()
     local window = {
         colorPickerWindow = colorPickerWindow,
@@ -277,7 +277,7 @@ function DrawOptionsPanel()
     changeSayColor:SetPosition(leftMargin, controlTop);
     changeSayColor:SetWidth(200);
     function changeSayColor.Click(sender, args)
-        showColorPicker(Settings:getMutable().sayColor, window)
+        showColorPicker(Settings.getMutable().sayColor, window)
     end
     controlTop = controlTop + 40;
 
@@ -288,7 +288,7 @@ function DrawOptionsPanel()
     changeEmoteColor:SetPosition(leftMargin, controlTop);
     changeEmoteColor:SetWidth(200);
     function changeEmoteColor.Click(sender, args)
-        showColorPicker(Settings:getMutable().emoteColor, window)
+        showColorPicker(Settings.getMutable().emoteColor, window)
     end
     controlTop = controlTop + 40;
 
@@ -296,12 +296,12 @@ function DrawOptionsPanel()
     useSameColor:SetParent(optionsPanel)
     useSameColor:SetText(" Use the same colour for says and emotes")
     useSameColor:SetPosition(leftMargin + 20, controlTop)
-    useSameColor:SetChecked(Settings:get().isSameColorUsed)
+    useSameColor:SetChecked(Settings.get().isSameColorUsed)
     useSameColor:SetSize(350, 20)
     useSameColor:SetTextAlignment(Turbine.UI.ContentAlignment.BottomLeft)
     useSameColor:SetFont(Turbine.UI.Lotro.Font.Verdana16);
     function useSameColor:CheckedChanged()
-        Settings:getMutable().isSameColorUsed = self:IsChecked()
+        Settings.getMutable().isSameColorUsed = self:IsChecked()
     end
     controlTop = controlTop + 25
 
@@ -309,17 +309,17 @@ function DrawOptionsPanel()
     contrastEmotes:SetParent(optionsPanel)
     contrastEmotes:SetText(" Give emotes by different characters a subtle contrast")
     contrastEmotes:SetPosition(leftMargin + 20, controlTop)
-    contrastEmotes:SetChecked(Settings:get().areEmotesContrasted)
+    contrastEmotes:SetChecked(Settings.get().areEmotesContrasted)
     contrastEmotes:SetSize(500, 20)
     contrastEmotes:SetTextAlignment(Turbine.UI.ContentAlignment.BottomLeft)
     contrastEmotes:SetFont(Turbine.UI.Lotro.Font.Verdana16);
     function contrastEmotes:CheckedChanged()
-        Settings:getMutable().areEmotesContrasted = self:IsChecked()
+        Settings.getMutable().areEmotesContrasted = self:IsChecked()
         if self:IsChecked() then
             contrastColors()
         else
-            Settings:getMutable().lighter = nil
-            Settings:getMutable().darker = nil
+            Settings.getMutable().lighter = nil
+            Settings.getMutable().darker = nil
         end
     end
     controlTop = controlTop + 25
@@ -328,12 +328,12 @@ function DrawOptionsPanel()
     colorDialogue:SetParent(optionsPanel)
     colorDialogue:SetText(' Give "quoted" dialogue the same colour as says')
     colorDialogue:SetPosition(leftMargin + 20, controlTop)
-    colorDialogue:SetChecked(Settings:get().isDialogueColored)
+    colorDialogue:SetChecked(Settings.get().isDialogueColored)
     colorDialogue:SetSize(500, 20)
     colorDialogue:SetTextAlignment(Turbine.UI.ContentAlignment.BottomLeft)
     colorDialogue:SetFont(Turbine.UI.Lotro.Font.Verdana16);
     function colorDialogue:CheckedChanged()
-        Settings:getMutable().isDialogueColored = self:IsChecked()
+        Settings.getMutable().isDialogueColored = self:IsChecked()
     end
     controlTop = controlTop + 25
 
@@ -341,12 +341,12 @@ function DrawOptionsPanel()
     underlineEmphasis:SetParent(optionsPanel)
     underlineEmphasis:SetText(" Underline words surrounded by *asterisks*")
     underlineEmphasis:SetPosition(leftMargin + 20, controlTop)
-    underlineEmphasis:SetChecked(Settings:get().isEmphasisUnderlined)
+    underlineEmphasis:SetChecked(Settings.get().isEmphasisUnderlined)
     underlineEmphasis:SetSize(350, 20)
     underlineEmphasis:SetTextAlignment(Turbine.UI.ContentAlignment.BottomLeft)
     underlineEmphasis:SetFont(Turbine.UI.Lotro.Font.Verdana16);
     function underlineEmphasis:CheckedChanged()
-        Settings:getMutable().isEmphasisUnderlined = self:IsChecked()
+        Settings.getMutable().isEmphasisUnderlined = self:IsChecked()
     end
     controlTop = controlTop + 40
 
@@ -356,7 +356,7 @@ function DrawOptionsPanel()
     loadGlobal:SetPosition(leftMargin, controlTop);
     loadGlobal:SetWidth(200);
     function loadGlobal.Click(sender, args)
-        Settings:loadGlobal()
+        Settings.loadGlobal()
     end
     controlTop = controlTop + 40;
 
@@ -366,7 +366,7 @@ function DrawOptionsPanel()
     saveGlobal:SetPosition(leftMargin, controlTop);
     saveGlobal:SetWidth(200);
     function saveGlobal.Click(sender, args)
-        Settings:saveGlobal()
+        Settings.saveGlobal()
     end
     controlTop = controlTop + 40;
 end

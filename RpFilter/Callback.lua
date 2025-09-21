@@ -1,4 +1,6 @@
-function AddCallback(object, event, callback)
+Callback = {}
+
+function Callback.add(object, event, callback)
     if object[event] == nil then
         object[event] = callback
     elseif type(object[event]) == "table" then
@@ -8,7 +10,7 @@ function AddCallback(object, event, callback)
     end
 end
 
-function RemoveCallback(object, event, callback)
+function Callback.remove(object, event, callback)
     if object[event] == callback then
         object[event] = nil
     elseif type(object[event]) == "table" then

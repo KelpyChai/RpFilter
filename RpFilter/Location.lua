@@ -13,7 +13,7 @@ local INSTANCE = "instance"
 local currLocation = INSTANCE
 local currChannels = {}
 
-function Location:getCurrent()
+function Location.getCurrent()
     return currLocation
 end
 
@@ -31,7 +31,7 @@ end
 
 ---Parses standard channel for Entered/Left messages to keep track of location
 ---@param message string
-function Location:updateIfChanged(message)
+function Location.updateIfChanged(message)
     local info = getLocationInfo(message)
     if not info then return end
     local action, region, channel = info.action, info.region, info.channel

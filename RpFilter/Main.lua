@@ -14,20 +14,20 @@ local function chatParser(sender, args)
     local channel = args.ChatType
 
     if channel == ChatType.Standard then
-        Location:updateIfChanged(message)
-    elseif channel == ChatType.Say and Say:isAllowed(message) then
-        print(Say:format(message, Settings:get().sayColor))
+        Location.updateIfChanged(message)
+    elseif channel == ChatType.Say and Say.isAllowed(message) then
+        print(Say.format(message, Settings.get().sayColor))
         -- if message:sub(1, 1) == "<" then print(message:gsub("<", "|"):gsub(">", "|")) end -- debugging
     elseif channel == ChatType.Emote then
-        print(Emote:format(message, Settings:get()))
+        print(Emote.format(message, Settings.get()))
     end
 end
 
 function plugin.Load(sender, args)
-    Settings:load()
-    AddCallback(Turbine.Chat, "Received", chatParser)
+    Settings.load()
+    Callback.add(Turbine.Chat, "Received", chatParser)
 
-    DrawOptionsPanel()
+    Settings.DrawOptionsPanel()
 
     print("<u>RP Filter v"..plugin:GetVersion().." by Dandiron</u>")
     print("- Chat colour can be customized in Options (via /plugins manager)")
@@ -35,6 +35,6 @@ function plugin.Load(sender, args)
 end
 
 function plugin.Unload(sender, args)
-    Settings:save()
-    RemoveCallback(Turbine.Chat, "Received", chatParser)
+    Settings.save()
+    Callback.remove(Turbine.Chat, "Received", chatParser)
 end

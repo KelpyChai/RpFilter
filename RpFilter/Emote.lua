@@ -96,7 +96,7 @@ function Emote.colorDialogue(emote, settings)
     if emote:find("'", 1, true) then
         -- Replace trailing apostrophe with placeholder if word is valid contraction (e.g. Marius', ol', walkin')
         emote = emote:gsub("(["..WORD_CHARS.."]+')(%p*)", function (word, punctuation)
-            if Contraction:isValidTailless(word, punctuation) then
+            if Contraction.isValidTailless(word, punctuation) then
                 word = word:sub(1, -2) .. QUOTE_CHAR
             end
             return word .. punctuation
@@ -177,14 +177,14 @@ end
 ---Formats emotes according to given settings
 ---@param emote string text whose whitespace is trimmed and normalized
 ---@return string
-function Emote:format(emote, settings)
+function Emote.format(emote, settings)
     local name
 
     emote, name = formatHead(emote)
     if settings.isEmphasisUnderlined then emote = UnderlineAsterisks(emote) end
     -- Not working yet
     -- emote = formatVerse(emote, settings)
-    if settings.isDialogueColored then emote = self.colorDialogue(emote, settings) end
+    if settings.isDialogueColored then emote = Emote.colorDialogue(emote, settings) end
     -- Em dashes are not ASCII characters, they will confuse match() and gsub()
     emote = ReplaceEmDash(emote)
     emote = addEmoteColor(emote, name, settings)

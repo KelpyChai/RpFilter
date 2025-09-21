@@ -125,7 +125,7 @@ local function runTestGroup(func, funcName, caseGroup, groupName, settings)
     local numFailed = 0
     for _, case in pairs(caseGroup) do
         local res1 = func(case.emote, settings)
-        local res2 = Emote:format("Bob "..case.emote, settings)
+        local res2 = Emote.format("Bob "..case.emote, settings)
         local expected2 = "<rgb=#FFFFFF>Bob "..case.expected.."</rgb>"
 
         if res1 ~= case.expected then
