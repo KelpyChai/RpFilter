@@ -3,17 +3,14 @@ import "Dandiron.RpFilter.Diacritics"
 
 Contraction = {}
 
+--[[
 local HEADLESS_WORDS = {
     ["'aporth"] = true,
     ["'aporths"] = true,
-    ["'bout"] = true,
     ["'bouta"] = true,
     ["'boutcha"] = true,
     ["'boutchu"] = true,
     ["'boutta"] = true,
-    ["'cause"] = true,
-    ["'cos"] = true,
-    ["'coz"] = true,
     ["'cept"] = true,
     ["'choo"] = true,
     ["'dswounds"] = true,
@@ -21,9 +18,7 @@ local HEADLESS_WORDS = {
     ["'fore"] = true,
     ["'fraid"] = true,
     ["'fro"] = true,
-    ["'ho"] = true,
     ["'kay"] = true,
-    ["'low"] = true,
     ["'mongst"] = true,
     ["'neath"] = true,
     ["'nother"] = true,
@@ -36,25 +31,17 @@ local HEADLESS_WORDS = {
     ["'pologizing"] = true,
     ["'pology"] = true,
     ["'pon"] = true,
-    ["'prentice"] = true,
-    ["'prenticed"] = true,
-    ["'prentices"] = true,
-    ["'prenticing"] = true,
-    ["'round"] = true,
     ["'sall"] = true,
     ["'sblood"] = true,
     ["'scuse"] = true,
     ["'sfar"] = true,
     ["'sfoot"] = true,
-    ["'specially"] = true,
     ["'spectable"] = true,
     ["'spectably"] = true,
-    ["'spire"] = true,
     ["'spired"] = true,
     ["'spires"] = true,
     ["'spiring"] = true,
     ["'tis"] = true,
-    ["'tocks"] = true,
     ["'tshall"] = true,
     ["'tude"] = true,
     ["'twas"] = true,
@@ -63,8 +50,6 @@ local HEADLESS_WORDS = {
     ["'twill"] = true,
     ["'twixt"] = true,
     ["'twould"] = true,
-    ["'um"] = true,
-    ["'zat"] = true,
 }
 
 -- These words are valid when h is prepended, but far less likely
@@ -99,6 +84,7 @@ function Contraction:isValidHeadless(speechMark, word)
 
     return false
 end
+]]
 
 ---Returns true for '...potatoes'', '...potatoes'.', '...potatoes',' but not '...potatoes'
 ---@param punctuation any
@@ -108,7 +94,7 @@ local function isEndOfDialogue(punctuation)
         return false
     end
 
-    if punctuation:sub(1, 1) == "'" or punctuation:find("[%.%?%-,!—]+'") then
+    if punctuation:sub(1, 1) == "'" or punctuation:find("[%.%?%-,!]+'") then
         return true
     end
 
@@ -139,24 +125,24 @@ function Contraction:isValidTailless(word, punctuation)
         return true
     elseif word:sub(-2) == "s'" then
         local root = body:sub(1, -2)
-        if (IsCapitalized(word) and not Wordlist:isValidWord(body)) or Wordlist.NOUNS[root] then
-            return isEndOfDialogue(punctuation)
+        if (IsCapitalized(word) and not Wordlist:isValidWord(body)) or Wordlist.NOUNS[word:sub(1, -2)] or Wordlist.NOUNS[root] then
+            return not isEndOfDialogue(punctuation)
         elseif word:sub(-3) == "es'" then
             root = body:sub(1, -3)
             if Wordlist.NOUNS[root] then
-                return isEndOfDialogue(punctuation)
+                return not isEndOfDialogue(punctuation)
             end
 
             root = body:sub(1, -4)
             if word:sub(-4) == "ves'" and (Wordlist.NOUNS[root.."f"] or Wordlist.NOUNS[root.."fe"]) then
-                return isEndOfDialogue(punctuation)
+                return not isEndOfDialogue(punctuation)
             elseif word:sub(-4) == "ies'" and Wordlist.NOUNS[root.."y"] then
-                return isEndOfDialogue(punctuation)
+                return not isEndOfDialogue(punctuation)
             end
         end
     elseif word:sub(-3) == "in'" then
         local root = body:sub(1, -3)
-        if Wordlist.VERBS[body.."g"] or Wordlist.VERBS[root] or Wordlist.VERBS[root.."e"] then
+        if Wordlist:isValidWord(body.."g") or Wordlist.VERBS[root] or Wordlist.VERBS[root.."e"] then
             return true
         end
 

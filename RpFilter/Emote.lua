@@ -1,5 +1,3 @@
-import "Turbine.Gameplay"
-
 import "Dandiron.RpFilter.Contraction"
 import "Dandiron.RpFilter.TextUtils"
 
@@ -11,6 +9,7 @@ local QUOTE_CHAR = "\1"
 local OPENING_CHAR = "\2"
 -- Placeholder for "' "
 local CLOSING_CHAR = "\3"
+local UNKNOWN = "\4"
 
 local currEmoter
 local isColorLight
@@ -47,6 +46,7 @@ end
 -- TODO: Handle verse between single quotes and
 -- exclude slashes between single words (e.g. "AC/DC", "It's not either/or")
 -- Might need .split("/") functionality?
+--[[
 local function formatVerse(emote, settings)
     if emote:find('".-/.-"') then return emote end
 
@@ -71,6 +71,7 @@ local function formatVerse(emote, settings)
 
     return emote
 end
+]]
 
 function Emote.colorDialogue(emote, settings)
     local sayColor = settings.sayColor
@@ -93,14 +94,6 @@ function Emote.colorDialogue(emote, settings)
     until count == 0
 
     if emote:find("'", 1, true) then
-        -- Replace leading apostrophe with placeholder if word is valid contraction (e.g. 'tis, 'ello, 'fraid)
-        emote = emote:gsub("('?)('["..WORD_CHARS.."]+)", function (speechMark, word)
-            if Contraction:isValidHeadless(speechMark, word) then
-                word = QUOTE_CHAR .. word:sub(2)
-            end
-            return speechMark .. word
-        end)
-
         -- Replace trailing apostrophe with placeholder if word is valid contraction (e.g. Marius', ol', walkin')
         emote = emote:gsub("(["..WORD_CHARS.."]+')(%p*)", function (word, punctuation)
             if Contraction:isValidTailless(word, punctuation) then
@@ -110,23 +103,61 @@ function Emote.colorDialogue(emote, settings)
         end)
 
         -- Colour text between remaining 'single quotes'
-        emote = " " .. emote:gsub("'([%.%?,!%-%+]*) '", CLOSING_CHAR.."%1"..OPENING_CHAR):gsub("' ([%-%+])", "'  %1") .. " "
-        emote = emote:gsub(" '", OPENING_CHAR):gsub("'([%.%?,!%-%+]*) ", CLOSING_CHAR.."%1")
 
-        emote = emote:gsub(OPENING_CHAR.."(%s*[^%s"..OPENING_CHAR.."][^"..OPENING_CHAR.."]*)"..CLOSING_CHAR.."([%.%?,!%-%+]*)", function (dialogue, punctuation)
+        -- Pads string with space so quotes can match
+        if emote:sub(1, 1) == "'" then emote = " " .. emote end
+        if emote:sub(-1) == "'" then emote = emote .. " " end
+
+        emote = emote
+            -- Matches + after dialogue at the end of the emote, e.g. 'Did you know'+
+            :gsub("'%+", CLOSING_CHAR.."+")
+            -- Replace closing and opening quotes of neighbouring dialogue with placeholders
+            :gsub("'([%s%.%?,!]+)'", function (wordBoundary)
+                if wordBoundary:match("^%.%.%.+$") then
+                    return OPENING_CHAR..wordBoundary..CLOSING_CHAR
+                else
+                    return CLOSING_CHAR..wordBoundary..OPENING_CHAR
+                end
+            end)
+            -- Replace closing quotes with placeholders
+            :gsub("'([%s%.%?,!%-]+)", function (wordBoundary)
+                if wordBoundary:sub(1, 3) == '...' or wordBoundary:sub(1, 1) == '-' then
+                    return OPENING_CHAR..wordBoundary
+                else
+                    return CLOSING_CHAR..wordBoundary
+                end
+            end)
+            -- Replace opening quotes with placeholders
+            :gsub(" '", " "..OPENING_CHAR)
+            :gsub("([%.%?,!%-]+)'(%s?)", function (wordBoundary, space)
+                if space == " " or wordBoundary:sub(1, 3) == '...' or wordBoundary:sub(1, 1) == '-' then
+                    return wordBoundary..CLOSING_CHAR..space
+                else
+                    return wordBoundary..UNKNOWN
+                end
+            end)
+            :gsub("("..CLOSING_CHAR.."[^"..CLOSING_CHAR..OPENING_CHAR.."\4]-)\4([^"..CLOSING_CHAR..OPENING_CHAR.."\4]-"..CLOSING_CHAR..")", "%1"..OPENING_CHAR.."%2")
+            :gsub("^([^"..CLOSING_CHAR..OPENING_CHAR.."\4]-)\4([^"..CLOSING_CHAR..OPENING_CHAR.."\4]-"..CLOSING_CHAR..")", "%1"..OPENING_CHAR.."%2")
+            :gsub(UNKNOWN, CLOSING_CHAR)
+
+        -- Matches text between opening and closing quote, ensuring it is non-whitespace and contains no opening quotes
+        emote = emote:gsub(OPENING_CHAR.."('*%s*[^'%s"..CLOSING_CHAR.."][^"..CLOSING_CHAR.."]*)"..CLOSING_CHAR, function (dialogue)
             dialogue = Strip(dialogue)
-            return " "..AddRgb("'"..dialogue.."'", sayColor)..punctuation.." "
+            dialogue = dialogue:gsub("["..OPENING_CHAR..CLOSING_CHAR.."]", "'")
+            dialogue = AddRgb("'"..dialogue.."'", sayColor)
+            return dialogue
         end)
 
-        emote = emote:gsub(OPENING_CHAR.."([%s%p]*["..WORD_CHARS.."][^"..CLOSING_CHAR.."%+]*)(%+?) $", function (dialogue, plus)
+        -- Matches final unbounded single quoted dialogue, if there is one
+        emote = emote:gsub(OPENING_CHAR.."('*%s*[^%s"..CLOSING_CHAR.."][^"..CLOSING_CHAR.."]*)$", function (dialogue)
             dialogue = Strip(dialogue)
-            if plus == "+" then
-                plus = " +"
-            end
-            return " "..AddRgb("'"..dialogue, sayColor)..plus.." "
+            dialogue = dialogue:gsub("["..OPENING_CHAR..CLOSING_CHAR.."]", "'")
+            dialogue = AddRgb("'"..dialogue, sayColor)
+            return dialogue
         end)
 
-        emote = emote:gsub(CLOSING_CHAR.."([%.%?,!%-%+]*)", "'%1 "):gsub(OPENING_CHAR, " '"):sub(2, -2):gsub("'</rgb>([%.%?,!%-%+]*)  <rgb=(.-)>'", "'</rgb>%1 <rgb=%2>'"):gsub("'</rgb>  ([%-%+])", "'</rgb> %1")
+        emote = emote:gsub("["..OPENING_CHAR..CLOSING_CHAR.."]", "'")
+        emote = Strip(emote)
     end
 
     emote = emote:gsub(QUOTE_CHAR, "'")
@@ -150,8 +181,9 @@ function Emote:format(emote, settings)
     local name
 
     emote, name = formatHead(emote)
-    emote = formatVerse(emote, settings)
     if settings.isEmphasisUnderlined then emote = UnderlineAsterisks(emote) end
+    -- Not working yet
+    -- emote = formatVerse(emote, settings)
     if settings.isDialogueColored then emote = self.colorDialogue(emote, settings) end
     -- Em dashes are not ASCII characters, they will confuse match() and gsub()
     emote = ReplaceEmDash(emote)
