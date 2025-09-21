@@ -1,9 +1,7 @@
 ### To-do
 
-- [ ] Tweak colour contrast
-- [ ] Add option for different colours rather than hues
-- [ ] Add option to make colours rainbow (must handle numerous posters)
-- [ ] Nickname for characters via commands
+- Tweak colour contrast
+- Nickname for characters via commands
 
 ### Doing
 
@@ -11,10 +9,12 @@
 
 ### Done
 
-- [ ] Fix incompatibility with other callbacks (add plugin to own apartment)
-- [ ] Take the version number from releases
-- [ ] Replace 'You' with player name
-- [ ] Remove possessive 's' after names ending in s
-- [ ] Fix incorrect underlining (only underline asterisks within dialogue)
-- [ ] Refactor Emote.lua to be more modular
-- [ ] Write tests for emote formatting
+- Fix incompatibility with other callbacks (add plugin to own apartment)
+- Take the version number from releases
+- Replace 'You' with player name
+- Remove possessive 's' after names ending in s
+- Fix incorrect underlining (only underline asterisks within dialogue)
+- Refactor Emote.lua to be more modular
+- Write tests for emote formatting
+- Add option for different colours rather than hues
+- Add option to make colours rainbow (must handle numerous posters)

@@ -28,6 +28,7 @@ local DEFAULT_SETTINGS = {
     areEmotesContrasted = false,
     isDialogueColored = false,
     isEmphasisUnderlined = false,
+    areEmotesRainbow = false,
 }
 
 local fields = {}
@@ -316,8 +317,27 @@ function Settings.DrawOptionsPanel()
     function contrastEmotes:CheckedChanged()
         Settings.getMutable().areEmotesContrasted = self:IsChecked()
         if self:IsChecked() then
+            Settings.getMutable().areEmotesRainbow = false
             contrastColors()
         else
+            Settings.getMutable().lighter = nil
+            Settings.getMutable().darker = nil
+        end
+    end
+    controlTop = controlTop + 25
+
+    local rainbowEmotes = Turbine.UI.Lotro.CheckBox()
+    rainbowEmotes:SetParent(optionsPanel)
+    rainbowEmotes:SetText(" Give each character their own unique emote color")
+    rainbowEmotes:SetPosition(leftMargin + 20, controlTop)
+    rainbowEmotes:SetChecked(Settings.get().areEmotesRainbow)
+    rainbowEmotes:SetSize(500, 20)
+    rainbowEmotes:SetTextAlignment(Turbine.UI.ContentAlignment.BottomLeft)
+    rainbowEmotes:SetFont(Turbine.UI.Lotro.Font.Verdana16);
+    function rainbowEmotes:CheckedChanged()
+        Settings.getMutable().areEmotesRainbow = self:IsChecked()
+        if self:IsChecked() then
+            Settings.getMutable().areEmotesContrasted = false
             Settings.getMutable().lighter = nil
             Settings.getMutable().darker = nil
         end

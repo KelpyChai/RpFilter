@@ -1,5 +1,6 @@
 import "Dandiron.RpFilter.Contraction"
 import "Dandiron.RpFilter.TextUtils"
+import "Dandiron.RpFilter.PlayerQueue"
 
 Emote = {}
 
@@ -13,19 +14,6 @@ local UNKNOWN = "\4"
 
 local currEmoter
 local isColorLight
-
-local function getLighterOrDarker(playerName, settings)
-    if playerName == "You" then
-        playerName = GetPlayerName()
-    end
-
-    if playerName ~= currEmoter then
-        currEmoter = playerName
-        isColorLight = not isColorLight
-    end
-
-    return isColorLight and settings.lighter or settings.darker
-end
 
 local function formatHead(emote)
     local name, action = emote:match("^(%a+)%-?%d- (.+)")
@@ -164,14 +152,40 @@ function Emote.colorDialogue(emote, settings)
     return emote
 end
 
-local function addEmoteColor(emote, name, settings)
+local function updateContrastColor(player)
+    if player ~= currEmoter then
+        currEmoter = player
+        isColorLight = not isColorLight
+    end
+end
+
+local function getContrastColor(lighterColor, darkerColor)
+    return isColorLight and lighterColor or darkerColor
+end
+
+local function updateRainbowColor(name, emoteColor)
+    PlayerQueue.insert(name, emoteColor)
+end
+
+local function getRainbowColor(name)
+    return PlayerQueue.getColor(name)
+end
+
+local function applyEmoteColor(emote, name, settings)
+    if name == "You" then name = GetPlayerName() end
+    local emoteColor
+
     if settings.areEmotesContrasted then
-        emote = AddRgb(emote, getLighterOrDarker(name, settings))
+        updateContrastColor(name)
+        emoteColor = getContrastColor(settings.lighter, settings.darker)
+    elseif settings.areEmotesRainbow then
+        updateRainbowColor(name, settings.emoteColor)
+        emoteColor = getRainbowColor(name)
     else
-        emote = AddRgb(emote, settings.emoteColor)
+        emoteColor = settings.emoteColor
     end
 
-    return emote
+    return AddRgb(emote, emoteColor)
 end
 
 ---Formats emotes according to given settings
@@ -187,7 +201,7 @@ function Emote.format(emote, settings)
     if settings.isDialogueColored then emote = Emote.colorDialogue(emote, settings) end
     -- Em dashes are not ASCII characters, they will confuse match() and gsub()
     emote = ReplaceEmDash(emote)
-    emote = addEmoteColor(emote, name, settings)
+    emote = applyEmoteColor(emote, name, settings)
 
     return emote
 end
