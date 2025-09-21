@@ -77,7 +77,7 @@ function Emote.colorDialogue(emote, settings)
     local sayColor = settings.sayColor
 
     -- Colour text between "double quotes"
-    emote = emote:gsub('"(%s*[^%s"][^"]*)("?)', function (dialogue, closing)
+    emote = emote:gsub('"(%s?[^%s"][^"]*)("?)', function (dialogue, closing)
         dialogue = Strip(dialogue)
         -- Replace all apostrophes with placeholders
         dialogue = dialogue:gsub("'", QUOTE_CHAR)
@@ -141,7 +141,7 @@ function Emote.colorDialogue(emote, settings)
             :gsub(UNKNOWN, CLOSING_CHAR)
 
         -- Matches text between opening and closing quote, ensuring it is non-whitespace and contains no opening quotes
-        emote = emote:gsub(OPENING_CHAR.."('*%s*[^'%s"..CLOSING_CHAR.."][^"..CLOSING_CHAR.."]*)"..CLOSING_CHAR, function (dialogue)
+        emote = emote:gsub(OPENING_CHAR.."('*%?*[^'%s"..CLOSING_CHAR.."][^"..CLOSING_CHAR.."]*)"..CLOSING_CHAR, function (dialogue)
             dialogue = Strip(dialogue)
             dialogue = dialogue:gsub("["..OPENING_CHAR..CLOSING_CHAR.."]", "'")
             dialogue = AddRgb("'"..dialogue.."'", sayColor)
@@ -149,7 +149,7 @@ function Emote.colorDialogue(emote, settings)
         end)
 
         -- Matches final unbounded single quoted dialogue, if there is one
-        emote = emote:gsub(OPENING_CHAR.."('*%s*[^%s"..CLOSING_CHAR.."][^"..CLOSING_CHAR.."]*)$", function (dialogue)
+        emote = emote:gsub(OPENING_CHAR.."('*%?*[^%s"..CLOSING_CHAR.."][^"..CLOSING_CHAR.."]*)$", function (dialogue)
             dialogue = Strip(dialogue)
             dialogue = dialogue:gsub("["..OPENING_CHAR..CLOSING_CHAR.."]", "'")
             dialogue = AddRgb("'"..dialogue, sayColor)
