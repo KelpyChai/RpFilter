@@ -93,8 +93,22 @@ function Say.isAllowed(message)
     end
 end
 
+local function formatVerse(say)
+    local TAB = "   "
+
+    say = say:gsub("says, '(.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].*)'", function (verse)
+        verse = Strip(verse)
+        verse = verse:gsub("%s?/%s?", "\n" .. TAB)
+        verse = "says:\n" .. TAB .. verse
+        return verse
+    end)
+
+    return say
+end
+
 function Say.format(say, color)
     say = ReplacePlayerName(say)
+    say = formatVerse(say)
     say = ReplaceEmDash(say)
     say = AddRgb(say, color)
     return say
