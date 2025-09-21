@@ -82,6 +82,9 @@ local COLOR_DIALOGUE_CASES = {
         { emote = "'Below--'", expected = "<rgb=#000000>'Below--'</rgb>" },
         { emote = "'--What did you say?'", expected = "<rgb=#000000>'--What did you say?'</rgb>" },
         { emote = "'Wait--'he muttered.", expected = "<rgb=#000000>'Wait--'</rgb>he muttered." },
+        { emote = "'Below-'", expected = "<rgb=#000000>'Below-'</rgb>" },
+        { emote = "'-What did you say?'", expected = "<rgb=#000000>'-What did you say?'</rgb>" },
+        { emote = "'Wait-'he muttered.", expected = "<rgb=#000000>'Wait-'</rgb>he muttered." },
     }
 }
 
@@ -123,14 +126,16 @@ local function runTestGroup(func, funcName, caseGroup, groupName, settings)
     for _, case in pairs(caseGroup) do
         local res1 = func(case.emote, settings)
         local res2 = Emote:format("Bob "..case.emote, settings)
+        local expected2 = "<rgb=#FFFFFF>Bob "..case.expected.."</rgb>"
+
         if res1 ~= case.expected then
             numFailed = numFailed + 1
             if numFailed == 1 then print(HORIZONTAL_RULE) end
             print(errMsg(funcName, case.emote, case.expected, res1))
-        elseif res2 ~= "<rgb=#FFFFFF>Bob "..case.expected.."</rgb>" then
+        elseif res2:gsub("—", "--") ~= expected2 then
             numFailed = numFailed + 1
             if numFailed == 1 then print(HORIZONTAL_RULE) end
-            print(errMsg("format()", "Bob "..case.emote, "<rgb=#FFFFFF>Bob "..case.expected.."</rgb>", res2))
+            print(errMsg("format()", "Bob "..case.emote, expected2, res2:gsub("—", "--")))
         end
     end
     print(string.format("%s: passed %d/%d tests for %s", funcName, #caseGroup - numFailed, #caseGroup, groupName))
