@@ -72,7 +72,7 @@ local function formatVerse(emote, settings)
     return emote
 end
 
-local function colorDialogue(emote, settings)
+function Emote.colorDialogue(emote, settings)
     local sayColor = settings.sayColor
 
     -- Colour text between "double quotes"
@@ -152,7 +152,7 @@ function Emote:format(emote, settings)
     emote, name = formatHead(emote)
     emote = formatVerse(emote, settings)
     if settings.isEmphasisUnderlined then emote = UnderlineAsterisks(emote) end
-    if settings.isDialogueColored then emote = colorDialogue(emote, settings) end
+    if settings.isDialogueColored then emote = self.colorDialogue(emote, settings) end
     -- Em dashes are not ASCII characters, they will confuse match() and gsub()
     emote = ReplaceEmDash(emote)
     emote = addEmoteColor(emote, name, settings)

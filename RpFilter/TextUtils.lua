@@ -1,6 +1,6 @@
 import "Dandiron.RpFilter.Diacritics"
 
-local PLAYER_NAME = Turbine.Gameplay.LocalPlayer:GetInstance():GetName()
+local PLAYER_NAME = Turbine ~= nil and Turbine.Gameplay.LocalPlayer:GetInstance():GetName() or ""
 
 function GetPlayerName()
     return PLAYER_NAME
