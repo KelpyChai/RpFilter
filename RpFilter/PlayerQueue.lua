@@ -27,7 +27,6 @@ function PlayerQueue.insert(name, baseColor)
 
     if players[name] ~= nil then
         local player = players[name]
-        newPlayer.color = player.color
 
         if first == player then first = player.next end
         if last == player then last = player.prev end
