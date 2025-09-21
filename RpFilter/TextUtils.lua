@@ -1,3 +1,5 @@
+import "Turbine.Gameplay"
+
 -- Standard word characters extended with diacritics
 WORD_CHARS = "A-Za-z0-9" ..
             "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞß" ..

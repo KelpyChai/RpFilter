@@ -3,6 +3,7 @@ import "Dandiron.RpFilter.Location"
 import "Dandiron.RpFilter.Say"
 import "Dandiron.RpFilter.Emote"
 import "Dandiron.RpFilter.Settings"
+import "Dandiron.RpFilter.TextUtils"
 
 local ChatType = Turbine.ChatType
 print = Turbine.Shell.WriteLine
