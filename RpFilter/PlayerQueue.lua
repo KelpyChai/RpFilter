@@ -27,7 +27,10 @@ function PlayerQueue.insert(name, baseColor)
 
     if players[name] ~= nil then
         local player = players[name]
-        newPlayer.color = player.color
+        -- Allows updating if only the local player is enqueued
+        if size > 1 or name ~= GetPlayerName() then
+            newPlayer.color = player.color
+        end
 
         if first == player then first = player.next end
         if last == player then last = player.prev end
