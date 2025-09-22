@@ -93,16 +93,31 @@ function Say.isAllowed(message)
     end
 end
 
+local function replaceEmoticon(pre, emoticon, post)
+    local marker = emoticon == "o/" and "\1" or "\1\2"
+    return pre .. marker .. post
+end
+
 local function formatVerse(say)
     local TAB = "   "
 
-    say = say:gsub("says, '(.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].*)'", function (verse)
+    local emoticonsFound = say:find("[^"..WORD_CHARS.."/]o//?[%s%p]")
+    if emoticonsFound then
+        say = say
+            :gsub("([^"..WORD_CHARS.."/])(o//?)([%s%p])", replaceEmoticon)
+            :gsub("([^"..WORD_CHARS.."/])(o//?)([%s%p])", replaceEmoticon)
+    end
+
+    say = say:gsub("^[A-Z][a-z]+ says, '(.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].*)'$", function (verse)
         verse = Strip(verse)
         verse = verse:gsub("%s?/%s?", "\n" .. TAB)
         verse = "says:\n" .. TAB .. verse
         return verse
     end)
 
+    if emoticonsFound then
+        say = say:gsub("\1(\2?)", function (slash) return #slash == 0 and "o/" or "o//" end)
+    end
     return say
 end
 
