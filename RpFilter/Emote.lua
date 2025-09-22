@@ -172,7 +172,7 @@ local function getRainbowColor(name)
 end
 
 local function applyEmoteColor(emote, name, settings)
-    if name == "You" then name = GetPlayerName() end
+    if name == "You" then name = GetLocalPlayerName() end
     local emoteColor
 
     if settings.areEmotesContrasted then

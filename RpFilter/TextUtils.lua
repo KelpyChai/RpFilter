@@ -13,7 +13,7 @@ end
 
 local PLAYER_NAME = Turbine ~= nil and Turbine.Gameplay.LocalPlayer:GetInstance():GetName() or ""
 
-function GetPlayerName()
+function GetLocalPlayerName()
     return PLAYER_NAME
 end
 

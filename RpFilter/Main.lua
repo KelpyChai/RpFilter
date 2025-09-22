@@ -30,7 +30,7 @@ function plugin.Load(sender, args)
 
     Settings.DrawOptionsPanel()
     if Settings.get().areEmotesRainbow then
-        PlayerQueue.insert(GetPlayerName(), Settings.get().emoteColor)
+        PlayerQueue.insert(GetLocalPlayerName(), Settings.get().emoteColor)
     end
 
     print("<u>RP Filter v"..plugin:GetVersion().." by Dandiron</u>")
