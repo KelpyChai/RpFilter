@@ -29,36 +29,6 @@ local function formatHead(emote)
     end
 end
 
--- TODO: Handle verse between single quotes and
--- exclude slashes between single words (e.g. "AC/DC", "It's not either/or")
--- Might need .split("/") functionality?
---[[
-local function formatVerse(emote, settings)
-    if emote:find('".-/.-"') then return emote end
-
-    local TAB = "   "
-
-    emote = emote:gsub('%s*(\'*)("+)([^"/]*/[^"]*)("+)(\'*)%s*', function (before, opening, verse, closing, after)
-        verse = Strip(verse)
-        verse = verse:gsub("%s*/%s*", "\n" .. TAB)
-        opening = "\n" .. OPENING_CHAR .. TAB .. before .. opening:sub(2)
-        closing = closing:sub(1, -2) .. after .. CLOSING_CHAR .. "\n"
-        return opening .. verse .. closing
-    end)
-
-    emote = Strip(emote)
-
-    emote = emote:gsub(OPENING_CHAR.."(.-)"..CLOSING_CHAR, function (verse)
-        if settings.isDialogueColored then
-            verse = AddRgb(verse, settings.sayColor)
-        end
-        return verse
-    end)
-
-    return emote
-end
-]]
-
 function Emote.colorDialogue(emote, sayColor)
     -- Placeholder for "'"
     local QUOTE_CHAR = "\1"
