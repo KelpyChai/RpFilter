@@ -1,5 +1,5 @@
 
-require "../RpFilter/ColorUtils"
+require "Dandiron.RpFilter.ColorUtils"
 
 local HSL_VALUES = {0, 1/255, 0.5, 254/255, 1}
 local RGB_VALUES = {0, 1, 128, 254, 255}

@@ -1,5 +1,3 @@
-import "Turbine.Gameplay"
-
 -- Standard word characters extended with diacritics
 WORD_CHARS = "A-Za-z0-9" ..
             "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞß" ..
@@ -9,22 +7,6 @@ WORD_CHARS = "A-Za-z0-9" ..
 ---@return boolean
 function IsCapitalized(word)
     return word:match("^'?[A-ZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞß]") ~= nil
-end
-
-local PLAYER_NAME = Turbine ~= nil and Turbine.Gameplay.LocalPlayer:GetInstance():GetName() or ""
-
-function GetLocalPlayerName()
-    return PLAYER_NAME
-end
-
----Replaces 'You say' with '<player> says'
----@param text string
----@return string
-function ReplacePlayerName(text)
-    if text:sub(1, 7) == "You say" then
-        text = PLAYER_NAME .. " says" .. text:sub(8)
-    end
-    return text
 end
 
 ---Rounds to the nearest integer
@@ -62,6 +44,8 @@ function UnderlineAsterisks(text)
 end
 
 ---Replaces two hyphens with em dash
+---
+---**Warning**: em dashes confuse string methods because they are not ASCII characters
 ---@param text string
 ---@return string
 function ReplaceEmDash(text)
@@ -73,4 +57,11 @@ end
 ---@return string
 function Strip(text)
     return text:match("^%s*(.-)%s*$")
+end
+
+function ComposeFuncs(x, ...)
+    for _, f in ipairs({...}) do
+        x = f(x)
+    end
+    return x
 end

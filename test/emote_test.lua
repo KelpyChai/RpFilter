@@ -1,6 +1,6 @@
-import = import or require
+import = require
 
-require "../RpFilter/Emote"
+require "Dandiron.RpFilter.Emote"
 
 local HORIZONTAL_RULE = "--------------------------------------------------------------------------------"
 
@@ -124,18 +124,18 @@ end
 local function runTestGroup(func, funcName, caseGroup, groupName, settings)
     local numFailed = 0
     for _, case in pairs(caseGroup) do
-        local res1 = func(case.emote, settings)
-        local res2 = Emote.format("Bob "..case.emote, settings)
-        local expected2 = "<rgb=#FFFFFF>Bob "..case.expected.."</rgb>"
+        local res1 = func(case.emote, BLACK)
+        local res2 = Emote.formatText("Bob "..case.emote, BLACK, settings):gsub("—", "--")
+        local expected2 = "Bob "..case.expected
 
         if res1 ~= case.expected then
             numFailed = numFailed + 1
             if numFailed == 1 then print(HORIZONTAL_RULE) end
             print(errMsg(funcName, case.emote, case.expected, res1))
-        elseif res2:gsub("—", "--") ~= expected2 then
+        elseif res2 ~= expected2 then
             numFailed = numFailed + 1
             if numFailed == 1 then print(HORIZONTAL_RULE) end
-            print(errMsg("format()", "Bob "..case.emote, expected2, res2:gsub("—", "--")))
+            print(errMsg("format()", "Bob "..case.emote, expected2, res2))
         end
     end
     print(string.format("%s: passed %d/%d tests for %s", funcName, #caseGroup - numFailed, #caseGroup, groupName))
@@ -148,5 +148,13 @@ local function testFunction(func, funcName, settings, cases)
     end
 end
 
-testFunction(Emote.colorDialogue, "colorDialogue()", SETTINGS, COLOR_DIALOGUE_CASES)
-testFunction(Emote.colorDialogue, "colorDialogue()", SETTINGS, SPECIFIC_CASES)
+local function test()
+    testFunction(Emote.colorDialogue, "colorDialogue()", SETTINGS, COLOR_DIALOGUE_CASES)
+    testFunction(Emote.colorDialogue, "colorDialogue()", SETTINGS, SPECIFIC_CASES)
+end
+
+if ... == nil then
+    test()
+end
+
+return test

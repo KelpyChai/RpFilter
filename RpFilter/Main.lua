@@ -3,42 +3,39 @@ import "Dandiron.RpFilter.Location"
 import "Dandiron.RpFilter.Say"
 import "Dandiron.RpFilter.Emote"
 import "Dandiron.RpFilter.Settings"
-import "Dandiron.RpFilter.TextUtils"
+import "Dandiron.RpFilter.OptionsPanel"
 
-local ChatType = Turbine.ChatType
+import "Turbine.Gameplay"
+
+LOCAL_PLAYER_NAME = Turbine.Gameplay.LocalPlayer:GetInstance():GetName()
 print = Turbine.Shell.WriteLine
 
-local function chatParser(sender, args)
-    if not args.Message then return end
-
-    local message = Strip(args.Message)
-    local channel = args.ChatType
+local function chatParser(_, args)
+    local ChatType = Turbine.ChatType
+    local message, channel = args.Message, args.ChatType
 
     if channel == ChatType.Standard then
-        Location.updateIfChanged(message)
+        Location.update(message)
     elseif channel == ChatType.Say and Say.isAllowed(message) then
-        print(Say.format(message, Settings.get().sayColor))
-        -- if message:sub(1, 1) == "<" then print(message:gsub("<", "|"):gsub(">", "|")) end -- debugging
+        print(Say.format(message, Settings.getSayColor()))
     elseif channel == ChatType.Emote then
-        print(Emote.format(message, Settings.get()))
+        local s = Settings
+        print(Emote.format(message, s.getEmoteColor(), s.getSayColor(), s.getOptions()))
     end
 end
 
-function plugin.Load(sender, args)
-    Settings.load()
+function plugin.Load(_, _)
+    Settings.loadSync()
     Callback.add(Turbine.Chat, "Received", chatParser)
 
-    Settings.DrawOptionsPanel()
-    if Settings.get().areEmotesRainbow then
-        PlayerQueue.insert(GetLocalPlayerName(), Settings.get().emoteColor)
-    end
+    DrawOptionsPanel(Settings.getOptions())
 
     print("<u>RP Filter v"..plugin:GetVersion().." by Dandiron</u>")
     print("- Chat colour can be customized in Options (via /plugins manager)")
     print("- NPC filter not working? Disable Regional and OOC, then reenable")
 end
 
-function plugin.Unload(sender, args)
-    Settings.save()
+function plugin.Unload(_, _)
+    Settings.saveSync()
     Callback.remove(Turbine.Chat, "Received", chatParser)
 end

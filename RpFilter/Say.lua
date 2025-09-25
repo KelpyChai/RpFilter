@@ -65,7 +65,14 @@ local BLOCKED_NPCS = {
 }
 
 local function isFromLocalPlayer(message)
-    return message:sub(1, 4) == "You "
+    return message:sub(1, 7) == "You say"
+end
+
+---Replaces 'You say' with '<player> says'
+---@param say string
+---@return string
+local function replacePlayerName(say)
+    return isFromLocalPlayer(say) and LOCAL_PLAYER_NAME.." says"..say:sub(8) or say
 end
 
 local function isFromNpc(id)
@@ -101,12 +108,12 @@ end
 local function formatVerse(say)
     local TAB = "   "
 
-    local emoticonsFound = say:find("[^"..WORD_CHARS.."/]o//?[%s%p]")
-    if emoticonsFound then
-        say = say
-            :gsub("([^"..WORD_CHARS.."/])(o//?)([%s%p])", replaceEmoticon)
-            :gsub("([^"..WORD_CHARS.."/])(o//?)([%s%p])", replaceEmoticon)
-    end
+    local wereEmoticonsFound = false
+    repeat
+        local res, count = say:gsub("([^"..WORD_CHARS.."/])(o//?)([%s%p])", replaceEmoticon)
+        say = res
+        wereEmoticonsFound = wereEmoticonsFound or count ~= 0
+    until count == 0
 
     say = say:gsub("^[A-Z][a-z]+ says, '(.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].*)'$", function (verse)
         verse = Strip(verse)
@@ -115,16 +122,16 @@ local function formatVerse(say)
         return verse
     end)
 
-    if emoticonsFound then
+    if wereEmoticonsFound then
         say = say:gsub("\1(\2?)", function (slash) return #slash == 0 and "o/" or "o//" end)
     end
     return say
 end
 
+local function format(say)
+    return ComposeFuncs(say, Strip, replacePlayerName, formatVerse, ReplaceEmDash)
+end
+
 function Say.format(say, color)
-    say = ReplacePlayerName(say)
-    say = formatVerse(say)
-    say = ReplaceEmDash(say)
-    say = AddRgb(say, color)
-    return say
+    return AddRgb(format(say), color)
 end

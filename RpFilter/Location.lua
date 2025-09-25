@@ -31,7 +31,7 @@ end
 
 ---Parses standard channel for Entered/Left messages to keep track of location
 ---@param message string
-function Location.updateIfChanged(message)
+function Location.update(message)
     local info = getLocationInfo(message)
     if not info then return end
     local action, region, channel = info.action, info.region, info.channel

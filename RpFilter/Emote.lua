@@ -1,34 +1,32 @@
 import "Dandiron.RpFilter.Contraction"
 import "Dandiron.RpFilter.TextUtils"
-import "Dandiron.RpFilter.PlayerQueue"
+import "Dandiron.RpFilter.PlayerColor"
 
 Emote = {}
 
--- Placeholder for "'"
-local QUOTE_CHAR = "\1"
--- Placeholder for " '"
-local OPENING_CHAR = "\2"
--- Placeholder for "' "
-local CLOSING_CHAR = "\3"
-local UNKNOWN = "\4"
-
-local currEmoter
-local isColorLight
+local function parseName(emote)
+    local name = emote:match("^(%a+'?s?)%-?%d- ")
+    if name == "You" then
+        name = LOCAL_PLAYER_NAME
+    elseif name:sub(-2) == "'s" then
+        name = name:sub(1, -3)
+    end
+    return name
+end
 
 local function formatHead(emote)
     local name, action = emote:match("^(%a+'?s?)%-?%d- (.+)")
     local firstChar = action:sub(1, 1)
 
     if firstChar == "|" or firstChar == "/" or firstChar == "\\" then
-        emote = action:gsub("^"..firstChar.."+%s?", "")
+        return action:gsub("^"..firstChar.."+%s?", "")
     elseif action:sub(1, 3) == "'s " then
         local possessive = name:sub(-1) == "s" and "' " or "'s "
-        emote = name .. possessive .. action:sub(4)
-    elseif action:find("^l+ ") then
-        emote = action:match("^l+ (.+)")
+        return name .. possessive .. action:sub(4)
+    else
+        local res = action:match("^l+ (.+)")
+        return res or emote
     end
-
-    return emote, name
 end
 
 -- TODO: Handle verse between single quotes and
@@ -61,8 +59,14 @@ local function formatVerse(emote, settings)
 end
 ]]
 
-function Emote.colorDialogue(emote, settings)
-    local sayColor = settings.sayColor
+function Emote.colorDialogue(emote, sayColor)
+    -- Placeholder for "'"
+    local QUOTE_CHAR = "\1"
+    -- Placeholder for " '"
+    local OPENING_CHAR = "\2"
+    -- Placeholder for "' "
+    local CLOSING_CHAR = "\3"
+    local UNKNOWN = "\4"
 
     -- Colour text between "double quotes"
     emote = emote:gsub('"(%s?[^%s"][^"]*)("?)', function (dialogue, closing)
@@ -152,56 +156,32 @@ function Emote.colorDialogue(emote, settings)
     return emote
 end
 
-local function updateContrastColor(player)
-    if player ~= currEmoter then
-        currEmoter = player
-        isColorLight = not isColorLight
-    end
-end
-
-local function getContrastColor(lighterColor, darkerColor)
-    return isColorLight and lighterColor or darkerColor
-end
-
-local function updateRainbowColor(name, emoteColor)
-    PlayerQueue.insert(name, emoteColor)
-end
-
-local function getRainbowColor(name)
-    return PlayerQueue.getColor(name)
-end
-
-local function applyEmoteColor(emote, name, settings)
-    if name == "You" then name = GetLocalPlayerName() end
-    local emoteColor
-
-    if settings.areEmotesContrasted then
-        updateContrastColor(name)
-        emoteColor = getContrastColor(settings.lighter, settings.darker)
-    elseif settings.areEmotesRainbow then
-        updateRainbowColor(name, settings.emoteColor)
-        emoteColor = getRainbowColor(name)
-    else
-        emoteColor = settings.emoteColor
-    end
-
-    return AddRgb(emote, emoteColor)
-end
-
----Formats emotes according to given settings
----@param emote string text whose whitespace is trimmed and normalized
+---@param emote string
 ---@return string
-function Emote.format(emote, settings)
-    local name
+function Emote.formatText(emote, sayColor, opts)
+    local isUnderlined, isColored = opts.isEmphasisUnderlined, opts.isDialogueColored
+    return ComposeFuncs(emote,
+        Strip,
+        formatHead,
+        function (text) return isUnderlined and UnderlineAsterisks(text) or text end,
+        function (text) return isColored and Emote.colorDialogue(text, sayColor) or text end,
+        -- formatVerse
+        ReplaceEmDash
+    )
+end
 
-    emote, name = formatHead(emote)
-    if settings.isEmphasisUnderlined then emote = UnderlineAsterisks(emote) end
-    -- Not working yet
-    -- emote = formatVerse(emote, settings)
-    if settings.isDialogueColored then emote = Emote.colorDialogue(emote, settings) end
-    -- Em dashes are not ASCII characters, they will confuse match() and gsub()
-    emote = ReplaceEmDash(emote)
-    emote = applyEmoteColor(emote, name, settings)
+local function addColor(emote, name, emoteColor, options)
+    PlayerColor.update(name, emoteColor, options)
+    return AddRgb(emote, PlayerColor.get(name, emoteColor, options))
+end
 
-    return emote
+---@param emote string
+---@param emoteColor table
+---@param sayColor table
+---@param options table
+---@return string
+function Emote.format(emote, emoteColor, sayColor, options)
+    local formatted = Emote.formatText(emote, sayColor, options)
+    local name = parseName(emote)
+    return addColor(formatted, name, emoteColor, options)
 end
