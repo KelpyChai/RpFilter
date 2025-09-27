@@ -1,10 +1,7 @@
 ### To-do
 
-- Tweak colour contrast
 - Nickname for characters via commands
-- Refactor settings
-- Update checkboxes upon loading
-- Final check before updating
+
 
 ### Doing
 
@@ -21,3 +18,7 @@
 - Write tests for emote formatting
 - Add option for different colours rather than hues
 - Add option to make colours rainbow (must handle numerous posters)
+- Tweak colour contrast
+- Refactor settings
+- Update checkboxes upon loading
+- Final check before updating
