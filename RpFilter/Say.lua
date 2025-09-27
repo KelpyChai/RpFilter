@@ -1,4 +1,5 @@
 import "Dandiron.RpFilter.Location"
+import "Dandiron.RpFilter.TextUtils"
 
 Say = {}
 
@@ -64,7 +65,14 @@ local BLOCKED_NPCS = {
 }
 
 local function isFromLocalPlayer(message)
-    return message:sub(1, 4) == "You "
+    return message:sub(1, 7) == "You say"
+end
+
+---Replaces 'You say' with '<player> says'
+---@param say string
+---@return string
+local function replacePlayerName(say)
+    return isFromLocalPlayer(say) and LOCAL_PLAYER_NAME.." says"..say:sub(8) or say
 end
 
 local function isFromNpc(id)
@@ -72,14 +80,14 @@ local function isFromNpc(id)
 end
 
 local function isNpcAllowed(name)
-    local currBlockedNpcs = BLOCKED_NPCS[Location:getCurrent()]
+    local currBlockedNpcs = BLOCKED_NPCS[Location.getCurrent()]
     return not currBlockedNpcs or not currBlockedNpcs[name]
 end
 
 ---Filters NPC chatter from the say channel
 ---@param message any
 ---@return boolean
-function Say:isAllowed(message)
+function Say.isAllowed(message)
     local id, name = message:match("^<Select:IID:(0x%x-)>(.-)<\\Select>")
 
     if not id then
@@ -92,6 +100,38 @@ function Say:isAllowed(message)
     end
 end
 
-function Say:format(say)
-    return UnderlineAsterisks(say):gsub("%-%-", "—")
+local function replaceEmoticon(pre, emoticon, post)
+    local marker = emoticon == "o/" and "\1" or "\1\2"
+    return pre .. marker .. post
+end
+
+local function formatVerse(say)
+    local TAB = "   "
+
+    local wereEmoticonsFound = false
+    repeat
+        local res, count = say:gsub("([^"..WORD_CHARS.."/])(o//?)([%s%p])", replaceEmoticon)
+        say = res
+        wereEmoticonsFound = wereEmoticonsFound or count ~= 0
+    until count == 0
+
+    say = say:gsub("^[A-Z][a-z]+ says, '(.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].*)'$", function (verse)
+        verse = Strip(verse)
+        verse = verse:gsub("%s?/%s?", "\n" .. TAB)
+        verse = "says:\n" .. TAB .. verse
+        return verse
+    end)
+
+    if wereEmoticonsFound then
+        say = say:gsub("\1(\2?)", function (slash) return #slash == 0 and "o/" or "o//" end)
+    end
+    return say
+end
+
+local function format(say)
+    return ComposeFuncs(say, Strip, replacePlayerName, formatVerse, ReplaceEmDash)
+end
+
+function Say.format(say, color)
+    return AddRgb(format(say), color)
 end

@@ -1,7 +1,7 @@
 Wordlist = {}
 
-Wordlist.other = {
-	["A-OK"] = true,
+Wordlist.OTHER = {
+    ["A-OK"] = true,
     ["AWOL"] = true,
     ["Aaronic"] = true,
     ["Aaronical"] = true,
@@ -9541,6 +9541,7 @@ Wordlist.other = {
     ["oohed"] = true,
     ["oohing"] = true,
     ["oohs"] = true,
+    ["oops"] = true,
     ["oozier"] = true,
     ["oozy"] = true,
     ["op"] = true,
@@ -16135,6 +16136,7 @@ Wordlist.other = {
     ["yeomanly"] = true,
     ["yep"] = true,
     ["yeps"] = true,
+    ["yes"] = true,
     ["yeshivoth"] = true,
     ["yessed"] = true,
     ["yet"] = true,
@@ -16222,8 +16224,8 @@ Wordlist.other = {
     ["zymogenic"] = true,
 }
 
-Wordlist.nouns = {
-	["A-bomb"] = true,
+Wordlist.NOUNS = {
+    ["A-bomb"] = true,
     ["A-bombs"] = true,
     ["A-frame"] = true,
     ["ABC"] = true,
@@ -21012,6 +21014,7 @@ Wordlist.nouns = {
     ["Levis"] = true,
     ["Leviticus"] = true,
     ["Lewes"] = true,
+    ["Lewis"] = true,
     ["Lewisham"] = true,
     ["Lexington"] = true,
     ["Leyden"] = true,
@@ -106811,7 +106814,6 @@ Wordlist.nouns = {
     ["yeomanry"] = true,
     ["yerba"] = true,
     ["yerbas"] = true,
-    ["yes"] = true,
     ["yeses"] = true,
     ["yeshiva"] = true,
     ["yeshivas"] = true,
@@ -107188,7 +107190,7 @@ Wordlist.nouns = {
     ["zymurgy"] = true,
 }
 
-Wordlist.verbs = {
+Wordlist.VERBS = {
     ["Africanize"] = true,
     ["Africanized"] = true,
     ["Africanizes"] = true,
@@ -137994,5 +137996,5 @@ Wordlist.verbs = {
 }
 
 function Wordlist:isValidWord(word)
-    return self.nouns[word] or self.verbs[word] or self.other[word]
+    return self.NOUNS[word] or self.VERBS[word] or self.OTHER[word]
 end

@@ -1,161 +1,157 @@
-import "Turbine.Gameplay"
-
-import "Dandiron.RpFilter.Settings"
 import "Dandiron.RpFilter.Contraction"
 import "Dandiron.RpFilter.TextUtils"
+import "Dandiron.RpFilter.EmoteColor"
 
-Emote = {
-    -- multiPosts = {}
-}
+Emote = {}
 
--- Placeholder for "'"
-local apostropheTemp = "\1"
--- Placeholder for " '"
-local quoteTemp = "\2"
--- Placeholder for "' "
-local unquoteTemp = "\3"
-
-if Settings:get().areEmotesContrasted then
-    Emote.isCurrColorLight = false
-end
-
-function Emote:getLightOrDark()
-    if self.isCurrColorLight then
-        return Settings:get().lighter
-    else
-        return Settings:get().darker
+local function parseName(emote)
+    local name = emote:match("^(%a+'?s?)%-?%d- ")
+    if name == "You" then
+        name = LOCAL_PLAYER_NAME
+    elseif name:sub(-2) == "'s" then
+        name = name:sub(1, -3)
     end
+    return name
 end
 
----Formats messages from the emote channel, including multi-post emotes
----@param emote string
----@return string
-function Emote:format(emote)
-    local name, action = emote:match("^(%a+)%-?%d- (.+)")
-
-    -- TODO: Handle these cases
-
-    -- /e "Lua is an extension programming language designed to support general procedural programming with data description facilities."
-    -- /e | "You know," she mutters, "I was just thinking of that."
-
-    -- /e <very long post> +
-    -- /e <even more>
-
-    -- /e "Blah blah blah +"
-    -- /e "I'm not done speaking yet!"
-
+local function formatHead(emote)
+    local name, action = emote:match("^(%a+'?s?)%-?%d- (.+)")
     local firstChar = action:sub(1, 1)
-    if action:sub(1, 3) == "'s " then
-        emote = name .. "'s " .. action:gsub("^'s%s+", "")
-    elseif firstChar == "|" then
-        emote = action:gsub("^|+%s*", "")
-    elseif firstChar == "/" then
-        emote = action:gsub("^/+%s*", "")
-    elseif firstChar == "\\" then
-        emote = action:gsub("^\\+%s*", "")
-    -- elseif action:sub(1, 1) == "+" then
-    --     emote = action:gsub("^%+%s*", "")
-    elseif action:match("^l+ ") then
-        emote = action:gsub("^l+%s+", "")
+
+    if firstChar == "|" or firstChar == "/" or firstChar == "\\" then
+        return action:gsub("^"..firstChar.."+%s?", "")
+    elseif action:sub(1, 3) == "'s " then
+        local possessive = name:sub(-1) == "s" and "' " or "'s "
+        return name .. possessive .. action:sub(4)
+    else
+        local res = action:match("^l+ (.+)")
+        return res or emote
     end
+end
 
-    -- TODO: Handle verse between single quotes and
-    -- exclude slashes between single words (e.g. "AC/DC", "It's not either/or")
-    -- Might need .split("/") functionality?
-    if action:find('".-/.-"') then
-        emote = emote:gsub('%s*(\'*)("+)([^"/]*/[^"]*)("+)(\'*)%s*', function (before, opening, verse, closing, after)
-            verse = verse:match("^%s*(.-)%s*$"):gsub("%s*/%s*", "\n   ")
-            opening = "\n" .. quoteTemp .. "   " .. before .. opening:sub(2)
-            closing = closing:sub(1, -2) .. after .. unquoteTemp .. "\n"
-            return opening .. verse .. closing
-        end)
+function Emote.colorDialogue(emote, sayColor)
+    -- Placeholder for "'"
+    local QUOTE_CHAR = "\1"
+    -- Placeholder for " '"
+    local OPENING_CHAR = "\2"
+    -- Placeholder for "' "
+    local CLOSING_CHAR = "\3"
+    local UNKNOWN = "\4"
 
-        emote = emote:match("^%s*(.-)%s*$")
-        emote = emote:gsub(quoteTemp.."(.-)"..unquoteTemp, function (verse)
-            if Settings:get().isDialogueColored then
-                verse = AddRgb(verse, Settings:get().sayColor)
+    -- Colour text between "double quotes"
+    emote = emote:gsub('"(%s?[^%s"][^"]*)("?)', function (dialogue, closing)
+        dialogue = Strip(dialogue)
+        -- Replace all apostrophes with placeholders
+        dialogue = dialogue:gsub("'", QUOTE_CHAR)
+        dialogue = AddRgb('"' .. dialogue .. closing, sayColor)
+        return dialogue
+    end)
+
+    -- TODO: Handle words with internal and leading apostrophes (e.g. 'tisn't, 'twouldn't, 'tain't)
+
+    -- Replace apostrophes within words with placeholders (e.g. it's, can't, Bob's, rock'n'roll)
+    repeat
+        local res, count = emote:gsub("(["..WORD_CHARS.."]+)'(["..WORD_CHARS.."]+)", "%1"..QUOTE_CHAR.."%2")
+        emote = res
+    until count == 0
+
+    if emote:find("'", 1, true) then
+        -- Replace trailing apostrophe with placeholder if word is valid contraction (e.g. Marius', ol', walkin')
+        emote = emote:gsub("(["..WORD_CHARS.."]+')(%p*)", function (word, punctuation)
+            if Contraction.isValidTailless(word, punctuation) then
+                word = word:sub(1, -2) .. QUOTE_CHAR
             end
-            return verse
-        end)
-    end
-
-    if Settings:get().isDialogueColored then
-        -- Colour text between "quotation marks"
-        emote = emote:gsub('"(%s*[^%s"][^"]*)("?)', function (dialogue, closing)
-            -- Strip whitespace, replace apostrophes between "quotation marks"
-            dialogue = dialogue:match("^%s*(.-)%s*$"):gsub("'", apostropheTemp)
-            return AddRgb('"' .. dialogue .. closing, Settings:get().sayColor)
+            return word .. punctuation
         end)
 
-        -- TODO: Replace words with internal and leading apostrophes ('tisn't, 'twouldn't, 'tain't)
+        -- Colour text between remaining 'single quotes'
 
-        -- Replace internal apostrophes
-        repeat
-            local res, count = emote:gsub("(["..WordChars.."]+'["..WordChars.."]+)", function (word)
-                return word:gsub("'", apostropheTemp)
-            end)
-            emote = res
-        until count == 0
+        -- Pads string with space so quotes can match
+        if emote:sub(1, 1) == "'" then emote = " " .. emote end
+        if emote:sub(-1) == "'" then emote = emote .. " " end
 
-        if action:sub(1, 3) == "'s " and action:sub(4):find("'") or action:find("'") then
-            -- If word with leading apostrophe is valid, replace the apostrophe
-            emote = emote:gsub("('?)('["..WordChars.."]+)", function (speechMark, word)
-                if Contraction:isValidHeadless(speechMark, word) then
-                    word = apostropheTemp .. word:sub(2)
+        emote = emote
+            -- Matches + after dialogue at the end of the emote, e.g. 'Did you know'+
+            :gsub("'%+", CLOSING_CHAR.."+")
+            -- Replace closing and opening quotes of neighbouring dialogue with placeholders
+            :gsub("'([%s%.%?,!]+)'", function (wordBoundary)
+                if wordBoundary:match("^%.%.%.+$") then
+                    return OPENING_CHAR..wordBoundary..CLOSING_CHAR
+                else
+                    return CLOSING_CHAR..wordBoundary..OPENING_CHAR
                 end
-                return speechMark .. word
             end)
-
-            -- If word with trailing apostrophe is valid, replace the apostrophe
-            emote = emote:gsub("(["..WordChars.."]+')(%p*)", function (word, punctuation)
-                if Contraction:isValidTailless(word, punctuation) then
-                    word = word:sub(1, -2) .. apostropheTemp
+            -- Replace closing quotes with placeholders
+            :gsub("'([%s%.%?,!%-]+)", function (wordBoundary)
+                if wordBoundary:sub(1, 3) == '...' or wordBoundary:sub(1, 1) == '-' then
+                    return OPENING_CHAR..wordBoundary
+                else
+                    return CLOSING_CHAR..wordBoundary
                 end
-                return word .. punctuation
             end)
-
-            -- Colour text between remaining 'speech marks'
-            emote = " " .. emote:gsub("'([%.%?,!%-%+]*) '", unquoteTemp.."%1"..quoteTemp):gsub("' ([%-%+])", "'  %1") .. " "
-            emote = emote:gsub(" '", quoteTemp):gsub("'([%.%?,!%-%+]*) ", unquoteTemp.."%1")
-
-            emote = emote:gsub(quoteTemp.."(%s*[^%s"..quoteTemp.."][^"..quoteTemp.."]*)"..unquoteTemp.."([%.%?,!%-%+]*)", function (dialogue, punctuation)
-                dialogue = dialogue:match("^%s*(.-)%s*$")
-                return " "..AddRgb("'"..dialogue.."'", Settings:get().sayColor)..punctuation.." "
-            end)
-
-            emote = emote:gsub(quoteTemp.."([%s%p]*["..WordChars.."][^"..unquoteTemp.."%+]*)(%+?) $", function (dialogue, plus)
-                dialogue = dialogue:match("^%s*(.-)%s*$")
-                if plus == "+" then
-                    plus = " +"
+            -- Replace opening quotes with placeholders
+            :gsub(" '", " "..OPENING_CHAR)
+            :gsub("([%.%?,!%-]+)'(%s?)", function (wordBoundary, space)
+                if space == " " or wordBoundary:sub(1, 3) == '...' or wordBoundary:sub(1, 1) == '-' then
+                    return wordBoundary..CLOSING_CHAR..space
+                else
+                    return wordBoundary..UNKNOWN
                 end
-                return " "..AddRgb("'"..dialogue, Settings:get().sayColor)..plus.." "
             end)
+            :gsub("("..CLOSING_CHAR.."[^"..CLOSING_CHAR..OPENING_CHAR.."\4]-)\4([^"..CLOSING_CHAR..OPENING_CHAR.."\4]-"..CLOSING_CHAR..")", "%1"..OPENING_CHAR.."%2")
+            :gsub("^([^"..CLOSING_CHAR..OPENING_CHAR.."\4]-)\4([^"..CLOSING_CHAR..OPENING_CHAR.."\4]-"..CLOSING_CHAR..")", "%1"..OPENING_CHAR.."%2")
+            :gsub(UNKNOWN, CLOSING_CHAR)
 
-            emote = emote:gsub(unquoteTemp.."([%.%?,!%-%+]*)", "'%1 "):gsub(quoteTemp, " '"):sub(2, -2):gsub("'</rgb>([%.%?,!%-%+]*)  <rgb=(.-)>'", "'</rgb>%1 <rgb=%2>'"):gsub("'</rgb>  ([%-%+])", "'</rgb> %1")
-        end
+        -- Matches text between opening and closing quote, ensuring it is non-whitespace and contains no opening quotes
+        emote = emote:gsub(OPENING_CHAR.."('*%?*[^'%s"..CLOSING_CHAR.."][^"..CLOSING_CHAR.."]*)"..CLOSING_CHAR, function (dialogue)
+            dialogue = Strip(dialogue)
+            dialogue = dialogue:gsub("["..OPENING_CHAR..CLOSING_CHAR.."]", "'")
+            dialogue = AddRgb("'"..dialogue.."'", sayColor)
+            return dialogue
+        end)
 
-        emote = emote:gsub(apostropheTemp, "'")
+        -- Matches final unbounded single quoted dialogue, if there is one
+        emote = emote:gsub(OPENING_CHAR.."('*%?*[^%s"..CLOSING_CHAR.."][^"..CLOSING_CHAR.."]*)$", function (dialogue)
+            dialogue = Strip(dialogue)
+            dialogue = dialogue:gsub("["..OPENING_CHAR..CLOSING_CHAR.."]", "'")
+            dialogue = AddRgb("'"..dialogue, sayColor)
+            return dialogue
+        end)
+
+        emote = emote:gsub("["..OPENING_CHAR..CLOSING_CHAR.."]", "'")
+        emote = Strip(emote)
     end
 
-    if Settings:get().areEmotesContrasted then
-        local myName = Turbine.Gameplay.LocalPlayer:GetInstance():GetName()
-        if name == Emote.currEmoter or
-          (name == "You" and Emote.currEmoter == myName) or
-          (name == myName and Emote.currEmoter == "You") then
-            emote = AddRgb(emote, self:getLightOrDark())
-        else
-            Emote.currEmoter = name
-            Emote.isCurrColorLight = not Emote.isCurrColorLight
-            emote = AddRgb(emote, self:getLightOrDark())
-        end
-    end
-
-    emote = UnderlineAsterisks(emote)
-    emote = emote:gsub("%-%-", "—")
-
+    emote = emote:gsub(QUOTE_CHAR, "'")
     return emote
 end
 
-    -- Optional features:
-    -- Highlight player names and/or make them inspectable
-    -- Line break between each post, or between different characters
+---@param emote string
+---@return string
+function Emote.formatText(emote, sayColor, opts)
+    local isUnderlined, isColored = opts.isEmphasisUnderlined, opts.isDialogueColored
+    return ComposeFuncs(emote,
+        Strip,
+        formatHead,
+        function (text) return isUnderlined and UnderlineAsterisks(text) or text end,
+        function (text) return isColored and Emote.colorDialogue(text, sayColor) or text end,
+        -- formatVerse
+        ReplaceEmDash
+    )
+end
+
+local function addColor(emote, name, emoteColor, options)
+    EmoteColor.update(name, emoteColor, options)
+    return AddRgb(emote, EmoteColor.get(name, emoteColor, options))
+end
+
+---@param emote string
+---@param emoteColor table
+---@param sayColor table
+---@param options table
+---@return string
+function Emote.format(emote, emoteColor, sayColor, options)
+    local formatted = Emote.formatText(emote, sayColor, options)
+    local name = parseName(emote)
+    return addColor(formatted, name, emoteColor, options)
+end

@@ -3,7 +3,7 @@
     <Information>
         <Name>RP Filter</Name>
         <Author>Dandiron</Author>
-        <Version>1.0.1</Version>
+        <Version>1.1.1</Version>
         <Description>
 A simple plugin that blocks NPC chatter and formats emotes.
 
@@ -15,4 +15,5 @@ How to use:
         </Description>
     </Information>
     <Package>Dandiron.RpFilter.Main</Package>
+    <Configuration Apartment="RpFilter" />
 </Plugin>

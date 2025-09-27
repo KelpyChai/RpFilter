@@ -3,40 +3,39 @@ import "Dandiron.RpFilter.Location"
 import "Dandiron.RpFilter.Say"
 import "Dandiron.RpFilter.Emote"
 import "Dandiron.RpFilter.Settings"
+import "Dandiron.RpFilter.OptionsPanel"
 
-local ChatType = Turbine.ChatType
+import "Turbine.Gameplay"
+
+LOCAL_PLAYER_NAME = Turbine.Gameplay.LocalPlayer:GetInstance():GetName()
 print = Turbine.Shell.WriteLine
 
-local function chatParser(sender, args)
-    if not args.Message then return end
-
-    local message = args.Message:match("^%s*(.-)%s*$")
-    local channel = args.ChatType
+local function chatParser(_, args)
+    local ChatType = Turbine.ChatType
+    local message, channel = args.Message, args.ChatType
 
     if channel == ChatType.Standard then
-        Location:updateIfChanged(message)
-    elseif channel == ChatType.Say and Say:isAllowed(message) then
-        print(AddRgb(Say:format(message), Settings:get().sayColor))
-        -- if message:sub(1, 1) == "<" then print(message:gsub("<", "|"):gsub(">", "|")) end -- debugging
+        Location.update(message)
+    elseif channel == ChatType.Say and Say.isAllowed(message) then
+        print(Say.format(message, Settings.getSayColor()))
     elseif channel == ChatType.Emote then
-        print(AddRgb(Emote:format(message), Settings:get().emoteColor))
+        local s = Settings
+        print(Emote.format(message, s.getEmoteColor(), s.getSayColor(), s.getOptions()))
     end
 end
 
-local function main()
-    Settings:loadLocal()
-    AddCallback(Turbine.Chat, "Received", chatParser)
+function plugin.Load(_, _)
+    Settings.loadSync()
+    Callback.add(Turbine.Chat, "Received", chatParser)
 
-    DrawOptionsPanel()
+    DrawOptionsPanel(Settings.getOptions())
 
-    function plugin.Unload(sender, args)
-        RemoveCallback(Turbine.Chat, "Received", chatParser)
-        Settings:saveLocal()
-    end
-
-    print("<u>RP Filter v1.0.1 by Dandiron</u>")
-    print("- Chat colour can be customized in Options (via /plugins manager)")
-    print("- NPC filter not working? Disable Regional and OOC, then reenable")
+    print("<u>RP Filter v"..plugin:GetVersion().." by Dandiron</u>")
+    print("You can choose say & emote colour in Options (via /plugins manager)")
+    -- print("- NPC filter not working? Disable Regional and OOC, then reenable")
 end
 
-main()
+function plugin.Unload(_, _)
+    Settings.saveSync()
+    Callback.remove(Turbine.Chat, "Received", chatParser)
+end

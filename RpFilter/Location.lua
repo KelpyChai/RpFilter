@@ -2,53 +2,47 @@
 
 Location = {}
 
+local LOCATION_PATTERNS = {
+    "^(Entered) the (.-) %- (Regional) channel%.$",
+    "^(Entered) the (.-) %- (OOC) channel%.$",
+    "^(Left) the (.-) %- (Regional) channel%.$",
+    "^(Left) the (.-) %- (OOC) channel%.$"
+}
 local INSTANCE = "instance"
-local currLocation = INSTANCE
 
-function Location:getCurrent()
+local currLocation = INSTANCE
+local currChannels = {}
+
+function Location.getCurrent()
     return currLocation
 end
 
-function Location:setCurrent(newLocation)
-    currLocation = newLocation
-end
-
--- TODO: Use string.sub() to reduce pattern matching
-
+---@param message string
+---@return {action: string, region: string, channel: string}|nil
 local function getLocationInfo(message)
-    local patterns = {
-        "^(Entered) the (.-) %- (Regional) channel%.$",
-        "^(Entered) the (.-) %- (OOC) channel%.$",
-        "^(Left) the (.-) %- (Regional) channel%.$",
-        "^(Left) the (.-) %- (OOC) channel%.$"
-    }
-
-    for _, pattern in ipairs(patterns) do
+    for _, pattern in ipairs(LOCATION_PATTERNS) do
         local action, region, channel = message:match(pattern)
         if channel then
-            return action, region, channel
+            return {action = action, region = region, channel = channel}
         end
     end
     return nil
 end
 
-local currChannels = {}
-
 ---Parses standard channel for Entered/Left messages to keep track of location
 ---@param message string
-function Location:updateIfChanged(message)
-    local action, region, channel = getLocationInfo(message)
-    if not channel then return end
+function Location.update(message)
+    local info = getLocationInfo(message)
+    if not info then return end
+    local action, region, channel = info.action, info.region, info.channel
 
     if action == "Entered" then
         currChannels[channel] = true
-        if self:getCurrent() ~= region then
-            self:setCurrent(region)
-        end
+        currLocation = region
     else
         currChannels[channel] = nil
         if next(currChannels) == nil then
-            self:setCurrent(INSTANCE)
+            currLocation = INSTANCE
         end
     end
 end

@@ -1,4 +1,13 @@
-import "Dandiron.RpFilter.Diacritics"
+-- Standard word characters extended with diacritics
+WORD_CHARS = "A-Za-z0-9" ..
+            "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞß" ..
+            "àáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ"
+
+---@param word string
+---@return boolean
+function IsCapitalized(word)
+    return word:match("^'?[A-ZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞß]") ~= nil
+end
 
 ---Rounds to the nearest integer
 ---@param val number
@@ -22,12 +31,37 @@ function AddRgb(text, color)
     return "<rgb=" .. ToHexColor(color) .. ">" .. text .. "</rgb>"
 end
 
----If setting is enabled, underline text with asterisks
+---Underlines text surrounded by asterisks
+---
+---**Warning**: this function cannot handle text with xml tags
 ---@param text string
 ---@return string
 function UnderlineAsterisks(text)
-    if Settings:get().isEmphasisUnderlined and text:find("%*") then
-        text = text:gsub("%*([^"..WordChars.."%*]*)(["..WordChars.."][^%*]-)([^"..WordChars.."%*]*)%*", "%1<u>%2</u>%3")
+    if text:find("*", 1, true) then
+        text = text:gsub("%*([^"..WORD_CHARS.."%*]*)(["..WORD_CHARS.."][^%*]-)([^"..WORD_CHARS.."%*]*)%*", "%1<u>%2</u>%3")
     end
     return text
+end
+
+---Replaces two hyphens with em dash
+---
+---**Warning**: em dashes confuse string methods because they are not ASCII characters
+---@param text string
+---@return string
+function ReplaceEmDash(text)
+    return (text:gsub("%-%-", "—"))
+end
+
+---Trims leading and trailing whitespace
+---@param text string
+---@return string
+function Strip(text)
+    return text:match("^%s*(.-)%s*$")
+end
+
+function ComposeFuncs(x, ...)
+    for _, f in ipairs({...}) do
+        x = f(x)
+    end
+    return x
 end
