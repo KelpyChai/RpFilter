@@ -152,18 +152,18 @@ function DrawOptionsPanel(options)
     end
 
     -- add a button to open the color picker to choose the say color
-    createButton("Change Say Colour", showSayColorPicker)
+    createButton("Choose Say Colour", showSayColorPicker)
 
     -- add a button to open the color picker to choose the emote color
-    createButton("Change Emote Colour", showEmoteColorPicker)
+    createButton("Choose Emote Colour", showEmoteColorPicker)
 
-    local useSameColor = createCheckbox(" Use the same colour for says and emotes")
+    local useSameColor = createCheckbox(" Use same colour for says and emotes")
     function useSameColor:CheckedChanged()
         Settings.updateOptions({isSameColorUsed = self:IsChecked()})
     end
 
-    local contrastEmotes = createCheckbox(" Give emotes by different characters a subtle contrast")
-    local rainbowEmotes = createCheckbox(" Give each character their own unique emote colour")
+    local contrastEmotes = createCheckbox(" Add contrast when emotes alternate between players")
+    local rainbowEmotes = createCheckbox(" Give players unique emote colors (up to 12)")
 
     function contrastEmotes:CheckedChanged()
         local isChecked = self:IsChecked()
@@ -181,7 +181,7 @@ function DrawOptionsPanel(options)
         Settings.updateOptions({isDialogueColored = self:IsChecked()})
     end
 
-    local underlineEmphasis = createCheckbox(" Underline words surrounded by *asterisks*")
+    local underlineEmphasis = createCheckbox(" Underline words *surrounded* by asterisks")
     function underlineEmphasis:CheckedChanged()
         Settings.updateOptions({isEmphasisUnderlined = self:IsChecked()})
     end

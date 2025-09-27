@@ -31,8 +31,8 @@ function plugin.Load(_, _)
     DrawOptionsPanel(Settings.getOptions())
 
     print("<u>RP Filter v"..plugin:GetVersion().." by Dandiron</u>")
-    print("- Chat colour can be customized in Options (via /plugins manager)")
-    print("- NPC filter not working? Disable Regional and OOC, then reenable")
+    print("You can choose say & emote colour in Options (via /plugins manager)")
+    -- print("- NPC filter not working? Disable Regional and OOC, then reenable")
 end
 
 function plugin.Unload(_, _)
