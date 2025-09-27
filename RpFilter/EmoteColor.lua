@@ -1,8 +1,8 @@
 import "Dandiron.RpFilter.ColorUtils"
 
-PlayerColor = {}
+EmoteColor = {}
 
-local MAX_NUM_PLAYERS = 13
+local MAX_NUM_PLAYERS = 12
 
 local numPlayers = 1
 local first, last
@@ -19,10 +19,6 @@ local players = {
 
 local isColorLight = false
 local currEmoter
-
-local function getShiftFactor(n)
-    return n % 2 == 0 and n/2 or -(n + 1)/2
-end
 
 -- Inconsistent if emoteColor is changed during session
 local function updateRainbowColor(name, baseColor)
@@ -52,7 +48,7 @@ local function updateRainbowColor(name, baseColor)
         numPlayers = numPlayers - 1
     end
 
-    newPlayer.color = newPlayer.color or AdjustHsl(baseColor, {h = 2/13 * getShiftFactor(numPlayers)})
+    newPlayer.color = newPlayer.color or AdjustRainbow(baseColor, numPlayers)
     newPlayer.prev = last
     players[name] = newPlayer
     numPlayers = numPlayers + 1
@@ -73,16 +69,18 @@ local function copy(color)
 end
 
 local function getRainbowColor(name, emoteColor)
-    return name == LOCAL_PLAYER_NAME and emoteColor or copy(players[name].color)
+    return name == LOCAL_PLAYER_NAME and AdjustRainbow(emoteColor, 0) or copy(players[name].color)
 end
 
 local function getContrastColor(emoteColor, isLighter)
-    local lighterColor = AdjustHsl(emoteColor, {h = -0.014, l = 0.01})
-    local darkerColor = AdjustHsl(emoteColor, {h = 0.014, l = -0.008})
+    -- values already tweaked, do not alter without good cause
+
+    local lighterColor = AdjustContrast(emoteColor, -0.03)
+    local darkerColor = AdjustContrast(emoteColor, 0.03)
     return isLighter and lighterColor or darkerColor
 end
 
-function PlayerColor.update(playerName, emoteColor, options)
+function EmoteColor.update(playerName, emoteColor, options)
     if options.areEmotesRainbow then
         updateRainbowColor(playerName, emoteColor)
     elseif options.areEmotesContrasted then
@@ -90,7 +88,7 @@ function PlayerColor.update(playerName, emoteColor, options)
     end
 end
 
-function PlayerColor.get(playerName, emoteColor, options)
+function EmoteColor.get(playerName, emoteColor, options)
     if options.areEmotesRainbow then
         return getRainbowColor(playerName, emoteColor)
     elseif options.areEmotesContrasted then

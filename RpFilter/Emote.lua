@@ -1,6 +1,6 @@
 import "Dandiron.RpFilter.Contraction"
 import "Dandiron.RpFilter.TextUtils"
-import "Dandiron.RpFilter.PlayerColor"
+import "Dandiron.RpFilter.EmoteColor"
 
 Emote = {}
 
@@ -141,8 +141,8 @@ function Emote.formatText(emote, sayColor, opts)
 end
 
 local function addColor(emote, name, emoteColor, options)
-    PlayerColor.update(name, emoteColor, options)
-    return AddRgb(emote, PlayerColor.get(name, emoteColor, options))
+    EmoteColor.update(name, emoteColor, options)
+    return AddRgb(emote, EmoteColor.get(name, emoteColor, options))
 end
 
 ---@param emote string
