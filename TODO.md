@@ -1,6 +1,9 @@
 ### To-do
 
 - Nickname for characters via commands
+- Replace with Another Color Picker
+- Tweak rainbow and contrast
+- Fix location not parsing?
 
 
 ### Doing
