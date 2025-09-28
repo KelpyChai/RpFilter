@@ -1,6 +1,8 @@
 -- Modified from Cube's functions
 -- Color Picker class by Galuhad
 
+import "Dandiron.RpFilter.Location"
+
 local loadData = Turbine.PluginData.Load
 local saveData = Turbine.PluginData.Save
 local CharacterScope = Turbine.DataScope.Character
@@ -103,6 +105,7 @@ function Settings.loadSync()
         deepcopy(DEFAULT_SETTINGS)
 
     loadSettings(data)
+    if data.location then Location.setCurrent(data.location) end
 end
 
 function Settings.loadGlobalAsync(dataLoadHandler)
@@ -123,7 +126,9 @@ local function getData()
 end
 
 function Settings.saveSync()
-    saveData(CharacterScope, SETTINGS_FILE_NAME, getData())
+    local data = getData()
+    if not Location.isInstanced() then data.location = Location.getCurrent() end
+    saveData(CharacterScope, SETTINGS_FILE_NAME, data)
     print("RP Filter: saved settings")
 end
 

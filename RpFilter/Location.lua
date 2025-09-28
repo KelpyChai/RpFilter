@@ -17,6 +17,16 @@ function Location.getCurrent()
     return currLocation
 end
 
+function Location.isInstanced()
+    return currLocation == INSTANCE
+end
+
+function Location.setCurrent(newLocation)
+    if Location.isInstanced() then
+        currLocation = newLocation
+    end
+end
+
 ---@param message string
 ---@return {action: string, region: string, channel: string}|nil
 local function getLocationInfo(message)

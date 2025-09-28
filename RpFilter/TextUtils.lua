@@ -49,7 +49,7 @@ end
 ---@param text string
 ---@return string
 function ReplaceEmDash(text)
-    return (text:gsub("%-%-", "—"))
+    return (text:gsub("%-%-+", "—"))
 end
 
 ---Trims leading and trailing whitespace

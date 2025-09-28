@@ -113,7 +113,7 @@ function AdjustContrast(color, hueShift)
     -- c as a measure of coolness in [0, pi]
     local c = math.pi/2 * math.cos(oklch.h + 5/6 * math.pi) + math.pi/2
     -- maximum shift factor -- already tweaked, do not alter without good cause
-    local m = 1.775
+    local m = 1.75
     local shiftFactor = 2*(1-m)/math.pi^3 * c^3 - 3*(1-m)/math.pi^2 * c^2 + 1
     oklch.h = (oklch.h + shiftFactor * hueShift * (2 * math.pi)) % (2 * math.pi)
 
