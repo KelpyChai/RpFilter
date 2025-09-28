@@ -98,6 +98,10 @@ local function loadSettings(data)
     Settings.setEmoteColor(data.emoteColor)
 end
 
+function Settings.isFirstTime()
+    return loadData(CharacterScope, SETTINGS_FILE_NAME) == nil
+end
+
 function Settings.loadSync()
     local data =
         loadData(CharacterScope, SETTINGS_FILE_NAME) or
