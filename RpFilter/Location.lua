@@ -1,5 +1,7 @@
 -- Assumption: user has Regional or OOC enabled
 
+import "Dandiron.RpFilter.TextUtils"
+
 Location = {}
 
 local LOCATION_PATTERNS = {
@@ -17,6 +19,16 @@ function Location.getCurrent()
     return currLocation
 end
 
+function Location.isInstanced()
+    return currLocation == INSTANCE
+end
+
+function Location.setCurrent(newLocation)
+    if Location.isInstanced() then
+        currLocation = newLocation
+    end
+end
+
 ---@param message string
 ---@return {action: string, region: string, channel: string}|nil
 local function getLocationInfo(message)
@@ -32,7 +44,7 @@ end
 ---Parses standard channel for Entered/Left messages to keep track of location
 ---@param message string
 function Location.update(message)
-    local info = getLocationInfo(message)
+    local info = getLocationInfo(Strip(message))
     if not info then return end
     local action, region, channel = info.action, info.region, info.channel
 

@@ -30,9 +30,10 @@ function plugin.Load(_, _)
 
     DrawOptionsPanel(Settings.getOptions())
 
-    print("<u>RP Filter v"..plugin:GetVersion().." by Dandiron</u>")
-    print("You can choose say & emote colour in Options (via /plugins manager)")
-    -- print("- NPC filter not working? Disable Regional and OOC, then reenable")
+    print("<rgb=#DAA520><u>RP Filter v"..plugin:GetVersion().." by Dandiron</u></rgb>")
+    if Settings.isFirstTime() then
+        print("You can choose say and emote colour in /plugins manager")
+    end
 end
 
 function plugin.Unload(_, _)

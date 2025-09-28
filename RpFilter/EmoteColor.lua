@@ -74,10 +74,7 @@ end
 
 local function getContrastColor(emoteColor, isLighter)
     -- values already tweaked, do not alter without good cause
-
-    local lighterColor = AdjustContrast(emoteColor, -0.03)
-    local darkerColor = AdjustContrast(emoteColor, 0.03)
-    return isLighter and lighterColor or darkerColor
+    return isLighter and AdjustContrast(emoteColor, -0.032) or AdjustContrast(emoteColor, 0.032)
 end
 
 function EmoteColor.update(playerName, emoteColor, options)
