@@ -3,8 +3,6 @@
 - Nickname for characters via commands
 - Replace with Another Color Picker
 - Tweak rainbow and contrast
-- Fix location not parsing?
-
 
 ### Doing
 
@@ -25,3 +23,4 @@
 - Refactor settings
 - Update checkboxes upon loading
 - Final check before updating
+- Fix location not parsing
