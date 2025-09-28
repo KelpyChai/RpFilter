@@ -91,8 +91,8 @@ function Emote.colorDialogue(emote, sayColor)
             end)
             -- Replace opening quotes with placeholders
             :gsub(" '", " "..OPENING_CHAR)
-            :gsub("([%.%?,!%-]+)'(%s?)", function (wordBoundary, space)
-                if space == " " or wordBoundary:sub(1, 3) == '...' or wordBoundary:sub(1, 1) == '-' then
+            :gsub("([%.%?,!%-~]+)'(%s?)", function (wordBoundary, space)
+                if space == " " or wordBoundary:sub(1, 3) == '...' or wordBoundary:sub(1, 1) == '-' or wordBoundary:sub(-1) == "~" then
                     return wordBoundary..CLOSING_CHAR..space
                 else
                     return wordBoundary..UNKNOWN
