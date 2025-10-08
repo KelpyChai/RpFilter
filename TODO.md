@@ -2,7 +2,6 @@
 
 - Nickname for characters via commands
 - Replace with Another Color Picker
-- Tweak rainbow and contrast
 
 ### Doing
 
@@ -24,3 +23,4 @@
 - Update checkboxes upon loading
 - Final check before updating
 - Fix location not parsing
+- Tweak rainbow and contrast (clamp lightness to 55-75)

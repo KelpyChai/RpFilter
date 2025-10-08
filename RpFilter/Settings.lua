@@ -131,7 +131,7 @@ end
 
 function Settings.saveSync()
     local data = getData()
-    if not Location.isInstanced() then data.location = Location.getCurrent() end
+    data.location = Location.getCurrent()
     saveData(CharacterScope, SETTINGS_FILE_NAME, data)
     print("RP Filter: saved settings")
 end
