@@ -24,8 +24,7 @@ local function formatHead(emote)
         local possessive = name:sub(-1) == "s" and "' " or "'s "
         return name .. possessive .. action:sub(4)
     else
-        local res = action:match("^l+ (.+)")
-        return res or emote
+        return action:match("^l+ (.+)") or emote
     end
 end
 

@@ -105,8 +105,13 @@ local function replaceEmoticon(pre, emoticon, post)
     return pre .. marker .. post
 end
 
-local function formatVerse(say)
+local function replaceSlash(name, verse)
     local TAB = "   "
+    verse = verse:gsub("%s?/%s?", "\n" .. TAB)
+    return name .. " says:\n" .. TAB .. verse
+end
+
+local function formatVerse(say)
 
     local wereEmoticonsFound = false
     repeat
@@ -115,12 +120,9 @@ local function formatVerse(say)
         wereEmoticonsFound = wereEmoticonsFound or count ~= 0
     until count == 0
 
-    say = say:gsub("^[A-Z][a-z]+ says, '(.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].*)'$", function (verse)
-        verse = Strip(verse)
-        verse = verse:gsub("%s?/%s?", "\n" .. TAB)
-        verse = "says:\n" .. TAB .. verse
-        return verse
-    end)
+    local namePattern = say:sub(1, 1) == "<" and "^(<Select:IID:0x%x->.-<\\Select>)" or "^(%a+)%-?%d-"
+    local versePattern = " says, '(.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].*)'$"
+    say = say:gsub(namePattern .. versePattern, replaceSlash)
 
     if wereEmoticonsFound then
         say = say:gsub("\1(\2?)", function (slash) return #slash == 0 and "o/" or "o//" end)
