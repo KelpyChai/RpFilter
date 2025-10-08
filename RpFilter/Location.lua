@@ -19,12 +19,8 @@ function Location.getCurrent()
     return currLocation
 end
 
-function Location.isInstanced()
-    return currLocation == INSTANCE
-end
-
 function Location.setCurrent(newLocation)
-    if Location.isInstanced() then
+    if currLocation == INSTANCE then
         currLocation = newLocation
     end
 end
