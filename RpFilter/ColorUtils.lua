@@ -143,7 +143,7 @@ function AdjustRainbow(color, shiftFactor)
 
     local maxShift = 0.03
     local lightShift = maxShift/2 * (-cos(oklch.h - pi/2) + 1)
-    oklch.L = clamp(oklch.L + lightShift, 0.5, 0.75)
+    oklch.L = clamp(oklch.L + lightShift, 0.54, 0.75)
     oklch.C = clamp(oklch.C, 0.16, 0.45)
 
     local rgb = oklchToRgb(oklch)
