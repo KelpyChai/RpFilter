@@ -87,8 +87,8 @@ local function isFromNpc(id)
 end
 
 local function isNpcAllowed(name)
-    local currBlockedNpcs = BLOCKED_NPCS[Location.getCurrent()]
-    return not currBlockedNpcs or not currBlockedNpcs[name]
+    local blockedNpcs = BLOCKED_NPCS[Location.getCurrent()]
+    return Location.isInstanced() or not blockedNpcs or not blockedNpcs[name]
 end
 
 local function parseSay(say)

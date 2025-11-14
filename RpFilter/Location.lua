@@ -16,13 +16,17 @@ local isInstanced = false
 local currChannels = {}
 
 function Location.getCurrent()
-    return isInstanced and "instance" or currLocation
+    return currLocation
 end
 
 function Location.setCurrent(newLocation)
     if currLocation == "unknown" then
         currLocation = newLocation
     end
+end
+
+function Location.isInstanced()
+    return isInstanced
 end
 
 ---@param message string
