@@ -65,14 +65,21 @@ local BLOCKED_NPCS = {
 }
 
 local function isFromLocalPlayer(say)
-    return say:sub(1, 7) == "You say"
+    -- Works for "You say" and "You shout"
+    return say:sub(1, 4) == "You "
 end
 
----Replaces 'You say' with '<player> says'
+---Replaces 'You say/shout' with '<player> says/shouts'
 ---@param say string
 ---@return string
 local function replacePlayerName(say)
-    return isFromLocalPlayer(say) and LOCAL_PLAYER_NAME.." says"..say:sub(8) or say
+    if say:sub(1, 7) == "You say" then
+        return LOCAL_PLAYER_NAME .. " says" .. say:sub(8)
+    elseif say:sub(1, 9) == "You shout" then
+        return LOCAL_PLAYER_NAME .. " shouts" .. say:sub(10)
+    else
+        return say
+    end
 end
 
 local function isFromNpc(id)
@@ -114,10 +121,10 @@ local function replaceEmoticon(pre, emoticon, post)
     return pre .. marker .. post
 end
 
-local function replaceSlash(name, verse)
+local function replaceSlash(name, verb, verse)
     local TAB = "   "
-    verse = verse:gsub("%s?/%s?", "\n" .. TAB)
-    return name .. " says:\n" .. TAB .. verse
+    verse = TAB .. verse:gsub("%s?/%s?", "\n" .. TAB)
+    return name .. " " .. verb .. ":\n" .. verse
 end
 
 local function formatVerse(say)
@@ -130,7 +137,7 @@ local function formatVerse(say)
     until count == 0
 
     local namePattern = say:sub(1, 1) == "<" and "^(<Select:IID:0x%x->.-<\\Select>)" or "^(%a+)%-?%d-"
-    local versePattern = " says, '(.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].*)'$"
+    local versePattern = " (%l+), '(.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].*)'$"
     say = say:gsub(namePattern .. versePattern, replaceSlash)
 
     if wereEmoticonsFound then
