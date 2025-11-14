@@ -10,17 +10,17 @@ local LOCATION_PATTERNS = {
     "^(Left) the (.-) %- (Regional) channel%.$",
     "^(Left) the (.-) %- (OOC) channel%.$"
 }
-local INSTANCE = "instance"
 
-local currLocation = INSTANCE
+local currLocation = "unknown"
+local isInstanced = false
 local currChannels = {}
 
 function Location.getCurrent()
-    return currLocation
+    return isInstanced and "instance" or currLocation
 end
 
 function Location.setCurrent(newLocation)
-    if currLocation == INSTANCE then
+    if currLocation == "unknown" then
         currLocation = newLocation
     end
 end
@@ -47,10 +47,11 @@ function Location.update(message)
     if action == "Entered" then
         currChannels[channel] = true
         currLocation = region
+        isInstanced = false
     else
         currChannels[channel] = nil
         if next(currChannels) == nil then
-            currLocation = INSTANCE
+            isInstanced = true
         end
     end
 end
