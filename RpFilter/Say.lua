@@ -64,8 +64,8 @@ local BLOCKED_NPCS = {
     },
 }
 
-local function isFromLocalPlayer(message)
-    return message:sub(1, 7) == "You say"
+local function isFromLocalPlayer(say)
+    return say:sub(1, 7) == "You say"
 end
 
 ---Replaces 'You say' with '<player> says'
@@ -84,20 +84,29 @@ local function isNpcAllowed(name)
     return not currBlockedNpcs or not currBlockedNpcs[name]
 end
 
+local function parseSay(say)
+    return say:match("^<Select:IID:(0x%x-)>(.-)<\\Select>")
+end
+
 ---Filters NPC chatter from the say channel
----@param message any
+---@param say any
 ---@return boolean
-function Say.isAllowed(message)
-    local id, name = message:match("^<Select:IID:(0x%x-)>(.-)<\\Select>")
+function Say.isAllowed(say)
+    local id, name = parseSay(say)
 
     if not id then
-        return isFromLocalPlayer(message)
+        return isFromLocalPlayer(say)
     elseif isFromNpc(id) then
         return isNpcAllowed(name)
     else
         -- Must be from another player
         return true
     end
+end
+
+function Say.isFromPlayer(say)
+    local id, _ = parseSay(say)
+    return isFromLocalPlayer(say) or not isFromNpc(id)
 end
 
 local function replaceEmoticon(pre, emoticon, post)
