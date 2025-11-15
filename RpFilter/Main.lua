@@ -31,7 +31,13 @@ end
 
 local replayCmd = Turbine.ShellCommand()
 function replayCmd:Execute() Logger.dump() end
-function replayCmd:GetHelp() return "replay: Print all says and emotes that have occurred" end
+function replayCmd:GetShortHelp() return "Prints all says and emotes from this session." end
+function replayCmd:GetHelp()
+    return "usage: /replay\nThis command prints out all says and emotes by players.\n\n"
+        .. "The history is cleared whenever the player logs out (or unloads the plugin), "
+        .. "so make sure to grab logs first. Once you're done with RP,\n"
+        .. "1. Start logging your RP tab\n2. Use /replay\n3. Stop logging"
+end
 
 function plugin.Load(_, _)
     Settings.loadSync()
@@ -44,7 +50,7 @@ function plugin.Load(_, _)
     if Settings.isFirstLoad() then
         print("You can choose say and emote colour in /plugins manager")
     end
-    print("To help with logging, /replay will print all prior says and emotes")
+    print("For easy logging, use /replay to print all previous says and emotes")
 end
 
 function plugin.Unload(_, _)
