@@ -5,26 +5,22 @@ import "Dandiron.RpFilter.EmoteColor"
 Emote = {}
 
 local function parseName(emote)
-    local name = emote:match("^(%a+'?s?)%-?%d- ")
-    if name == "You" then
-        name = LOCAL_PLAYER_NAME
-    elseif name:sub(-2) == "'s" then
-        name = name:sub(1, -3)
-    end
-    return name
+    local name = emote:match("^%a+")
+    return name == "You" and LOCAL_PLAYER_NAME or name
 end
 
 local function formatHead(emote)
-    local name, action = emote:match("^(%a+'?s?)%-?%d- (.+)")
+    local name, possessive, action = emote:match("^(%a+)%-?%d-('?s?) (.+)")
     local firstChar = action:sub(1, 1)
 
     if firstChar == "|" or firstChar == "/" or firstChar == "\\" then
-        return action:gsub("^"..firstChar.."+%s?", "")
+        local _, i = action:find("^"..firstChar.."+%s?")
+        return action:sub(i + 1)
     elseif action:sub(1, 3) == "'s " then
-        local possessive = name:sub(-1) == "s" and "' " or "'s "
+        possessive = name:sub(-1) == "s" and "' " or "'s "
         return name .. possessive .. action:sub(4)
     else
-        return action:match("^l+ (.+)") or emote
+        return action:match("^l+ (.+)") or name .. possessive .. " " .. action
     end
 end
 
@@ -74,7 +70,7 @@ function Emote.colorDialogue(emote, sayColor)
             :gsub("'%+", CLOSING_CHAR.."+")
             -- Replace closing and opening quotes of neighbouring dialogue with placeholders
             :gsub("'([%s%.%?,!]+)'", function (wordBoundary)
-                if wordBoundary:match("^%.%.%.+$") then
+                if wordBoundary:find("^%.%.%.+$") then
                     return OPENING_CHAR..wordBoundary..CLOSING_CHAR
                 else
                     return CLOSING_CHAR..wordBoundary..OPENING_CHAR
@@ -139,11 +135,6 @@ function Emote.formatText(emote, sayColor, opts)
     )
 end
 
-local function addColor(emote, name, emoteColor, options)
-    EmoteColor.update(name, emoteColor, options)
-    return AddRgb(emote, EmoteColor.get(name, emoteColor, options))
-end
-
 ---@param emote string
 ---@param emoteColor table
 ---@param sayColor table
@@ -152,5 +143,6 @@ end
 function Emote.format(emote, emoteColor, sayColor, options)
     local formatted = Emote.formatText(emote, sayColor, options)
     local name = parseName(emote)
-    return addColor(formatted, name, emoteColor, options)
+    emoteColor = EmoteColor.update(name, emoteColor, options)
+    return AddRgb(formatted, emoteColor)
 end
