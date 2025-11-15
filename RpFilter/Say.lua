@@ -8,6 +8,9 @@ local BLOCKED_NPCS = {
         ["Townsperson"] = true,
         ["Woodcutter"] = true,
         ["Bounder"] = true,
+        ["Watcher"] = true,
+        ["Worker"] = true,
+        ["Neighbour"] = true,
         ["Tom Bombadil"] = true,
         -- ["Lalia"] = true,
         -- ["Constable Bolger"] = true,
@@ -64,15 +67,22 @@ local BLOCKED_NPCS = {
     },
 }
 
-local function isFromLocalPlayer(message)
-    return message:sub(1, 7) == "You say"
+local function isFromLocalPlayer(say)
+    -- Works for "You say" and "You shout"
+    return say:sub(1, 4) == "You "
 end
 
----Replaces 'You say' with '<player> says'
+---Replaces 'You say/shout' with '<player> says/shouts'
 ---@param say string
 ---@return string
 local function replacePlayerName(say)
-    return isFromLocalPlayer(say) and LOCAL_PLAYER_NAME.." says"..say:sub(8) or say
+    if say:sub(1, 7) == "You say" then
+        return LOCAL_PLAYER_NAME .. " says" .. say:sub(8)
+    elseif say:sub(1, 9) == "You shout" then
+        return LOCAL_PLAYER_NAME .. " shouts" .. say:sub(10)
+    else
+        return say
+    end
 end
 
 local function isFromNpc(id)
@@ -80,18 +90,22 @@ local function isFromNpc(id)
 end
 
 local function isNpcAllowed(name)
-    local currBlockedNpcs = BLOCKED_NPCS[Location.getCurrent()]
-    return not currBlockedNpcs or not currBlockedNpcs[name]
+    local blockedNpcs = BLOCKED_NPCS[Location.getCurrent()]
+    return Location.isInstanced() or not blockedNpcs or not blockedNpcs[name]
+end
+
+local function parseSay(say)
+    return say:match("^<Select:IID:(0x%x-)>(.-)<\\Select>")
 end
 
 ---Filters NPC chatter from the say channel
----@param message any
+---@param say any
 ---@return boolean
-function Say.isAllowed(message)
-    local id, name = message:match("^<Select:IID:(0x%x-)>(.-)<\\Select>")
+function Say.isAllowed(say)
+    local id, name = parseSay(say)
 
     if not id then
-        return isFromLocalPlayer(message)
+        return isFromLocalPlayer(say)
     elseif isFromNpc(id) then
         return isNpcAllowed(name)
     else
@@ -100,15 +114,20 @@ function Say.isAllowed(message)
     end
 end
 
+function Say.isFromPlayer(say)
+    local id, _ = parseSay(say)
+    return isFromLocalPlayer(say) or not isFromNpc(id)
+end
+
 local function replaceEmoticon(pre, emoticon, post)
     local marker = emoticon == "o/" and "\1" or "\1\2"
     return pre .. marker .. post
 end
 
-local function replaceSlash(name, verse)
+local function replaceSlash(name, verb, verse)
     local TAB = "   "
-    verse = verse:gsub("%s?/%s?", "\n" .. TAB)
-    return name .. " says:\n" .. TAB .. verse
+    verse = TAB .. verse:gsub("%s?/%s?", "\n" .. TAB)
+    return name .. " " .. verb .. ":\n" .. verse
 end
 
 local function formatVerse(say)
@@ -121,7 +140,7 @@ local function formatVerse(say)
     until count == 0
 
     local namePattern = say:sub(1, 1) == "<" and "^(<Select:IID:0x%x->.-<\\Select>)" or "^(%a+)%-?%d-"
-    local versePattern = " says, '(.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].*)'$"
+    local versePattern = " (%l+), '(.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].-/.-["..WORD_CHARS.."].*)'$"
     say = say:gsub(namePattern .. versePattern, replaceSlash)
 
     if wereEmoticonsFound then

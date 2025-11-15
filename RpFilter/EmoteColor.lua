@@ -77,14 +77,6 @@ local function getContrastColor(emoteColor, isLighter)
     return isLighter and AdjustContrast(emoteColor, -0.032) or AdjustContrast(emoteColor, 0.032)
 end
 
-function EmoteColor.update(playerName, emoteColor, options)
-    if options.areEmotesRainbow then
-        updateRainbowColor(playerName, emoteColor)
-    elseif options.areEmotesContrasted then
-        updateContrastColor(playerName)
-    end
-end
-
 function EmoteColor.get(playerName, emoteColor, options)
     if options.areEmotesRainbow then
         return getRainbowColor(playerName, emoteColor)
@@ -93,4 +85,17 @@ function EmoteColor.get(playerName, emoteColor, options)
     else
         return emoteColor
     end
+end
+
+---@param playerName string
+---@param emoteColor table
+---@param options table
+---@return table
+function EmoteColor.update(playerName, emoteColor, options)
+    if options.areEmotesRainbow then
+        updateRainbowColor(playerName, emoteColor)
+    elseif options.areEmotesContrasted then
+        updateContrastColor(playerName)
+    end
+    return EmoteColor.get(playerName, emoteColor, options)
 end
