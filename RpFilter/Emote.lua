@@ -11,17 +11,15 @@ end
 
 local function formatHead(emote)
     local name, possessive, action = emote:match("^(%a+)%-?%d-('?s?) (.+)")
-    local firstChar = action:sub(1, 1)
+    local delimiterEnd = ({action:find("^[|/\\]+%s?")})[2] or ({action:find("^l+ ")})[2]
 
-    if firstChar == "|" or firstChar == "/" or firstChar == "\\" then
-        local _, i = action:find("^"..firstChar.."+%s?")
-        return action:sub(i + 1)
+    if delimiterEnd and action:find(name, 1, true) then
+        return action:sub(delimiterEnd + 1)
     elseif action:sub(1, 3) == "'s " then
-        possessive = name:sub(-1) == "s" and "' " or "'s "
-        return name .. possessive .. action:sub(4)
-    else
-        return action:match("^l+ (.+)") or name .. possessive .. " " .. action
+        possessive = name:sub(-1) == "s" and "'" or "'s"
+        action = action:sub(4)
     end
+    return name .. possessive .. " " .. action
 end
 
 function Emote.colorDialogue(emote, sayColor)
