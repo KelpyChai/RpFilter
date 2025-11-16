@@ -128774,6 +128774,6 @@ Wordlist.VERBS = {
     ["zugzwangs"] = true,
 }
 
-function Wordlist:isValidWord(word)
-    return self.NOUNS[word] or self.VERBS[word] or self.OTHER[word]
+function Wordlist.isValidWord(word)
+    return Wordlist.NOUNS[word] or Wordlist.VERBS[word] or Wordlist.OTHER[word]
 end

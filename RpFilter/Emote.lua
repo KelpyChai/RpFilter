@@ -16,7 +16,7 @@ local function hasProperNoun(text)
     if HasDiacritics(text) then return true end
 
     for word in (" "..text):gmatch("[%s%p](["..UPPER_CLASS.."]["..LOWER_CLASS.."]+)") do
-        if not Wordlist:isValidWord(word:lower()) then
+        if not Wordlist.isValidWord(word:lower()) then
             return true
         end
     end
