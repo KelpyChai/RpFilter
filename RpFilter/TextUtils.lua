@@ -1,12 +1,20 @@
+local upperDiacritics = "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞß"
+local lowerDiacritics = "àáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ"
+
+UPPER_CLASS = "A-Z" .. upperDiacritics
+LOWER_CLASS = "a-z" .. lowerDiacritics
+
 -- Standard word characters extended with diacritics
-WORD_CHARS = "A-Za-z0-9" ..
-            "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞß" ..
-            "àáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ"
+WORD_CLASS = "A-Za-z0-9" .. upperDiacritics .. lowerDiacritics
 
 ---@param word string
 ---@return boolean
 function IsCapitalized(word)
-    return word:match("^'?[A-ZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞß]") ~= nil
+    return word:match("^'?["..UPPER_CLASS.."]") ~= nil
+end
+
+function HasDiacritics(word)
+    return word:find("["..lowerDiacritics..upperDiacritics.."]")
 end
 
 ---Rounds to the nearest integer
@@ -20,7 +28,7 @@ end
 ---@param color table
 ---@return string
 function ToHexColor(color)
-    return string.format("#%02X%02X%02X", Round(color.red), Round(color.green), Round(color.blue))
+    return ("#%02X%02X%02X"):format(Round(color.red), Round(color.green), Round(color.blue))
 end
 
 ---Wraps text in an RGB tag
@@ -38,7 +46,8 @@ end
 ---@return string
 function UnderlineAsterisks(text)
     if text:find("*", 1, true) then
-        text = text:gsub("%*([^"..WORD_CHARS.."%*]*)(["..WORD_CHARS.."][^%*]-)([^"..WORD_CHARS.."%*]*)%*", "%1<u>%2</u>%3")
+        local pattern = ("%*([^%s%*]*)([%s][^%*]-)([^%s%*]*)%*"):format(WORD_CLASS, WORD_CLASS, WORD_CLASS)
+        text = text:gsub(pattern, "%1<u>%2</u>%3")
     end
     return text
 end
