@@ -1,12 +1,16 @@
+local upperDiacritics = "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞß"
+local lowerDiacritics = "àáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ"
+
+UPPERCASE = "A-Z" .. upperDiacritics
+LOWERCASE = "a-z" .. lowerDiacritics
+
 -- Standard word characters extended with diacritics
-WORD_CHARS = "A-Za-z0-9" ..
-            "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞß" ..
-            "àáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ"
+WORD_CLASS = "A-Za-z0-9" .. upperDiacritics .. lowerDiacritics
 
 ---@param word string
 ---@return boolean
 function IsCapitalized(word)
-    return word:match("^'?[A-ZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞß]") ~= nil
+    return word:match("^'?["..UPPERCASE.."]") ~= nil
 end
 
 ---Rounds to the nearest integer
@@ -38,7 +42,8 @@ end
 ---@return string
 function UnderlineAsterisks(text)
     if text:find("*", 1, true) then
-        text = text:gsub("%*([^"..WORD_CHARS.."%*]*)(["..WORD_CHARS.."][^%*]-)([^"..WORD_CHARS.."%*]*)%*", "%1<u>%2</u>%3")
+        local pattern = ("%*([^%s%*]*)([%s][^%*]-)([^%s%*]*)%*"):format(WORD_CLASS, WORD_CLASS, WORD_CLASS)
+        text = text:gsub(pattern, "%1<u>%2</u>%3")
     end
     return text
 end
