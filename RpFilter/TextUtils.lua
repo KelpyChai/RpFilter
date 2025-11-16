@@ -1,8 +1,8 @@
 local upperDiacritics = "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞß"
 local lowerDiacritics = "àáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ"
 
-UPPERCASE = "A-Z" .. upperDiacritics
-LOWERCASE = "a-z" .. lowerDiacritics
+UPPER_CLASS = "A-Z" .. upperDiacritics
+LOWER_CLASS = "a-z" .. lowerDiacritics
 
 -- Standard word characters extended with diacritics
 WORD_CLASS = "A-Za-z0-9" .. upperDiacritics .. lowerDiacritics
@@ -10,7 +10,11 @@ WORD_CLASS = "A-Za-z0-9" .. upperDiacritics .. lowerDiacritics
 ---@param word string
 ---@return boolean
 function IsCapitalized(word)
-    return word:match("^'?["..UPPERCASE.."]") ~= nil
+    return word:match("^'?["..UPPER_CLASS.."]") ~= nil
+end
+
+function HasDiacritics(word)
+    return word:find("["..lowerDiacritics..upperDiacritics.."]")
 end
 
 ---Rounds to the nearest integer

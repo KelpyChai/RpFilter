@@ -1,6 +1,7 @@
 import "Dandiron.RpFilter.Contraction"
 import "Dandiron.RpFilter.TextUtils"
 import "Dandiron.RpFilter.EmoteColor"
+import "Dandiron.RpFilter.Wordlist"
 
 Emote = {}
 
@@ -11,11 +12,22 @@ local function parseName(emote)
     return name == "You" and LOCAL_PLAYER_NAME or name
 end
 
+local function hasProperNoun(text)
+    if HasDiacritics(text) then return true end
+
+    for word in (" "..text):gmatch("[%s%p](["..UPPER_CLASS.."]["..LOWER_CLASS.."]+)") do
+        if not Wordlist:isValidWord(word:lower()) then
+            return true
+        end
+    end
+    return false
+end
+
 local function formatHead(emote)
     local name, possessive, action = emote:match("^(%a+)%-?%d-('?s?) (.+)")
     local delimiterEnd = ({action:find("^[|/\\]+%s?")})[2] or ({action:find("^l+ ")})[2]
 
-    if delimiterEnd and (action:find(name, 1, true) or multiPosts[name]) then
+    if delimiterEnd and (multiPosts[name] or action:find(name, 1, true) or hasProperNoun(action)) then
         return action:sub(delimiterEnd + 1)
     elseif action:sub(1, 3) == "'s " then
         possessive = name:sub(-1) == "s" and "'" or "'s"
