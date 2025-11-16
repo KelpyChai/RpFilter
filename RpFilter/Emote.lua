@@ -5,7 +5,8 @@ import "Dandiron.RpFilter.Wordlist"
 
 Emote = {}
 
-local multiPosts = {}
+local multiDialogue = {}
+local multiEmotes = {}
 
 local function parseName(emote)
     local name = emote:match("^%a+")
@@ -20,14 +21,15 @@ local function hasProperNoun(text)
             return true
         end
     end
-    return false
+    local pattern = "[%s%p]["..UPPER_CLASS.."]["..LOWER_CLASS.."]+ ["..UPPER_CLASS.."]["..LOWER_CLASS.."]+"
+    return (" "..text):find(pattern) ~= nil or false
 end
 
 local function formatHead(emote)
     local name, possessive, action = emote:match("^(%a+)%-?%d-('?s?) (.+)")
     local delimiterEnd = ({action:find("^[|/\\]+%s?")})[2] or ({action:find("^l+ ")})[2]
 
-    if delimiterEnd and (multiPosts[name] or action:find(name, 1, true) or hasProperNoun(action)) then
+    if delimiterEnd and (multiDialogue[name] or multiEmotes[name] or action:find(name, 1, true) or hasProperNoun(action)) then
         return action:sub(delimiterEnd + 1)
     elseif action:sub(1, 3) == "'s " then
         possessive = name:sub(-1) == "s" and "'" or "'s"
@@ -37,19 +39,23 @@ local function formatHead(emote)
 end
 
 function Emote.colorDialogue(emote, name, sayColor)
-    -- Placeholder for "'"
+    -- Placeholder for mid-word apostrophe, e.g. "'"
     local QUOTE_CHAR = "\1"
     -- Placeholder for opening quotation mark, e.g. " '"
     local OPENING = "\2"
     -- Placeholder for closing quotation mark, e.g. "' "
     local CLOSING = "\3"
+    -- Placeholder for unknown quotation mark
     local UNKNOWN = "\4"
 
-    local wasMultiPost = false
-    local isNameIncluded = false
+    multiEmotes[name] = emote:sub(-1) == "-" or emote:sub(-1) == "+" or nil
 
-    local firstSpeechMark = multiPosts[name]
+    local wasMultiPost = false
+
+    local firstSpeechMark = multiDialogue[name]
     if firstSpeechMark and emote:sub(1, #name + 1) ~= name.."'" then
+        local isNameIncluded = false
+
         if emote:sub(1, #name) == name then
             -- Skips space after name
             emote = emote:sub(#name + 2)
@@ -62,17 +68,14 @@ function Emote.colorDialogue(emote, name, sayColor)
             wasMultiPost = true
         end
 
-        if isNameIncluded and not wasMultiPost then
-            emote = name .. " " .. emote
-            isNameIncluded = false
-        end
+        if isNameIncluded then emote = name .. " " .. emote end
     end
 
     local isMultiPost = false
 
-    local lastSpeechMark = emote:match("(['\"])%s?[%-%+]$") or emote:match("[%-%+]%s?(['\"])$")
+    local lastSpeechMark = emote:match("[%-%+]%s?(['\"])$")
     if lastSpeechMark then
-        multiPosts[name] = lastSpeechMark
+        multiDialogue[name] = lastSpeechMark
         isMultiPost = true
     end
 
@@ -80,9 +83,8 @@ function Emote.colorDialogue(emote, name, sayColor)
     emote = emote:gsub('"(%s?[^%s"][^"]*)("?)', function (dialogue, closing)
         dialogue = Strip(dialogue)
 
-        local lastChar = dialogue:sub(-1)
-        if closing == "" and (lastChar == "-" or lastChar == "+") then
-            multiPosts[name] = '"'
+        if closing == "" and (dialogue:sub(-1) == "-" or dialogue:sub(-1) == "+") then
+            multiDialogue[name] = '"'
             isMultiPost = true
         end
 
@@ -159,9 +161,8 @@ function Emote.colorDialogue(emote, name, sayColor)
         emote = emote:gsub(OPENING.."('*%?*[^%s"..CLOSING.."][^"..CLOSING.."]*)$", function (dialogue)
             dialogue = Strip(dialogue)
 
-            local lastChar = dialogue:sub(-1)
-            if lastChar == "-" or lastChar == "+" then
-                multiPosts[name] = "'"
+            if dialogue:sub(-1) == "-" or dialogue:sub(-1) == "+" then
+                multiDialogue[name] = "'"
                 isMultiPost = true
             end
 
@@ -177,9 +178,8 @@ function Emote.colorDialogue(emote, name, sayColor)
     emote = emote:gsub(QUOTE_CHAR, "'")
 
     -- TODO: Consider order of operations
-    if not isMultiPost then multiPosts[name] = nil end
+    if not isMultiPost then multiDialogue[name] = nil end
     if wasMultiPost then emote = emote:gsub(firstSpeechMark, "", 1) end
-    if isNameIncluded then emote = name .. " " .. emote end
 
     return emote
 end
