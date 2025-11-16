@@ -140,7 +140,7 @@ local function formatVerse(say)
     until count == 0
 
     local namePattern = say:sub(1, 1) == "<" and "^(<Select:IID:0x%x->.-<\\Select>)" or "^(%a+)%-?%d-"
-    local versePattern = (" (%l+), '(.-[%s].-/.-[%s].-/.-[%s].-/.-[%s].*)'$"):format(WORD_CLASS, WORD_CLASS, WORD_CLASS, WORD_CLASS)
+    local versePattern = " (%l+), '(.-["..WORD_CLASS.."].-/.-["..WORD_CLASS.."].-/.-["..WORD_CLASS.."].-/.-["..WORD_CLASS.."].*)'$"
     say = say:gsub(namePattern .. versePattern, replaceSlash)
 
     if wereEmoticonsFound then

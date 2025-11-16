@@ -28,7 +28,7 @@ end
 ---@param color table
 ---@return string
 function ToHexColor(color)
-    return string.format("#%02X%02X%02X", Round(color.red), Round(color.green), Round(color.blue))
+    return ("#%02X%02X%02X"):format(Round(color.red), Round(color.green), Round(color.blue))
 end
 
 ---Wraps text in an RGB tag
