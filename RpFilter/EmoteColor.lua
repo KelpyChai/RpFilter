@@ -26,14 +26,14 @@ local function updateRainbowColor(name, baseColor)
 
     local newPlayer = {name = name, next = nil}
 
-    if players[name] ~= nil then
+    if players[name] then
         local player = players[name]
         newPlayer.color = player.color
 
         if first == player then first = player.next end
         if last == player then last = player.prev end
-        if player.next ~= nil then player.next.prev = player.prev end
-        if player.prev ~= nil then player.prev.next = player.next end
+        if player.next then player.next.prev = player.prev end
+        if player.prev then player.prev.next = player.next end
 
         players[name] = nil
         numPlayers = numPlayers - 1
@@ -53,7 +53,7 @@ local function updateRainbowColor(name, baseColor)
     players[name] = newPlayer
     numPlayers = numPlayers + 1
 
-    if last ~= nil then last.next = newPlayer end
+    if last then last.next = newPlayer end
     last = newPlayer
 end
 

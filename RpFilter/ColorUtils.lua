@@ -91,13 +91,13 @@ end
 
 ---@param color {red: number, green: number, blue: number}
 ---@return {L: number, C: number, h: number}
-local function rgbToOklch(color)
+function RgbToOklch(color)
     return ComposeFuncs(color, rgbToLinear, linearToOklab, oklabToOklch)
 end
 
 ---@param color {L: number, C: number, h: number}
 ---@return {r: number, g: number, b: number}
-local function oklchToRgb(color)
+function OklchToRgb(color)
     return ComposeFuncs(color, oklchToOklab, oklabToLinear, linearToRgb)
 end
 
@@ -105,7 +105,7 @@ end
 ---@param hueShift number
 ---@return {red: number, green: number, blue: number}
 function AdjustContrast(color, hueShift)
-    local oklch = rgbToOklch({r = color.red, g = color.green, b = color.blue})
+    local oklch = RgbToOklch({r = color.red, g = color.green, b = color.blue})
 
     -- y = pi/2 * cos(x + 5/6*pi) + pi/2 where x is hue in radians, y a measure of coolness
     -- y = 2(1-m)/pi^3*x^3 - 3(1-m)/pi^2*x^2 + 1 where x is coolness, y is shift factor
@@ -117,7 +117,7 @@ function AdjustContrast(color, hueShift)
     local shiftFactor = 2*(1-m)/math.pi^3 * c^3 - 3*(1-m)/math.pi^2 * c^2 + 1
     oklch.h = (oklch.h + shiftFactor * hueShift * (2 * math.pi)) % (2 * math.pi)
 
-    local rgb = oklchToRgb(oklch)
+    local rgb = OklchToRgb(oklch)
     return {red = rgb.r, green = rgb.g, blue = rgb.b}
 end
 
@@ -132,7 +132,7 @@ end
 ---@param shiftFactor number
 ---@return {red: number, green: number, blue: number}
 function AdjustRainbow(color, shiftFactor)
-    local oklch = rgbToOklch({r = color.red, g = color.green, b = color.blue})
+    local oklch = RgbToOklch({r = color.red, g = color.green, b = color.blue})
     local pi, floor, cos = math.pi, math.floor, math.cos
 
     local hueRef = (shiftFactor % 3) * (2/3)*pi + oklch.h
@@ -146,6 +146,6 @@ function AdjustRainbow(color, shiftFactor)
     oklch.L = clamp(oklch.L + lightShift, 0.54, 0.75)
     oklch.C = clamp(oklch.C, 0.16, 0.45)
 
-    local rgb = oklchToRgb(oklch)
+    local rgb = OklchToRgb(oklch)
     return {red = rgb.r, green = rgb.g, blue = rgb.b}
 end
