@@ -22,7 +22,7 @@ local function hasProperNoun(text)
         end
     end
     local pattern = "[%s%p]["..UPPER_CLASS.."]["..LOWER_CLASS.."]+ ["..UPPER_CLASS.."]["..LOWER_CLASS.."]+"
-    return (" "..text):find(pattern) ~= nil or false
+    return (" "..text):find(pattern) or false
 end
 
 local function formatHead(emote)

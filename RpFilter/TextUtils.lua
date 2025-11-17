@@ -10,7 +10,7 @@ WORD_CLASS = "A-Za-z0-9" .. upperDiacritics .. lowerDiacritics
 ---@param word string
 ---@return boolean
 function IsCapitalized(word)
-    return word:match("^'?["..UPPER_CLASS.."]") ~= nil
+    return word:find("^["..UPPER_CLASS.."]")
 end
 
 function HasDiacritics(word)
