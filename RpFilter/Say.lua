@@ -72,6 +72,38 @@ local function isFromLocalPlayer(say)
     return say:sub(1, 4) == "You "
 end
 
+---@param say string
+---@return string|nil name The name of the player or NPC, if any
+---@return string|nil id The ID extracted from the message, if any
+function Say.parse(say)
+    local id, name = say:match("^<Select:IID:(0x%x-)>(.-)<\\Select>")
+    return isFromLocalPlayer(say) and LOCAL_PLAYER_NAME or name, id
+end
+
+local function isFromNpc(id)
+    return id and id:sub(1, 6) == "0x0346"
+end
+
+local function isFromPlayer(name, id)
+    return name and not isFromNpc(id)
+end
+
+function Say.isFromPlayer(say)
+    return isFromPlayer(Say.parse(say))
+end
+
+local function isNpcAllowed(name)
+    if name == nil then return false end
+    local blockedNpcs = BLOCKED_NPCS[Location.getCurrent()]
+    return Location.isInstanced() or not blockedNpcs or not blockedNpcs[name]
+end
+
+---Filters NPC chatter from the say channel
+function Say.isAllowed(say)
+    local name, id = Say.parse(say)
+    return isFromPlayer(name, id) or isNpcAllowed(name)
+end
+
 ---Replaces 'You say/shout' with '<player> says/shouts'
 ---@param say string
 ---@return string
@@ -83,40 +115,6 @@ local function replacePlayerName(say)
     else
         return say
     end
-end
-
-local function isFromNpc(id)
-    return id:sub(1, 6) == "0x0346"
-end
-
-local function isNpcAllowed(name)
-    local blockedNpcs = BLOCKED_NPCS[Location.getCurrent()]
-    return Location.isInstanced() or not blockedNpcs or not blockedNpcs[name]
-end
-
-local function parseSay(say)
-    return say:match("^<Select:IID:(0x%x-)>(.-)<\\Select>")
-end
-
----Filters NPC chatter from the say channel
----@param say any
----@return boolean
-function Say.isAllowed(say)
-    local id, name = parseSay(say)
-
-    if not id then
-        return isFromLocalPlayer(say)
-    elseif isFromNpc(id) then
-        return isNpcAllowed(name)
-    else
-        -- Must be from another player
-        return true
-    end
-end
-
-function Say.isFromPlayer(say)
-    local id, _ = parseSay(say)
-    return isFromLocalPlayer(say) or not isFromNpc(id)
 end
 
 local function replaceEmoticon(pre, emoticon, post)

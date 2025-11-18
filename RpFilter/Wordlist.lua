@@ -15638,6 +15638,7 @@ Wordlist.OTHER = {
     ["whacky"] = true,
     ["whammies"] = true,
     ["whammy"] = true,
+    ["what"] = true,
     ["whatchamacallits"] = true,
     ["whate'er"] = true,
     ["whatever"] = true,

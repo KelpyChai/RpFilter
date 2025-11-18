@@ -1,3 +1,8 @@
+import "Turbine.Gameplay"
+
+LOCAL_PLAYER_NAME = Turbine.Gameplay.LocalPlayer:GetInstance():GetName()
+print = Turbine.Shell.WriteLine
+
 import "Dandiron.RpFilter.Callback"
 import "Dandiron.RpFilter.Location"
 import "Dandiron.RpFilter.Say"
@@ -5,11 +10,6 @@ import "Dandiron.RpFilter.Emote"
 import "Dandiron.RpFilter.Settings"
 import "Dandiron.RpFilter.OptionsPanel"
 import "Dandiron.RpFilter.Logger"
-
-import "Turbine.Gameplay"
-
-LOCAL_PLAYER_NAME = Turbine.Gameplay.LocalPlayer:GetInstance():GetName()
-print = Turbine.Shell.WriteLine
 
 local function chatParser(_, args)
     local ChatType = Turbine.ChatType
@@ -20,7 +20,10 @@ local function chatParser(_, args)
     elseif channel == ChatType.Say and Say.isAllowed(message) then
         local formatted = Say.format(message, Settings.getSayColor())
         print(formatted)
-        if Say.isFromPlayer(message) then Logger.log(formatted) end
+        if Say.isFromPlayer(message) then
+            Emote.updatePlayer(Say.parse(message))
+            Logger.log(formatted)
+        end
     elseif channel == ChatType.Emote then
         local s = Settings
         local formatted = Emote.format(message, s.getEmoteColor(), s.getSayColor(), s.getOptions())

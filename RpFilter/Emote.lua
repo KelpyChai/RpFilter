@@ -1,36 +1,49 @@
 import "Dandiron.RpFilter.Contraction"
 import "Dandiron.RpFilter.TextUtils"
 import "Dandiron.RpFilter.EmoteColor"
-import "Dandiron.RpFilter.Wordlist"
 
 Emote = {}
 
 local multiDialogue = {}
 local multiEmotes = {}
+local playerNames = {}
+playerNames[LOCAL_PLAYER_NAME] = true
 
 local function parseName(emote)
     local name = emote:match("^%a+")
     return name == "You" and LOCAL_PLAYER_NAME or name
 end
 
-local function hasProperNoun(text)
-    if HasDiacritics(text) then return true end
-
-    for word in (" "..text):gmatch("[%s%p](["..UPPER_CLASS.."]["..LOWER_CLASS.."]+)") do
-        if not Wordlist.isValidWord(word:lower()) then
-            return true
-        end
+local function hasCapitalized(text)
+    for word in text:gmatch("[^;:!%.%?%-%(%)'\"%s]%s?%u[%l']+") do
+        if word:sub(1, 2) ~= "I'" then return true end
     end
-    local pattern = "[%s%p]["..UPPER_CLASS.."]["..LOWER_CLASS.."]+ ["..UPPER_CLASS.."]["..LOWER_CLASS.."]+"
-    return (" "..text):find(pattern) or false
+    return false
+end
+
+local function hasProperNoun(text)
+    return HasDiacritics(text)
+        or hasCapitalized(text)
+        or (" "..text):find("[%s%p%u]%l+[%s%-]%u%l+")
+end
+
+local function hasPlayerName(text)
+    for name, _ in pairs(playerNames) do
+        if text:find(name, 1, true) then return true end
+    end
+    return false
 end
 
 local function formatHead(emote)
     local name, possessive, action = emote:match("^(%a+)%-?%d-('?s?) (.+)")
-    local delimiterEnd = ({action:find("^[|/\\]+%s?")})[2] or ({action:find("^l+ ")})[2]
+    local delimiterEnd = select(2, action:find("^[|/\\]+%s?")) or select(2, action:find("^l+ "))
+    local headless = delimiterEnd and action:sub(delimiterEnd + 1)
 
-    if delimiterEnd and (multiDialogue[name] or multiEmotes[name] or action:find(name, 1, true) or hasProperNoun(action)) then
-        return action:sub(delimiterEnd + 1)
+    if delimiterEnd and (multiDialogue[name]
+                        or multiEmotes[name]
+                        or hasPlayerName(headless)
+                        or hasProperNoun(headless)) then
+        return headless
     elseif action:sub(1, 3) == "'s " then
         possessive = name:sub(-1) == "s" and "'" or "'s"
         action = action:sub(4)
@@ -205,7 +218,14 @@ end
 ---@return string
 function Emote.format(emote, emoteColor, sayColor, options)
     local name = parseName(emote)
+    playerNames[name] = true
     local formatted = Emote.formatText(emote, name, sayColor, options)
     emoteColor = EmoteColor.update(name, emoteColor, options)
     return AddRgb(formatted, emoteColor)
+end
+
+function Emote.updatePlayer(name)
+    multiDialogue[name] = nil
+    multiEmotes[name] = nil
+    playerNames[name] = true
 end
