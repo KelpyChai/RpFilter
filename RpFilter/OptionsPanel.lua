@@ -50,7 +50,7 @@ end
 
 local function getNewColor(colorPicker)
     local r, g, b = colorPicker:GetRGBColor()
-    return r and {red = r, green = g, blue = b} or nil
+    return r and {red = r, green = g, blue = b}
 end
 
 local function createSaveButton(window, colorPicker, getColor, setColor)
