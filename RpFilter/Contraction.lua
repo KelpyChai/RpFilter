@@ -41,7 +41,7 @@ function Contraction.isValidTailless(word, punctuation)
         return true
     elseif word:sub(-2) == "s'" then
         local root = body:sub(1, -2)
-        if (IsCapitalized(word) and not Wordlist.isValidWord(word:sub(1, -2))) or Wordlist.NOUNS[word:sub(1, -2)] or Wordlist.NOUNS[root] then
+        if (IsCapitalized(word) and not Wordlist.isValidWord(body)) or Wordlist.NOUNS[word:sub(1, -2)] or Wordlist.NOUNS[root] then
             return not isEndOfDialogue(punctuation)
         elseif word:sub(-3) == "es'" then
             root = body:sub(1, -3)
