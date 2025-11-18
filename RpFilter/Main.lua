@@ -20,7 +20,10 @@ local function chatParser(_, args)
     elseif channel == ChatType.Say and Say.isAllowed(message) then
         local formatted = Say.format(message, Settings.getSayColor())
         print(formatted)
-        if Say.isFromPlayer(message) then Logger.log(formatted) end
+        if Say.isFromPlayer(message) then
+            Emote.updatePlayer(Say.parse(message))
+            Logger.log(formatted)
+        end
     elseif channel == ChatType.Emote then
         local s = Settings
         local formatted = Emote.format(message, s.getEmoteColor(), s.getSayColor(), s.getOptions())

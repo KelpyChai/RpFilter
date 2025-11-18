@@ -3,7 +3,7 @@ import "Dandiron.RpFilter.Wordlist"
 Contraction = {}
 
 ---Returns true for '...potatoes'', '...potatoes'.', '...potatoes',' but not '...potatoes'
----@param punctuation any
+---@param punctuation string
 ---@return boolean
 local function isEndOfDialogue(punctuation)
     if punctuation:len() == 0 then

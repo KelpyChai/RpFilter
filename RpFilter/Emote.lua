@@ -1,35 +1,21 @@
 import "Dandiron.RpFilter.Contraction"
 import "Dandiron.RpFilter.TextUtils"
 import "Dandiron.RpFilter.EmoteColor"
-import "Dandiron.RpFilter.Wordlist"
 
 Emote = {}
 
 local multiDialogue = {}
-local multiEmotes = {}
 
 local function parseName(emote)
     local name = emote:match("^%a+")
     return name == "You" and LOCAL_PLAYER_NAME or name
 end
 
-local function hasProperNoun(text)
-    if HasDiacritics(text) then return true end
-
-    for word in (" "..text):gmatch("[%s%p](["..UPPER_CLASS.."]["..LOWER_CLASS.."]+)") do
-        if not Wordlist.isValidWord(word:lower()) then
-            return true
-        end
-    end
-    local pattern = "[%s%p]["..UPPER_CLASS.."]["..LOWER_CLASS.."]+ ["..UPPER_CLASS.."]["..LOWER_CLASS.."]+"
-    return (" "..text):find(pattern) or false
-end
-
 local function formatHead(emote)
     local name, possessive, action = emote:match("^(%a+)%-?%d-('?s?) (.+)")
-    local delimiterEnd = ({action:find("^[|/\\]+%s?")})[2] or ({action:find("^l+ ")})[2]
+    local delimiterEnd = select(2, action:find("^[|/\\]+%s?")) or select(2, action:find("^l+ "))
 
-    if delimiterEnd and (multiDialogue[name] or multiEmotes[name] or action:find(name, 1, true) or hasProperNoun(action)) then
+    if delimiterEnd then
         return action:sub(delimiterEnd + 1)
     elseif action:sub(1, 3) == "'s " then
         possessive = name:sub(-1) == "s" and "'" or "'s"
@@ -47,8 +33,6 @@ function Emote.colorDialogue(emote, name, sayColor)
     local CLOSING = "\3"
     -- Placeholder for unknown quotation mark
     local UNKNOWN = "\4"
-
-    multiEmotes[name] = emote:sub(-1) == "-" or emote:sub(-1) == "+" or nil
 
     local wasMultiPost = false
 
@@ -68,7 +52,7 @@ function Emote.colorDialogue(emote, name, sayColor)
             wasMultiPost = true
         end
 
-        if isNameIncluded then emote = name .. " " .. emote end
+        if isNameIncluded and not wasMultiPost then emote = name .. " " .. emote end
     end
 
     local isMultiPost = false
@@ -208,4 +192,8 @@ function Emote.format(emote, emoteColor, sayColor, options)
     local formatted = Emote.formatText(emote, name, sayColor, options)
     emoteColor = EmoteColor.update(name, emoteColor, options)
     return AddRgb(formatted, emoteColor)
+end
+
+function Emote.updatePlayer(name)
+    multiDialogue[name] = nil
 end
