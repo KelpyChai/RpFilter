@@ -30,6 +30,7 @@ local DEFAULT_SETTINGS = {
         areEmotesRainbow = false,
         isDialogueColored = false,
         isEmphasisUnderlined = false,
+        areNewlinesPrinted = false,
     }
 }
 

@@ -6,10 +6,9 @@ Emote = {}
 
 local multiDialogue = {}
 
-local parseName
 do
     local localWords = {You=true, Nope=true, Burp=true, Who=true, Oops=true, It=true}
-    parseName = function (emote)
+    function Emote.parseName(emote)
         local name = emote:match("^%a+")
         return localWords[name] and LOCAL_PLAYER_NAME or name
     end
@@ -193,7 +192,7 @@ end
 ---@param options table
 ---@return string
 function Emote.format(emote, emoteColor, sayColor, options)
-    local name = parseName(emote)
+    local name = Emote.parseName(emote)
     local formatted = Emote.formatText(emote, name, sayColor, options)
     emoteColor = EmoteColor.update(name, emoteColor, options)
     return AddRgb(formatted, emoteColor)

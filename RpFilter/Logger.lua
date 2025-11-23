@@ -7,6 +7,9 @@ function Logger.log(message)
 end
 
 function Logger.dump()
-    if #log == 0 then print("Nothing to replay yet!") end
-    for _, message in ipairs(log) do print(message) end
+    if #log == 0 then
+        print("Nothing to replay yet!")
+    else
+        for _, message in ipairs(log) do print(message) end
+    end
 end
