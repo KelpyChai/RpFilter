@@ -12,8 +12,8 @@ local BLOCKED_NPCS = {
         ["Worker"] = true,
         ["Neighbour"] = true,
         ["Tom Bombadil"] = true,
-        -- ["Lalia"] = true,
-        -- ["Constable Bolger"] = true,
+        ["Lalia"] = true,
+        ["Constable Bolger"] = true,
     },
 
     ["Bree-town"] = {
@@ -59,7 +59,7 @@ local BLOCKED_NPCS = {
         ["Smith"] = true,
         ["Dúrlammad"] = true,
         ["Anne Rumsey"] = true,
-        -- ["Idalene"] = true,
+        ["Idalene"] = true,
     },
 
     ["Trollshaws"] = {
