@@ -101,6 +101,10 @@ function OklchToRgb(color)
     return ComposeFuncs(color, oklchToOklab, oklabToLinear, linearToRgb)
 end
 
+local function clamp(val, min, max)
+    return math.max(min, math.min(val, max))
+end
+
 ---@param color {red: number, green: number, blue: number}
 ---@param hueShift number
 ---@return {red: number, green: number, blue: number}
@@ -117,12 +121,11 @@ function AdjustContrast(color, hueShift)
     local shiftFactor = 2*(1-m)/math.pi^3 * c^3 - 3*(1-m)/math.pi^2 * c^2 + 1
     oklch.h = (oklch.h + shiftFactor * hueShift * (2 * math.pi)) % (2 * math.pi)
 
+    oklch.L = clamp(oklch.L, 0.54, 0.8)
+    oklch.C = clamp(oklch.C, 0.14, 0.45)
+
     local rgb = OklchToRgb(oklch)
     return {red = rgb.r, green = rgb.g, blue = rgb.b}
-end
-
-local function clamp(val, min, max)
-    return math.max(min, math.min(val, max))
 end
 
 ---Assigns colors two-thirds of a revolution apart, going around the color wheel

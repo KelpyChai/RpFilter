@@ -6,13 +6,17 @@ Emote = {}
 
 local multiDialogue = {}
 
-local function parseName(emote)
-    local name = emote:match("^%a+")
-    return name == "You" and LOCAL_PLAYER_NAME or name
+do
+    local localWords = {You=true, Nope=true, Burp=true, Who=true, Oops=true, It=true}
+    function Emote.parseName(emote)
+        local name = emote:match("^%a+")
+        return localWords[name] and LOCAL_PLAYER_NAME or name
+    end
 end
 
 local function formatHead(emote)
     local name, possessive, action = emote:match("^(%a+)%-?%d-('?s?) (.+)")
+    if not action then return emote end
     local delimiterEnd = select(2, action:find("^[|/\\]+%s?")) or select(2, action:find("^l+ "))
 
     if delimiterEnd then
@@ -188,7 +192,7 @@ end
 ---@param options table
 ---@return string
 function Emote.format(emote, emoteColor, sayColor, options)
-    local name = parseName(emote)
+    local name = Emote.parseName(emote)
     local formatted = Emote.formatText(emote, name, sayColor, options)
     emoteColor = EmoteColor.update(name, emoteColor, options)
     return AddRgb(formatted, emoteColor)

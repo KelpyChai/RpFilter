@@ -110,7 +110,7 @@ function DrawOptionsPanel(options)
     local BUTTON_HEIGHT, BUTTON_WIDTH = 40, 200
 
     local optionsPanel = Turbine.UI.Control()
-    optionsPanel:SetSize(250, 300)
+    optionsPanel:SetSize(250, 350)
     function plugin:GetOptionsPanel() return optionsPanel end
 
     local showSayColorPicker = createColorPickerWindow(
@@ -167,7 +167,7 @@ function DrawOptionsPanel(options)
 
     function contrastEmotes:CheckedChanged()
         local isChecked = self:IsChecked()
-        Settings.updateOptions({areEmotesContrasted = self:IsChecked()})
+        Settings.updateOptions({areEmotesContrasted = isChecked})
         if isChecked then rainbowEmotes:SetChecked(false) end
     end
     function rainbowEmotes:CheckedChanged()
@@ -186,6 +186,11 @@ function DrawOptionsPanel(options)
         Settings.updateOptions({isEmphasisUnderlined = self:IsChecked()})
     end
 
+    local lineBreaks = createCheckbox(" Add line breaks between different posters")
+    function lineBreaks:CheckedChanged()
+        Settings.updateOptions({areNewlinesPrinted = self:IsChecked()})
+    end
+
     local function updateCheckboxes(opts)
         opts = opts or Settings.getOptions()
         useSameColor:SetChecked(opts.isSameColorUsed)
@@ -193,6 +198,7 @@ function DrawOptionsPanel(options)
         rainbowEmotes:SetChecked(opts.areEmotesRainbow)
         colorDialogue:SetChecked(opts.isDialogueColored)
         underlineEmphasis:SetChecked(opts.isEmphasisUnderlined)
+        lineBreaks:SetChecked(opts.areNewlinesPrinted)
     end
     updateCheckboxes(options)
 

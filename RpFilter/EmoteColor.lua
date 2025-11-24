@@ -20,41 +20,43 @@ local players = {
 local isColorLight = false
 local currEmoter
 
+local function updatePlayers(name, val)
+    numPlayers = numPlayers + (val and 1 or 0) - (players[name] and 1 or 0)
+    players[name] = val
+end
+
 -- Inconsistent if emoteColor is changed during session
 local function updateRainbowColor(name, baseColor)
     if name == LOCAL_PLAYER_NAME then return end
 
     local newPlayer = {name = name, next = nil}
+    local player = players[name]
 
-    if players[name] then
-        local player = players[name]
+    if player then
+        if last == player then return end
         newPlayer.color = player.color
 
-        if first == player then first = player.next end
-        if last == player then last = player.prev end
+        if first == player then first = first.next end
+        if last == player then last = last.prev end
         if player.next then player.next.prev = player.prev end
         if player.prev then player.prev.next = player.next end
 
-        players[name] = nil
-        numPlayers = numPlayers - 1
-    elseif numPlayers == 1 then
-        first = newPlayer
+        updatePlayers(name, nil)
     elseif numPlayers == MAX_NUM_PLAYERS then
         newPlayer.color = first.color
-        local temp = first.next
-        first.next.prev = nil
-        players[first.name] = nil
-        first = temp
-        numPlayers = numPlayers - 1
+
+        first = first.next
+        updatePlayers(first.prev.name, nil)
+        first.prev = nil
     end
 
     newPlayer.color = newPlayer.color or AdjustRainbow(baseColor, numPlayers)
     newPlayer.prev = last
-    players[name] = newPlayer
-    numPlayers = numPlayers + 1
+    updatePlayers(name, newPlayer)
 
     if last then last.next = newPlayer end
     last = newPlayer
+    first = first or newPlayer
 end
 
 local function updateContrastColor(playerName)

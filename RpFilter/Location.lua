@@ -4,13 +4,6 @@ import "Dandiron.RpFilter.TextUtils"
 
 Location = {}
 
-local LOCATION_PATTERNS = {
-    "^(Entered) the (.-) %- (Regional) channel%.$",
-    "^(Entered) the (.-) %- (OOC) channel%.$",
-    "^(Left) the (.-) %- (Regional) channel%.$",
-    "^(Left) the (.-) %- (OOC) channel%.$"
-}
-
 local currLocation = "unknown"
 local isInstanced = false
 local currChannels = {}
@@ -32,7 +25,12 @@ end
 ---@param message string
 ---@return {action: string, region: string, channel: string}|nil
 local function getLocationInfo(message)
-    for _, pattern in ipairs(LOCATION_PATTERNS) do
+    for _, pattern in ipairs({
+        "^(Entered) the (.-) %- (Regional) channel%.$",
+        "^(Entered) the (.-) %- (OOC) channel%.$",
+        "^(Left) the (.-) %- (Regional) channel%.$",
+        "^(Left) the (.-) %- (OOC) channel%.$"
+    }) do
         local action, region, channel = message:match(pattern)
         if channel then
             return {action = action, region = region, channel = channel}
