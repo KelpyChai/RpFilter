@@ -18,7 +18,7 @@ do
             return
         end
 
-        if Settings.getOptions().areNewlinesPrinted and lastPoster and player ~= lastPoster then
+        if Settings.getOptions().areNewlinesPrinted and player ~= lastPoster then
             Turbine.Shell.WriteLine("")
         end
         lastPoster = player
