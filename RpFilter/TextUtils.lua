@@ -7,12 +7,9 @@ LOWER_CLASS = "a-z" .. lowerDiacritics
 -- Standard word characters extended with diacritics
 WORD_CLASS = "A-Za-z0-9" .. upperDiacritics .. lowerDiacritics
 
+-- Note: works only for 2-byte UTF-8 characters
 function IsCapitalized(word)
-    return word:find("^["..UPPER_CLASS.."]")
-end
-
-function HasDiacritics(word)
-    return word:find("["..lowerDiacritics..upperDiacritics.."]")
+    return word:find("^%u") or upperDiacritics:find(word:sub(1, 2), 1, true)
 end
 
 ---Rounds to the nearest integer
