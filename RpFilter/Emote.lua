@@ -24,6 +24,9 @@ local function formatHead(emote)
     elseif action:sub(1, 3) == "'s " then
         possessive = name:sub(-1) == "s" and "'" or "'s"
         action = action:sub(4)
+    elseif action:sub(1, 1) == "," then
+        name = name .. ","
+        action = Strip(action:sub(2))
     end
     return name .. possessive .. " " .. action
 end
