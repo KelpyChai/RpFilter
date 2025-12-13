@@ -4,66 +4,89 @@ import "Dandiron.RpFilter.TextUtils"
 Say = {}
 
 local BLOCKED_NPCS = {
+    ["Archet"] = {
+        Townsperson = true,
+    },
+
     ["Bree-land"] = {
-        ["Townsperson"] = true,
-        ["Woodcutter"] = true,
-        ["Bounder"] = true,
-        ["Watcher"] = true,
-        ["Worker"] = true,
-        ["Neighbour"] = true,
+        Townsperson = true,
+        Woodcutter = true,
+        Bounder = true,
+        Watcher = true,
+        Worker = true,
+        Neighbour = true,
+        Lalia = true,
         ["Tom Bombadil"] = true,
-        ["Lalia"] = true,
         ["Constable Bolger"] = true,
     },
 
     ["Bree-town"] = {
-        ["Townsperson"] = true,
-        ["Prisoner"] = true,
-        ["Minstrel"] = true,
-        ["Farmer"] = true,
+        Townsperson = true,
+        Prisoner = true,
+        Minstrel = true,
+        Farmer = true,
+        Uchdrud = true,
         ["Hugh Reed"] = true,
         ["Jim Skinner"] = true,
         ["Drunken Reveller"] = true,
         ["Maud Foxglove"] = true,
         ["Tad Gardener"] = true,
+        ["Barliman Butterbur"] = true,
+        ["Growling Southerner"] = true,
     },
 
     ["Shire"] = {
-        ["Townsperson"] = true,
-        ["Drunkard"] = true,
+        Townsperson = true,
+        Drunkard = true,
         ["Iris Goodbody"] = true,
     },
 
     ["Ered Luin"] = {
-        ["Fisherman"] = true,
-        ["Dockworker"] = true,
-        ["Traveller"] = true,
+        Fisherman = true,
+        Dockworker = true,
+        Traveller = true,
     },
 
     ["Thorin's Hall"] = {
-        ["Watcher"] = true,
-        ["Miner"] = true,
-        ["Labourer"] = true,
+        Watcher = true,
+        Miner = true,
+        Labourer = true,
     },
 
     ["Lone-lands"] = {
-        ["Waitress"] = true,
-        ["Whittler"] = true,
-        ["Patron"] = true,
+        Waitress = true,
+        Whittler = true,
+        Patron = true,
         ["Belinda Rosewater"] = true,
     },
 
     ["North Downs"] = {
-        ["Ranger"] = true,
-        ["Miner"] = true,
-        ["Smith"] = true,
+        Ranger = true,
+        Miner = true,
+        Smith = true,
+        Trader = true,
+        Idalene = true,
         ["Dúrlammad"] = true,
         ["Anne Rumsey"] = true,
-        ["Idalene"] = true,
     },
 
     ["Trollshaws"] = {
         ["Aegúrel"] = true,
+    },
+
+    ["Forochel"] = {
+        Pentti = true,
+        Rikitsa = true,
+        Launo = true,
+        Menikko = true,
+        Ilta = true,
+    },
+
+    ["Dunland"] = {
+        Dai = true,
+        Idwal = true,
+        Hulun = true,
+        ["Resident of Galtrev"] = true,
     },
 }
 
