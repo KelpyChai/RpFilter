@@ -71,19 +71,22 @@ function Emote.colorDialogue(emote, name, sayColor)
     end
 
     -- Colour text between "double quotes"
-    emote = emote:gsub('"(%s?[^%s"][^"]*)("?)', function (dialogue, closing)
-        dialogue = Strip(dialogue)
+    emote = emote
+        :gsub("“", '"')
+        :gsub("”", '"')
+        :gsub('"(%s?[^%s"][^"]*)("?)', function (dialogue, closing)
+            dialogue = Strip(dialogue)
 
-        if closing == "" and (dialogue:sub(-1) == "-" or dialogue:sub(-1) == "+") then
-            multiDialogue[name] = '"'
-            isMultiPost = true
-        end
+            if closing == "" and (dialogue:sub(-1) == "-" or dialogue:sub(-1) == "+") then
+                multiDialogue[name] = '"'
+                isMultiPost = true
+            end
 
-        -- Replace all apostrophes with placeholders
-        dialogue = dialogue:gsub("'", QUOTE_CHAR)
-        dialogue = AddRgb('"' .. dialogue .. closing, sayColor)
-        return dialogue
-    end)
+            -- Replace all apostrophes with placeholders
+            dialogue = dialogue:gsub("'", QUOTE_CHAR):gsub("‘", QUOTE_CHAR):gsub("’", QUOTE_CHAR)
+            dialogue = AddRgb('"' .. dialogue .. closing, sayColor)
+            return dialogue
+        end)
 
     -- TODO: Handle words with internal and leading apostrophes (e.g. 'tisn't, 'twouldn't, 'tain't)
 
@@ -93,22 +96,31 @@ function Emote.colorDialogue(emote, name, sayColor)
         emote = res
     until count == 0
 
-    if emote:find("'", 1, true) then
+    repeat
+        local res, count = emote:gsub("(["..WORD_CLASS.."]+)’(["..WORD_CLASS.."]+)", "%1"..QUOTE_CHAR.."%2")
+        emote = res
+    until count == 0
+
+    if emote:find("'", 1, true) or emote:find("‘", 1, true) or emote:find("’", 1, true) then
         -- Replace trailing apostrophe with placeholder if word is valid contraction (e.g. Marius', ol', walkin')
-        emote = emote:gsub("(["..WORD_CLASS.."]+')(%p*)", function (word, punctuation)
-            if Contraction.isValidTailless(word, punctuation) then
-                word = word:sub(1, -2) .. QUOTE_CHAR
-            end
-            return word .. punctuation
-        end)
+        local function replaceTrailing(word, punctuation)
+            local isValidTailless = Contraction.isValidTailless(word.."'", punctuation)
+            return word .. (isValidTailless and QUOTE_CHAR or "'") .. punctuation
+        end
+
+        emote = emote
+            :gsub("(["..WORD_CLASS.."]+)'(%p*)", replaceTrailing)
+            :gsub("(["..WORD_CLASS.."]+)’(%p*)", replaceTrailing)
 
         -- Colour text between remaining 'single quotes'
 
         -- Pads string with space so quotes can match
-        if emote:sub(1, 1) == "'" then emote = " " .. emote end
-        if emote:sub(-1) == "'" then emote = emote .. " " end
+        if emote:sub(1, 1) == "'" or emote:sub(1, 3) == "‘" then emote = " " .. emote end
+        if emote:sub(-1) == "'" or emote:sub(-3, -1) == "’" then emote = emote .. " " end
 
         emote = emote
+            :gsub("‘", OPENING)
+            :gsub("’", "'")
             -- Matches + after dialogue at the end of the emote, e.g. 'Did you know'+
             :gsub("'(%s?[%-%+])$", CLOSING.."%1")
             -- Replace closing and opening quotes of neighbouring dialogue with placeholders
