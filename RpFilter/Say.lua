@@ -104,7 +104,7 @@ function Say.parse(say)
 end
 
 local function isFromNpc(id)
-    return id and id:sub(1, 6) == "0x0346"
+    return id and id:sub(1, 5) == "0x034"
 end
 
 local function isFromPlayer(name, id)
@@ -152,8 +152,7 @@ local function replaceSlash(name, verb, verse)
 end
 
 local function formatVerse(say)
-
-    local wereEmoticonsFound = false
+    local wereEmoticonsFound
     repeat
         local res, count = say:gsub("([^"..WORD_CLASS.."/])(o//?)([%s%p])", replaceEmoticon)
         say = res
