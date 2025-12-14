@@ -114,6 +114,112 @@ local SPECIFIC_CASES = {
     },
 }
 
+local SMART_COLOR_DIALOGUE_CASES = {
+    ["(smart) no dialogue"] = {
+        { emote = "’",    expected = "'" },
+        { emote = "“",    expected = '"' },
+        { emote = "“”",  expected = '""' },
+        { emote = "“ ”", expected = '" "' },
+        { emote = "Not quoted", expected = 'Not quoted' },
+    },
+    ["(smart) double quotes - simple"] = {
+        { emote = "“Hello”", expected = '<rgb=#000000>"Hello"</rgb>' },
+        { emote = "“ Hello ”", expected = '<rgb=#000000>"Hello"</rgb>' },
+        { emote = "“Hello",  expected = '<rgb=#000000>"Hello</rgb>' },
+        { emote = "“Hello there”", expected = '<rgb=#000000>"Hello there"</rgb>' },
+        { emote = "“Hello there", expected = '<rgb=#000000>"Hello there</rgb>' },
+        { emote = "“Hello”“there”", expected = '<rgb=#000000>"Hello"</rgb><rgb=#000000>"there"</rgb>' },
+        { emote = "“Hello”,“there”", expected = '<rgb=#000000>"Hello"</rgb>,<rgb=#000000>"there"</rgb>' },
+        { emote = "“Hello” “there”", expected = '<rgb=#000000>"Hello"</rgb> <rgb=#000000>"there"</rgb>' },
+        { emote = "“hello”hello”", expected = '<rgb=#000000>"hello"</rgb>hello"' },
+    },
+    ["(smart) double quotes - complex"] = {
+        { emote = "He said,“Hello?”, but", expected = 'He said,<rgb=#000000>"Hello?"</rgb>, but' },
+        { emote = "She said,“Oh hi.”", expected = 'She said,<rgb=#000000>"Oh hi."</rgb>' },
+        { emote = "“Yes!”“No?”", expected = '<rgb=#000000>"Yes!"</rgb><rgb=#000000>"No?"</rgb>' },
+        { emote = "“First.” “Second.”", expected = '<rgb=#000000>"First."</rgb> <rgb=#000000>"Second."</rgb>' },
+        { emote = "“Hello!”he shouted.", expected = '<rgb=#000000>"Hello!"</rgb>he shouted.' },
+        { emote = "“Wow?”is amazing.", expected = '<rgb=#000000>"Wow?"</rgb>is amazing.' },
+        { emote = "“Hi!”,“Bye?”", expected = '<rgb=#000000>"Hi!"</rgb>,<rgb=#000000>"Bye?"</rgb>' },
+        { emote = "“past”, “present”, “future”", expected = '<rgb=#000000>"past"</rgb>, <rgb=#000000>"present"</rgb>, <rgb=#000000>"future"</rgb>' },
+    },
+    ["(smart) single quotes - simple"] = {
+        { emote = "‘Hello’", expected = "<rgb=#000000>'Hello'</rgb>" },
+        { emote = "‘Hello",  expected = "<rgb=#000000>'Hello</rgb>" },
+        { emote = "‘‘Ello there’", expected = "<rgb=#000000>''Ello there'</rgb>" },
+        { emote = "‘Hello there’", expected = "<rgb=#000000>'Hello there'</rgb>" },
+        { emote = "‘Hello there", expected = "<rgb=#000000>'Hello there</rgb>" },
+        { emote = "‘Hello’,‘there’", expected = "<rgb=#000000>'Hello'</rgb>,<rgb=#000000>'there'</rgb>" },
+        { emote = "‘Hello’ ‘there’", expected = "<rgb=#000000>'Hello'</rgb> <rgb=#000000>'there'</rgb>" },
+        { emote = "‘hello’hello’", expected = "<rgb=#000000>'hello'hello'</rgb>" },
+    },
+    ["(smart) single quotes - complex"] = {
+        { emote = "He said ‘Hello?’, but", expected = "He said <rgb=#000000>'Hello?'</rgb>, but" },
+        { emote = "She said,‘Oh hi.’", expected = "She said,<rgb=#000000>'Oh hi.'</rgb>" },
+        { emote = "‘Yes!’ ‘No?’", expected = "<rgb=#000000>'Yes!'</rgb> <rgb=#000000>'No?'</rgb>" },
+        { emote = "‘First.’ ‘Second.’", expected = "<rgb=#000000>'First.'</rgb> <rgb=#000000>'Second.'</rgb>" },
+        { emote = "‘Hello!’he shouted.", expected = "<rgb=#000000>'Hello!'</rgb>he shouted." },
+        { emote = "‘Wow?’is amazing.", expected = "<rgb=#000000>'Wow?'</rgb>is amazing." },
+        { emote = "‘Hi!’,‘Bye?’", expected = "<rgb=#000000>'Hi!'</rgb>,<rgb=#000000>'Bye?'</rgb>" },
+        { emote = "‘past’, ‘present’, ‘future’", expected = "<rgb=#000000>'past'</rgb>, <rgb=#000000>'present'</rgb>, <rgb=#000000>'future'</rgb>" },
+    },
+    ["(smart) single quotes - edge cases"] = {
+        { emote = "‘Hello!’he said.", expected = "<rgb=#000000>'Hello!'</rgb>he said." },
+        { emote = "‘Oops!’ ‘Ah!’", expected = "<rgb=#000000>'Oops!'</rgb> <rgb=#000000>'Ah!'</rgb>" },
+        { emote = "‘Oops!!’ ‘Ah!!’", expected = "<rgb=#000000>'Oops!!'</rgb> <rgb=#000000>'Ah!!'</rgb>" },
+        { emote = "‘Hello?’she asked.", expected = "<rgb=#000000>'Hello?'</rgb>she asked." },
+        { emote = "Before, ‘Yes!’after", expected = "Before, <rgb=#000000>'Yes!'</rgb>after" },
+        { emote = "Before,‘Yes!’ after", expected = "Before,<rgb=#000000>'Yes!'</rgb> after" },
+        { emote = "‘Yes!!’,‘No??’", expected = "<rgb=#000000>'Yes!!'</rgb>,<rgb=#000000>'No??'</rgb>" },
+        { emote = "‘’Tis true,’he said.", expected = "<rgb=#000000>''Tis true,'</rgb>he said." },
+        { emote = "They were saying ‘pigs ain't goin’ to fly, ’tis Lewis’ fancy", expected = "They were saying <rgb=#000000>'pigs ain't goin' to fly, 'tis Lewis' fancy</rgb>" },
+        { emote = "They were saying ‘pigs ain't goin’ to fly, ’tis Lewis’ fancy’", expected = "They were saying <rgb=#000000>'pigs ain't goin' to fly, 'tis Lewis' fancy'</rgb>" }
+    },
+    ["(smart) ellipsis"] = {
+        { emote = "‘.’", expected = "<rgb=#000000>'.'</rgb>" },
+        { emote = "‘..’", expected = "<rgb=#000000>'..'</rgb>" },
+        { emote = "‘...’", expected = "<rgb=#000000>'...'</rgb>" },
+        { emote = "‘Below...’", expected = "<rgb=#000000>'Below...'</rgb>" },
+        { emote = "‘Below...?’", expected = "<rgb=#000000>'Below...?'</rgb>" },
+        { emote = "‘...What did you say?’", expected = "<rgb=#000000>'...What did you say?'</rgb>" },
+        { emote = "‘Wait...’he muttered.", expected = "<rgb=#000000>'Wait...'</rgb>he muttered." },
+        { emote = "‘Wait...!’he muttered.", expected = "<rgb=#000000>'Wait...!'</rgb>he muttered." },
+        { emote = "‘Below--’", expected = "<rgb=#000000>'Below--'</rgb>" },
+        { emote = "‘--What did you say?’", expected = "<rgb=#000000>'--What did you say?'</rgb>" },
+        { emote = "‘Wait--’he muttered.", expected = "<rgb=#000000>'Wait--'</rgb>he muttered." },
+        { emote = "‘Below-’", expected = "<rgb=#000000>'Below-'</rgb>" },
+        { emote = "‘-What did you say?’", expected = "<rgb=#000000>'-What did you say?'</rgb>" },
+        { emote = "‘Wait-’he muttered.", expected = "<rgb=#000000>'Wait-'</rgb>he muttered." },
+    }
+}
+
+local SMART_SPECIFIC_CASES = {
+    ["(smart) contractions"] = {
+        { emote = "‘Tisn’t fair,’he said.", expected = "<rgb=#000000>'Tisn't fair,'</rgb>he said." },
+        { emote = "‘Tis true.", expected = "<rgb=#000000>'Tis true.</rgb>" },
+        { emote = "‘Tisn’t Lewis’ dog", expected = "<rgb=#000000>'Tisn't Lewis' dog</rgb>" },
+        { emote = "‘But ‘tis true.", expected = "<rgb=#000000>'But 'tis true.</rgb>" },
+        { emote = "‘Tweren’t easy,’she admitted.", expected = "<rgb=#000000>'Tweren't easy,'</rgb>she admitted." },
+        { emote = "‘Bout time!’", expected = "<rgb=#000000>'Bout time!'</rgb>" },
+        { emote = "‘’Neath the bridge,’he whispered.", expected = "<rgb=#000000>''Neath the bridge,'</rgb>he whispered." },
+    },
+    ["(smart) missing spaces after dialogue"] = {
+        { emote = "‘Tisn’t it,’he said.", expected = "<rgb=#000000>'Tisn't it,'</rgb>he said." },
+        { emote = "‘Bout time!’he shouted.", expected = "<rgb=#000000>'Bout time!'</rgb>he shouted." },
+        { emote = "‘Ello!’she said.", expected = "<rgb=#000000>'Ello!'</rgb>she said." },
+        { emote = "‘’Round the hill,’ he whispered.", expected = "<rgb=#000000>''Round the hill,'</rgb> he whispered." },
+        { emote = "‘Round little houses’", expected = "<rgb=#000000>'Round little houses'</rgb>" },
+    },
+    ["(smart) adjacent dialogue"] = {
+        { emote = "‘Tisn’t!’ ‘Indeed!’", expected = "<rgb=#000000>'Tisn't!'</rgb> <rgb=#000000>'Indeed!'</rgb>" },
+        { emote = "‘Ello!’ ‘‘Ouse?’+", expected = "<rgb=#000000>'Ello!'</rgb> <rgb=#000000>''Ouse?'</rgb>+" },
+        { emote = "‘Tisn’t!’ ‘Indeed?’", expected = "<rgb=#000000>'Tisn't!'</rgb> <rgb=#000000>'Indeed?'</rgb>" },
+        { emote = "‘Bout!’ ‘Low?’", expected = "<rgb=#000000>'Bout!'</rgb> <rgb=#000000>'Low?'</rgb>" },
+        { emote = "‘’Ello!!’ ‘Ouse?’", expected = "<rgb=#000000>''Ello!!'</rgb> <rgb=#000000>'Ouse?'</rgb>" },
+    },
+}
+
+
 local function errMsg(funcName, emote, expected, received)
     return string.format(
         "%s with emote=`%s`\nExpected:\t%s\nReceived:\t%s\n",
@@ -151,6 +257,8 @@ end
 local function test()
     testFunction(Emote.colorDialogue, "colorDialogue()", SETTINGS, COLOR_DIALOGUE_CASES)
     testFunction(Emote.colorDialogue, "colorDialogue()", SETTINGS, SPECIFIC_CASES)
+    testFunction(Emote.colorDialogue, "colorDialogue()", SETTINGS, SMART_COLOR_DIALOGUE_CASES)
+    testFunction(Emote.colorDialogue, "colorDialogue()", SETTINGS, SMART_SPECIFIC_CASES)
 end
 
 if ... == nil then
