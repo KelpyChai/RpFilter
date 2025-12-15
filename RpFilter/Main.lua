@@ -33,37 +33,17 @@ local function chatParser(_, args)
     if channel == ChatType.Standard then
         Location.update(message)
     elseif channel == ChatType.Say and Say.isAllowed(message) then
-        local formatted = Say.format(message, Settings.getSayColor())
-        if Say.isFromPlayer(message) then
-            local name = Say.parse(message)
-            Emote.updatePlayer(name)
-            print(formatted, name)
-            Logger.log(formatted)
-        else
-            print(formatted)
-        end
+        Say.print(message, Settings.getSayColor())
     elseif channel == ChatType.Emote then
         local s = Settings
-        local formatted = Emote.format(message, s.getEmoteColor(), s.getSayColor(), s.getOptions())
-        print(formatted, Emote.parseName(message))
-        Logger.log(formatted)
+        Emote.print(message, s.getEmoteColor(), s.getSayColor(), s.getOptions())
     end
-end
-
-local replayCmd = Turbine.ShellCommand()
-function replayCmd:Execute() Logger.dump() end
-function replayCmd:GetShortHelp() return "Prints all says and emotes from this session." end
-function replayCmd:GetHelp()
-    return "usage: /replay\nThis command prints out all says and emotes by players.\n\n"
-        .. "The history is cleared whenever the player logs out (or unloads the plugin), "
-        .. "so make sure to grab logs first. Once you're done with RP,\n"
-        .. "1. Start logging your RP tab\n2. Use /replay\n3. Stop logging"
 end
 
 function plugin.Load(_, _)
     Settings.loadSync()
     Callback.add(Turbine.Chat, "Received", chatParser)
-    Turbine.Shell.AddCommand("replay", replayCmd)
+    Turbine.Shell.AddCommand("replay", Logger.replay)
 
     DrawOptionsPanel(Settings.getOptions())
 
@@ -77,5 +57,5 @@ end
 function plugin.Unload(_, _)
     Settings.saveSync()
     Callback.remove(Turbine.Chat, "Received", chatParser)
-    Turbine.Shell.RemoveCommand(replayCmd)
+    Turbine.Shell.RemoveCommand(Logger.replay)
 end

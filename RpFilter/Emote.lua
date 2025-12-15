@@ -1,14 +1,20 @@
 import "Dandiron.RpFilter.Contraction"
 import "Dandiron.RpFilter.TextUtils"
 import "Dandiron.RpFilter.EmoteColor"
+import "Dandiron.RpFilter.Logger"
 
 Emote = {}
 
 local multiDialogue = {}
 
+function Emote.updatePlayer(name)
+    multiDialogue[name] = nil
+end
+
+local parseName
 do
     local localWords = {You=true, Nope=true, Burp=true, Who=true, Oops=true, It=true}
-    function Emote.parseName(emote)
+    parseName = function (emote)
         local name = emote:match("^%a+")
         return localWords[name] and LOCAL_PLAYER_NAME or name
     end
@@ -196,8 +202,8 @@ end
 
 ---@param emote string
 ---@return string
-function Emote.formatText(emote, name, sayColor, opts)
-    local isUnderlined, isColored = opts.isEmphasisUnderlined, opts.isDialogueColored
+function Emote.formatText(emote, name, sayColor, options)
+    local isUnderlined, isColored = options.isEmphasisUnderlined, options.isDialogueColored
     return ComposeFuncs(emote,
         Strip,
         formatHead,
@@ -208,18 +214,16 @@ function Emote.formatText(emote, name, sayColor, opts)
     )
 end
 
----@param emote string
----@param emoteColor table
----@param sayColor table
----@param options table
----@return string
-function Emote.format(emote, emoteColor, sayColor, options)
-    local name = Emote.parseName(emote)
+local function format(emote, name, emoteColor, sayColor, options)
     local formatted = Emote.formatText(emote, name, sayColor, options)
     emoteColor = EmoteColor.update(name, emoteColor, options)
     return AddRgb(formatted, emoteColor)
 end
 
-function Emote.updatePlayer(name)
-    multiDialogue[name] = nil
+function Emote.print(emote, emoteColor, sayColor, options)
+    local name = parseName(emote)
+    local formatted = format(emote, name, emoteColor, sayColor, options)
+
+    Logger.log(formatted)
+    print(formatted, name)
 end
