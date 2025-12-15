@@ -65,6 +65,8 @@ function Emote.colorDialogue(emote, name, sayColor)
     local isMultiPost = false
 
     local lastSpeechMark = emote:match("[%-%+]%s?(['\"])$")
+                        or (emote:match("[%-%+]%s?(’)$") and "'")
+                        or (emote:match("[%-%+]%s?(”)$") and '"')
     if lastSpeechMark then
         multiDialogue[name] = lastSpeechMark
         isMultiPost = true
@@ -72,21 +74,26 @@ function Emote.colorDialogue(emote, name, sayColor)
 
     -- Colour text between "double quotes"
     emote = emote
-        :gsub("“", '"')
-        :gsub("”", '"')
-        :gsub('"(%s?[^%s"][^"]*)("?)', function (dialogue, closing)
+        :gsub("“", OPENING):gsub("”", CLOSING)
+        :gsub('["'..OPENING..'](%s?[^%s"'..OPENING..CLOSING..'][^"'..OPENING..CLOSING..']*)["'..CLOSING..']', function (dialogue)
+            dialogue = Strip(dialogue)
+            dialogue = dialogue:gsub("'", QUOTE_CHAR):gsub("‘", QUOTE_CHAR):gsub("’", QUOTE_CHAR)
+            dialogue = AddRgb(OPENING .. dialogue .. CLOSING, sayColor)
+            return dialogue
+        end)
+        :gsub('["'..OPENING..'](%s?[^%s"'..OPENING..CLOSING..'][^"'..OPENING..CLOSING..']*)$', function (dialogue)
             dialogue = Strip(dialogue)
 
-            if closing == "" and (dialogue:sub(-1) == "-" or dialogue:sub(-1) == "+") then
+            if dialogue:sub(-1) == "-" or dialogue:sub(-1) == "+" then
                 multiDialogue[name] = '"'
                 isMultiPost = true
             end
 
-            -- Replace all apostrophes with placeholders
             dialogue = dialogue:gsub("'", QUOTE_CHAR):gsub("‘", QUOTE_CHAR):gsub("’", QUOTE_CHAR)
-            dialogue = AddRgb('"' .. dialogue .. closing, sayColor)
+            dialogue = AddRgb(OPENING .. dialogue, sayColor)
             return dialogue
         end)
+        :gsub('['..OPENING..CLOSING..']', '"')
 
     -- TODO: Handle words with internal and leading apostrophes (e.g. 'tisn't, 'twouldn't, 'tain't)
 
@@ -155,7 +162,7 @@ function Emote.colorDialogue(emote, name, sayColor)
         -- Matches text between opening and closing quote, ensuring it is non-whitespace and contains no opening quotes
         emote = emote:gsub(OPENING.."('*%?*[^'%s"..CLOSING.."][^"..CLOSING.."]*)"..CLOSING, function (dialogue)
             dialogue = Strip(dialogue)
-            dialogue = dialogue:gsub("["..OPENING..CLOSING.."]", "'")
+            dialogue = dialogue:gsub(OPENING, "'")
             dialogue = AddRgb("'"..dialogue.."'", sayColor)
             return dialogue
         end)
@@ -169,7 +176,7 @@ function Emote.colorDialogue(emote, name, sayColor)
                 isMultiPost = true
             end
 
-            dialogue = dialogue:gsub("["..OPENING..CLOSING.."]", "'")
+            dialogue = dialogue:gsub(OPENING, "'")
             dialogue = AddRgb("'"..dialogue, sayColor)
             return dialogue
         end)
