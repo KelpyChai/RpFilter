@@ -89,6 +89,17 @@ local BLOCKED_NPCS = {
         Hulun = true,
         ["Resident of Galtrev"] = true,
     },
+
+    ["Festival"] = {
+        Patron = true,
+        Servant = true,
+        Chicken = true,
+        ["Barrett Nowell"] = true,
+        ["Ted Ives"] = true,
+        ["Regina Judson"] = true,
+        ["Jack Judson"] = true,
+        ["Bill Hyde"] = true,
+    },
 }
 
 local function isFromLocalPlayer(say)
