@@ -59,8 +59,15 @@ function Emote.colorDialogue(emote, name, sayColor)
             isNameIncluded = true
         end
 
-        emote = emote:gsub("^([%-%+])%s?(['\"])", "%1 %2")
-        if not isNameIncluded or emote:find("^[%-%+]%s?[^'\"]") then
+        emote = emote:gsub("^([%-%+]%s?)'", "%1‘")
+
+        local res, count = emote:gsub("^([%-%+])%s?([^'\"%s])", "%1 %2")
+        local quote = res:sub(3, 5)
+        local hasQuote = quote == "‘" or quote == "“"
+        -- Consider adding ? after [%-%+] character class
+        if emote:find("^[%-%+]%s?['\"]") or emote:find("^[%-%+]%s?‘") or emote:find("^[%-%+]%s?“") then
+            isNameIncluded = false
+        elseif not isNameIncluded or (count == 1 and not hasQuote) then
             emote = firstSpeechMark .. emote
             wasMultiPost = true
         end
