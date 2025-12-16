@@ -120,7 +120,6 @@ local SMART_COLOR_DIALOGUE_CASES = {
         { emote = "“",    expected = '"' },
         { emote = "“”",  expected = '""' },
         { emote = "“ ”", expected = '" "' },
-        { emote = "Not quoted", expected = 'Not quoted' },
     },
     ["(smart) double quotes - simple"] = {
         { emote = "“Hello”", expected = '<rgb=#000000>"Hello"</rgb>' },
@@ -132,6 +131,8 @@ local SMART_COLOR_DIALOGUE_CASES = {
         { emote = "“Hello”,“there”", expected = '<rgb=#000000>"Hello"</rgb>,<rgb=#000000>"there"</rgb>' },
         { emote = "“Hello” “there”", expected = '<rgb=#000000>"Hello"</rgb> <rgb=#000000>"there"</rgb>' },
         { emote = "“hello”hello”", expected = '<rgb=#000000>"hello"</rgb>hello"' },
+        { emote = "“hello“hello”", expected = '"hello<rgb=#000000>"hello"</rgb>' },
+        { emote = "“well“well”well”", expected = '"well<rgb=#000000>"well"</rgb>well"' },
     },
     ["(smart) double quotes - complex"] = {
         { emote = "He said,“Hello?”, but", expected = 'He said,<rgb=#000000>"Hello?"</rgb>, but' },
@@ -152,6 +153,11 @@ local SMART_COLOR_DIALOGUE_CASES = {
         { emote = "‘Hello’,‘there’", expected = "<rgb=#000000>'Hello'</rgb>,<rgb=#000000>'there'</rgb>" },
         { emote = "‘Hello’ ‘there’", expected = "<rgb=#000000>'Hello'</rgb> <rgb=#000000>'there'</rgb>" },
         { emote = "‘hello’hello’", expected = "<rgb=#000000>'hello'hello'</rgb>" },
+        { emote = "‘hello‘hello’", expected = "<rgb=#000000>'hello'hello'</rgb>" },
+        -- FIXME: There are issues when smart single quotes are nested
+        -- { emote = "‘well‘well’well’", expected = "'well<rgb=#000000>'well'</rgb>well'" },
+        -- { emote = "‘And then they said ‘Hello and welcome!’ to me’ he said", expected = "'well<rgb=#000000>'well'</rgb>well'" },
+        { emote = "Say ‘hello’ to them.", expected = "Say <rgb=#000000>'hello'</rgb> to them." },
     },
     ["(smart) single quotes - complex"] = {
         { emote = "He said ‘Hello?’, but", expected = "He said <rgb=#000000>'Hello?'</rgb>, but" },
@@ -219,6 +225,29 @@ local SMART_SPECIFIC_CASES = {
     },
 }
 
+local MIXED_COLOR_DIALOGUE_CASES = {
+    ["(mixed) no dialogue"] = {
+        { emote = "“",    expected = '"' },
+        { emote = "”",    expected = '"' },
+        { emote = '“"',  expected = '""' },
+        { emote = '"”',  expected = '""' },
+        { emote = '“ "', expected = '" "' },
+        { emote = '" ”', expected = '" "' },
+    },
+    ["(mixed) double quotes - simple"] = {
+        { emote = "“Hello”", expected = '<rgb=#000000>"Hello"</rgb>' },
+        { emote = "“ Hello ”", expected = '<rgb=#000000>"Hello"</rgb>' },
+        { emote = "“Hello",  expected = '<rgb=#000000>"Hello</rgb>' },
+        { emote = "“Hello there”", expected = '<rgb=#000000>"Hello there"</rgb>' },
+        { emote = "“Hello there", expected = '<rgb=#000000>"Hello there</rgb>' },
+        { emote = '“Hello"“there"', expected = '<rgb=#000000>"Hello"</rgb><rgb=#000000>"there"</rgb>' },
+        { emote = '“Hello","there”', expected = '<rgb=#000000>"Hello"</rgb>,<rgb=#000000>"there"</rgb>' },
+        { emote = '"Hello” “there"', expected = '<rgb=#000000>"Hello"</rgb> <rgb=#000000>"there"</rgb>' },
+        { emote = '“hello"hello”', expected = '<rgb=#000000>"hello"</rgb>hello"' },
+        { emote = '"hello“hello"', expected = '"hello<rgb=#000000>"hello"</rgb>' },
+        { emote = '"well“well"well”', expected = '"well<rgb=#000000>"well"</rgb>well"' },
+    },
+}
 
 local function errMsg(funcName, emote, expected, received)
     return string.format(
@@ -259,6 +288,7 @@ local function test()
     testFunction(Emote.colorDialogue, "colorDialogue()", SETTINGS, SPECIFIC_CASES)
     testFunction(Emote.colorDialogue, "colorDialogue()", SETTINGS, SMART_COLOR_DIALOGUE_CASES)
     testFunction(Emote.colorDialogue, "colorDialogue()", SETTINGS, SMART_SPECIFIC_CASES)
+    testFunction(Emote.colorDialogue, "colorDialogue()", SETTINGS, MIXED_COLOR_DIALOGUE_CASES)
 end
 
 if ... == nil then

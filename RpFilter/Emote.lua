@@ -1,14 +1,20 @@
 import "Dandiron.RpFilter.Contraction"
 import "Dandiron.RpFilter.TextUtils"
 import "Dandiron.RpFilter.EmoteColor"
+import "Dandiron.RpFilter.Logger"
 
 Emote = {}
 
 local multiDialogue = {}
 
+function Emote.updatePlayer(name)
+    multiDialogue[name] = nil
+end
+
+local parseName
 do
     local localWords = {You=true, Nope=true, Burp=true, Who=true, Oops=true, It=true}
-    function Emote.parseName(emote)
+    parseName = function (emote)
         local name = emote:match("^%a+")
         return localWords[name] and LOCAL_PLAYER_NAME or name
     end
@@ -53,8 +59,15 @@ function Emote.colorDialogue(emote, name, sayColor)
             isNameIncluded = true
         end
 
-        emote = emote:gsub("^([%-%+])%s?(['\"])", "%1 %2")
-        if not isNameIncluded or emote:find("^[%-%+]%s?[^'\"]") then
+        emote = emote:gsub("^([%-%+]%s?)'", "%1‘")
+
+        local res, count = emote:gsub("^([%-%+])%s?([^'\"%s])", "%1 %2")
+        local quote = res:sub(3, 5)
+        local hasQuote = quote == "‘" or quote == "“"
+        -- Consider adding ? after [%-%+] character class
+        if emote:find("^[%-%+]%s?['\"]") or emote:find("^[%-%+]%s?‘") or emote:find("^[%-%+]%s?“") then
+            isNameIncluded = false
+        elseif not isNameIncluded or (count == 1 and not hasQuote) then
             emote = firstSpeechMark .. emote
             wasMultiPost = true
         end
@@ -65,6 +78,8 @@ function Emote.colorDialogue(emote, name, sayColor)
     local isMultiPost = false
 
     local lastSpeechMark = emote:match("[%-%+]%s?(['\"])$")
+                        or (emote:match("[%-%+]%s?(’)$") and "'")
+                        or (emote:match("[%-%+]%s?(”)$") and '"')
     if lastSpeechMark then
         multiDialogue[name] = lastSpeechMark
         isMultiPost = true
@@ -72,21 +87,26 @@ function Emote.colorDialogue(emote, name, sayColor)
 
     -- Colour text between "double quotes"
     emote = emote
-        :gsub("“", '"')
-        :gsub("”", '"')
-        :gsub('"(%s?[^%s"][^"]*)("?)', function (dialogue, closing)
+        :gsub("“", OPENING):gsub("”", CLOSING)
+        :gsub('["'..OPENING..'](%s?[^%s"'..OPENING..CLOSING..'][^"'..OPENING..CLOSING..']*)["'..CLOSING..']', function (dialogue)
+            dialogue = Strip(dialogue)
+            dialogue = dialogue:gsub("'", QUOTE_CHAR):gsub("‘", QUOTE_CHAR):gsub("’", QUOTE_CHAR)
+            dialogue = AddRgb(OPENING .. dialogue .. CLOSING, sayColor)
+            return dialogue
+        end)
+        :gsub('["'..OPENING..'](%s?[^%s"'..OPENING..CLOSING..'][^"'..OPENING..CLOSING..']*)$', function (dialogue)
             dialogue = Strip(dialogue)
 
-            if closing == "" and (dialogue:sub(-1) == "-" or dialogue:sub(-1) == "+") then
+            if dialogue:sub(-1) == "-" or dialogue:sub(-1) == "+" then
                 multiDialogue[name] = '"'
                 isMultiPost = true
             end
 
-            -- Replace all apostrophes with placeholders
             dialogue = dialogue:gsub("'", QUOTE_CHAR):gsub("‘", QUOTE_CHAR):gsub("’", QUOTE_CHAR)
-            dialogue = AddRgb('"' .. dialogue .. closing, sayColor)
+            dialogue = AddRgb(OPENING .. dialogue, sayColor)
             return dialogue
         end)
+        :gsub('['..OPENING..CLOSING..']', '"')
 
     -- TODO: Handle words with internal and leading apostrophes (e.g. 'tisn't, 'twouldn't, 'tain't)
 
@@ -155,7 +175,7 @@ function Emote.colorDialogue(emote, name, sayColor)
         -- Matches text between opening and closing quote, ensuring it is non-whitespace and contains no opening quotes
         emote = emote:gsub(OPENING.."('*%?*[^'%s"..CLOSING.."][^"..CLOSING.."]*)"..CLOSING, function (dialogue)
             dialogue = Strip(dialogue)
-            dialogue = dialogue:gsub("["..OPENING..CLOSING.."]", "'")
+            dialogue = dialogue:gsub(OPENING, "'")
             dialogue = AddRgb("'"..dialogue.."'", sayColor)
             return dialogue
         end)
@@ -169,7 +189,7 @@ function Emote.colorDialogue(emote, name, sayColor)
                 isMultiPost = true
             end
 
-            dialogue = dialogue:gsub("["..OPENING..CLOSING.."]", "'")
+            dialogue = dialogue:gsub(OPENING, "'")
             dialogue = AddRgb("'"..dialogue, sayColor)
             return dialogue
         end)
@@ -189,8 +209,8 @@ end
 
 ---@param emote string
 ---@return string
-function Emote.formatText(emote, name, sayColor, opts)
-    local isUnderlined, isColored = opts.isEmphasisUnderlined, opts.isDialogueColored
+function Emote.formatText(emote, name, sayColor, options)
+    local isUnderlined, isColored = options.isEmphasisUnderlined, options.isDialogueColored
     return ComposeFuncs(emote,
         Strip,
         formatHead,
@@ -201,18 +221,16 @@ function Emote.formatText(emote, name, sayColor, opts)
     )
 end
 
----@param emote string
----@param emoteColor table
----@param sayColor table
----@param options table
----@return string
-function Emote.format(emote, emoteColor, sayColor, options)
-    local name = Emote.parseName(emote)
+local function format(emote, name, emoteColor, sayColor, options)
     local formatted = Emote.formatText(emote, name, sayColor, options)
     emoteColor = EmoteColor.update(name, emoteColor, options)
     return AddRgb(formatted, emoteColor)
 end
 
-function Emote.updatePlayer(name)
-    multiDialogue[name] = nil
+function Emote.print(emote, emoteColor, sayColor, options)
+    local name = parseName(emote)
+    local formatted = format(emote, name, emoteColor, sayColor, options)
+
+    Logger.log(formatted)
+    print(formatted, name)
 end

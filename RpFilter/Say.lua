@@ -1,5 +1,6 @@
 import "Dandiron.RpFilter.Location"
 import "Dandiron.RpFilter.TextUtils"
+import "Dandiron.RpFilter.Logger"
 
 Say = {}
 
@@ -88,6 +89,17 @@ local BLOCKED_NPCS = {
         Hulun = true,
         ["Resident of Galtrev"] = true,
     },
+
+    ["Festival"] = {
+        Patron = true,
+        Servant = true,
+        Chicken = true,
+        ["Barrett Nowell"] = true,
+        ["Ted Ives"] = true,
+        ["Regina Judson"] = true,
+        ["Jack Judson"] = true,
+        ["Bill Hyde"] = true,
+    },
 }
 
 local function isFromLocalPlayer(say)
@@ -96,23 +108,19 @@ local function isFromLocalPlayer(say)
 end
 
 ---@param say string
----@return string|nil name The name of the player or NPC, if any
 ---@return string|nil id The ID extracted from the message, if any
-function Say.parse(say)
+---@return string|nil name The name of the player or NPC, if any
+local function parse(say)
     local id, name = say:match("^<Select:IID:(0x%x-)>(.-)<\\Select>")
-    return isFromLocalPlayer(say) and LOCAL_PLAYER_NAME or name, id
+    return id, isFromLocalPlayer(say) and LOCAL_PLAYER_NAME or name
 end
 
 local function isFromNpc(id)
     return id and id:sub(1, 5) == "0x034"
 end
 
-local function isFromPlayer(name, id)
+local function isFromPlayer(id, name)
     return name and not isFromNpc(id)
-end
-
-function Say.isFromPlayer(say)
-    return isFromPlayer(Say.parse(say))
 end
 
 local function isNpcAllowed(name)
@@ -123,8 +131,8 @@ end
 
 ---Filters NPC chatter from the say channel
 function Say.isAllowed(say)
-    local name, id = Say.parse(say)
-    return isFromPlayer(name, id) or isNpcAllowed(name)
+    local id, name = parse(say)
+    return isFromPlayer(id, name) or isNpcAllowed(name)
 end
 
 ---Replaces 'You say/shout' with '<player> says/shouts'
@@ -173,6 +181,16 @@ local function format(say)
     return ComposeFuncs(say, Strip, replacePlayerName, formatVerse, ReplaceEmDash)
 end
 
-function Say.format(say, color)
-    return AddRgb(format(say), color)
+function Say.print(say, color)
+    local id, name = parse(say)
+    local formatted = AddRgb(format(say), color)
+
+    if isFromPlayer(id, name) then
+        Emote.updatePlayer(name)
+        Logger.log(formatted)
+    elseif isFromNpc(id) then
+        name = ""
+    end
+
+    print(formatted, name)
 end
